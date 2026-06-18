@@ -1,0 +1,118 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum GymType {
+  gym
+  boxing
+  mma
+  muay_thai
+  kickboxing
+  martial_arts
+}
+
+enum LadiesStatus {
+  mixed
+  ladies_only
+  ladies_timings
+  men_only
+}
+
+enum SizeCategory {
+  small
+  medium
+  large
+}
+
+model Gym {
+  id             String       @id @default(cuid())
+  name           String
+  slug           String       @unique
+  type           GymType
+  description    String       @db.Text
+  address        String
+  area           String
+  city           String
+  latitude       Float?
+  longitude      Float?
+  priceMin       Int
+  priceMax       Int
+  ladiesStatus   LadiesStatus
+  sizeCategory   SizeCategory
+  whatsappNumber String
+  openingHours   String?
+  rating         Float?
+  featured       Boolean      @default(false)
+  coachInfo      String?      @db.Text
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  disciplines GymDiscipline[]
+  amenities   GymAmenity[]
+  images      GymImage[]
+  reviews     Review[]
+
+  @@index([city])
+  @@index([area])
+  @@index([type])
+  @@index([priceMin, priceMax])
+  @@index([featured])
+  @@index([slug])
+}
+
+model Discipline {
+  id   String          @id @default(cuid())
+  name String          @unique
+  gyms GymDiscipline[]
+}
+
+model GymDiscipline {
+  gymId        String
+  disciplineId String
+  gym          Gym        @relation(fields: [gymId], references: [id], onDelete: Cascade)
+  discipline   Discipline @relation(fields: [disciplineId], references: [id], onDelete: Cascade)
+
+  @@id([gymId, disciplineId])
+}
+
+model Amenity {
+  id   String       @id @default(cuid())
+  name String       @unique
+  gyms GymAmenity[]
+}
+
+model GymAmenity {
+  gymId     String
+  amenityId String
+  gym       Gym     @relation(fields: [gymId], references: [id], onDelete: Cascade)
+  amenity   Amenity @relation(fields: [amenityId], references: [id], onDelete: Cascade)
+
+  @@id([gymId, amenityId])
+}
+
+model GymImage {
+  id    String @id @default(cuid())
+  gymId String
+  url   String
+  alt   String?
+  gym   Gym    @relation(fields: [gymId], references: [id], onDelete: Cascade)
+
+  @@index([gymId])
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  gymId     String
+  rating    Int
+  text      String?  @db.Text
+  author    String?
+  createdAt DateTime @default(now())
+  gym       Gym      @relation(fields: [gymId], references: [id], onDelete: Cascade)
+
+  @@index([gymId])
+}

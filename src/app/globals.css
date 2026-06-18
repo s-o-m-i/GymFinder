@@ -1,26 +1,126 @@
 @import "tailwindcss";
 
+@theme {
+  --font-heading: var(--font-manrope);
+  --font-body: var(--font-inter);
+  --font-mono: var(--font-ibm-plex-mono);
+
+  --color-navy: #0B2545;
+  --color-navy-dark: #071832;
+  --color-accent: #FF6A3D;
+  --color-accent-hover: #e85528;
+  --color-bg: #F7F9FC;
+  --color-text: #0E1A2B;
+  --color-text-muted: #5a6b7e;
+  --color-border: #e2e8f0;
+  --color-card: #ffffff;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #F7F9FC;
+  --card: #ffffff;
+  --text: #0E1A2B;
+  --text-muted: #5a6b7e;
+  --border: #e2e8f0;
+  --navy: #0B2545;
+  --accent: #FF6A3D;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+.dark {
+  --bg: #0A1420;
+  --card: #111C2E;
+  --text: #EAF0F6;
+  --text-muted: #8ba0b8;
+  --border: #1e2f45;
+  --navy: #0B2545;
+  --accent: #FF6A3D;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  border-color: var(--border);
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: var(--font-inter), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-manrope), var(--font-inter), system-ui, sans-serif;
+  font-weight: 700;
+}
+
+.font-heading {
+  font-family: var(--font-manrope), system-ui, sans-serif;
+}
+
+.font-mono-nums {
+  font-family: var(--font-ibm-plex-mono), monospace;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+
+/* Smooth transitions */
+.transition-theme {
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+/* Price range slider */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+  border: 2px solid white;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+  border: 2px solid white;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+
+/* Card shadow */
+.card-shadow {
+  box-shadow: 0 1px 3px rgba(11, 37, 69, 0.06), 0 4px 16px rgba(11, 37, 69, 0.08);
+}
+
+.card-shadow-hover:hover {
+  box-shadow: 0 4px 12px rgba(11, 37, 69, 0.10), 0 16px 40px rgba(11, 37, 69, 0.12);
 }
