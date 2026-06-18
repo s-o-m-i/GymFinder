@@ -5,11 +5,11 @@ import { useRouter } from "next/navigation";
 import { Search, MapPin } from "lucide-react";
 
 const QUICK_SEARCHES = [
-  { label: "Boxing in Islamabad", href: "/gyms?type=boxing&city=Islamabad" },
-  { label: "MMA Rawalpindi", href: "/gyms?type=mma&city=Rawalpindi" },
+  { label: "Boxing in Islamabad", href: "/gyms/islamabad?type=boxing" },
+  { label: "MMA Rawalpindi", href: "/gyms/rawalpindi?type=mma" },
   { label: "Ladies Only", href: "/gyms?ladiesStatus=ladies_only" },
   { label: "Budget Gyms", href: "/gyms?priceMax=3000" },
-  { label: "Muay Thai", href: "/gyms?type=muay_thai" },
+  { label: "Muay Thai", href: "/gyms/muay-thai" },
 ];
 
 export function HeroSection() {

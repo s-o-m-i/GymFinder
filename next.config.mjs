@@ -25,9 +25,7 @@ const nextConfig = {
       },
     ],
   },
-  experimental: {
-    // Enable for better performance
-  },
+  experimental: {},
 };
 
 export default nextConfig;

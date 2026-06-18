@@ -11,9 +11,9 @@ import { MapPin, Shield, MessageCircle } from "lucide-react";
 async function getFeaturedGyms() {
   try {
     return await prisma.gym.findMany({
-      where: { featured: true },
+      where: { featured: true, listingStatus: "approved" },
       include: {
-        images: { select: { url: true, alt: true }, take: 1 },
+        galleryImages: { select: { imageUrl: true, alt: true }, take: 1 },
         disciplines: { include: { discipline: { select: { name: true } } } },
       },
       orderBy: { createdAt: "desc" },

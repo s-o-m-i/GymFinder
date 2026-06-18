@@ -1,7 +1,7 @@
 import type { Gym, GymImage, GymDiscipline, GymAmenity, Discipline, Amenity, Review } from "@prisma/client";
 
 export type GymWithRelations = Gym & {
-  images: GymImage[];
+  galleryImages: GymImage[];
   disciplines: (GymDiscipline & { discipline: Discipline })[];
   amenities: (GymAmenity & { amenity: Amenity })[];
   reviews: Review[];
@@ -23,8 +23,9 @@ export type GymCardData = Pick<
   | "rating"
   | "featured"
   | "openingHours"
+  | "coverImage"
 > & {
-  images: Pick<GymImage, "url" | "alt">[];
+  galleryImages: Pick<GymImage, "imageUrl" | "alt">[];
   disciplines: { discipline: Pick<Discipline, "name"> }[];
 };
 

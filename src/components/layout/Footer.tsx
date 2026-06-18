@@ -1,6 +1,19 @@
 import Link from "next/link";
-import { Dumbbell, Globe, MessageSquare } from "lucide-react";
-import { SITE_NAME } from "@/lib/constants";
+import { Dumbbell } from "lucide-react";
+import { SITE_NAME, SOCIAL_LINKS } from "@/lib/constants";
+import {
+  InstagramIcon,
+  FacebookIcon,
+  TwitterIcon,
+  TikTokIcon,
+} from "@/components/ui/SocialIcons";
+
+const socialItems = [
+  { label: "Instagram", href: SOCIAL_LINKS.instagram, Icon: InstagramIcon },
+  { label: "Facebook",  href: SOCIAL_LINKS.facebook,  Icon: FacebookIcon },
+  { label: "Twitter",   href: SOCIAL_LINKS.twitter,   Icon: TwitterIcon },
+  { label: "TikTok",    href: SOCIAL_LINKS.tiktok,    Icon: TikTokIcon },
+] as const;
 
 export function Footer() {
   return (
@@ -19,21 +32,21 @@ export function Footer() {
               Discover the best gyms and fighting clubs in Rawalpindi & Islamabad.
               Connect directly via WhatsApp.
             </p>
-            <div className="flex gap-3 mt-5">
-              <a
-                href="#"
-                className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center hover:bg-[#FF6A3D] transition-colors"
-                aria-label="Social"
-              >
-                <Globe className="w-4 h-4" />
-              </a>
-              <a
-                href="#"
-                className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center hover:bg-[#FF6A3D] transition-colors"
-                aria-label="Contact"
-              >
-                <MessageSquare className="w-4 h-4" />
-              </a>
+
+            {/* Social links */}
+            <div className="flex gap-2.5 mt-5">
+              {socialItems.map(({ label, href, Icon }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`Follow us on ${label}`}
+                  className="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center text-[#EAF0F6] hover:bg-[#FF6A3D] hover:text-white transition-colors"
+                >
+                  <Icon className="w-4 h-4" />
+                </a>
+              ))}
             </div>
           </div>
 
@@ -44,12 +57,13 @@ export function Footer() {
             </h4>
             <ul className="space-y-3 text-sm">
               {[
-                { href: "/gyms?city=Rawalpindi", label: "Gyms in Rawalpindi" },
-                { href: "/gyms?city=Islamabad", label: "Gyms in Islamabad" },
-                { href: "/gyms?type=boxing", label: "Boxing Clubs" },
-                { href: "/gyms?type=mma", label: "MMA Gyms" },
-                { href: "/gyms?type=muay_thai", label: "Muay Thai" },
+                { href: "/gyms/rawalpindi", label: "Gyms in Rawalpindi" },
+                { href: "/gyms/islamabad", label: "Gyms in Islamabad" },
+                { href: "/gyms/boxing", label: "Boxing Clubs" },
+                { href: "/gyms/mma", label: "MMA Gyms" },
+                { href: "/gyms/muay-thai", label: "Muay Thai" },
                 { href: "/gyms?ladiesStatus=ladies_only", label: "Ladies Only Gyms" },
+                { href: "/owner/register", label: "List Your Gym / Club" },
               ].map((item) => (
                 <li key={item.href}>
                   <Link
@@ -70,11 +84,11 @@ export function Footer() {
             </h4>
             <ul className="space-y-3 text-sm">
               {[
-                { href: "/gyms?city=Islamabad&area=F-7", label: "F-7 Islamabad" },
-                { href: "/gyms?city=Islamabad&area=F-10", label: "F-10 Islamabad" },
-                { href: "/gyms?city=Rawalpindi&area=Bahria+Town", label: "Bahria Town" },
-                { href: "/gyms?city=Rawalpindi&area=Saddar", label: "Saddar Rawalpindi" },
-                { href: "/gyms?city=Islamabad&area=DHA+Phase+2", label: "DHA Islamabad" },
+                { href: "/gyms/islamabad?area=F-7", label: "F-7 Islamabad" },
+                { href: "/gyms/islamabad?area=F-10", label: "F-10 Islamabad" },
+                { href: "/gyms/rawalpindi?area=Bahria Town", label: "Bahria Town" },
+                { href: "/gyms/rawalpindi?area=Saddar", label: "Saddar Rawalpindi" },
+                { href: "/gyms/islamabad?area=DHA Phase 2", label: "DHA Islamabad" },
               ].map((item) => (
                 <li key={item.href}>
                   <Link

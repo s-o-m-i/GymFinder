@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { GymForm } from "@/components/admin/GymForm";
+import { toUploaded } from "@/lib/gym-images-form";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -13,7 +14,7 @@ async function getData(id: string) {
     prisma.gym.findUnique({
       where: { id },
       include: {
-        images: true,
+        galleryImages: true,
         disciplines: { include: { discipline: true } },
         amenities: { include: { amenity: true } },
       },
@@ -50,13 +51,18 @@ export default async function EditGymPage({ params }: PageProps) {
     coachInfo: gym.coachInfo ?? "",
     featured: gym.featured,
     rating: gym.rating?.toString() ?? "",
-    images: gym.images.map((img) => img.url),
+    coverImage: gym.coverImage
+      ? toUploaded({ imageUrl: gym.coverImage, publicId: gym.coverImagePublicId ?? undefined })
+      : null,
+    galleryImages: gym.galleryImages.map((img) =>
+      toUploaded({ id: img.id, imageUrl: img.imageUrl, publicId: img.publicId ?? undefined })
+    ),
     disciplineIds: gym.disciplines.map((d) => d.disciplineId),
     amenityIds: gym.amenities.map((a) => a.amenityId),
   };
 
   return (
-    <div className="p-8 max-w-3xl">
+    <div className="p-8 max-w-3xl mx-auto">
       <div className="mb-8">
         <h1 className="font-heading font-bold text-2xl text-[var(--text)]">
           Edit: {gym.name}

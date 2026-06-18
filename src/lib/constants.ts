@@ -76,4 +76,11 @@ export const SITE_NAME = "GymFinder PK";
 export const SITE_DESCRIPTION =
   "Discover the best gyms and fighting clubs in Rawalpindi & Islamabad. Compare prices, facilities, and contact directly on WhatsApp.";
 
+export const SOCIAL_LINKS = {
+  instagram: "https://instagram.com/gymfinderpk",
+  facebook:  "https://facebook.com/gymfinderpk",
+  twitter:   "https://twitter.com/gymfinderpk",
+  tiktok:    "https://tiktok.com/@gymfinderpk",
+} as const;
+
 export const PRICE_RANGE = { min: 0, max: 15000 };

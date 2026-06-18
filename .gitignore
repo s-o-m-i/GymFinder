@@ -23,6 +23,8 @@
 # misc
 .DS_Store
 *.pem
+# Windows reserved device name — appears as ghost file, must be ignored
+/nul
 
 # debug
 npm-debug.log*

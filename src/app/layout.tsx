@@ -68,6 +68,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      data-scroll-behavior="smooth"
       className={`${manrope.variable} ${inter.variable} ${ibmPlexMono.variable}`}
     >
       <body>{children}</body>

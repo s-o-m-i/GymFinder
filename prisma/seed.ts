@@ -464,11 +464,13 @@ async function main() {
   // Seed gyms
   for (const gymData of GYMS) {
     const { disciplines, amenities, images, reviews, coachInfo, ...gymCore } = gymData;
+    const [cover, ...gallery] = images;
 
     const gym = await prisma.gym.create({
       data: {
         ...gymCore,
         coachInfo: coachInfo ?? null,
+        coverImage: cover ?? null,
         disciplines: {
           create: disciplines
             .filter((d) => disciplineMap[d])
@@ -483,8 +485,8 @@ async function main() {
               amenity: { connect: { id: amenityMap[a] } },
             })),
         },
-        images: {
-          create: images.map((url) => ({ url })),
+        galleryImages: {
+          create: gallery.map((imageUrl) => ({ imageUrl })),
         },
         reviews: {
           create: reviews.map((r) => ({

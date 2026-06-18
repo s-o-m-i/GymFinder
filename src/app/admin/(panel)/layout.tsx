@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Dumbbell, LayoutDashboard, PlusCircle } from "lucide-react";
+import { Dumbbell, LayoutDashboard, PlusCircle, Users } from "lucide-react";
+import { LogoutButton } from "@/components/admin/LogoutButton";
 
 export const metadata: Metadata = {
   title: "Admin Panel | GymFinder PK",
@@ -39,15 +40,23 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <PlusCircle className="w-4 h-4" />
             Add Gym
           </Link>
+          <Link
+            href="/admin/owners"
+            className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 transition-colors"
+          >
+            <Users className="w-4 h-4" />
+            Owners
+          </Link>
         </nav>
 
-        <div className="p-4 border-t border-white/10">
+        <div className="p-4 border-t border-white/10 space-y-1">
           <Link
             href="/"
-            className="flex items-center gap-2 text-xs text-[#8ba0b8] hover:text-white transition-colors"
+            className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium text-[#8ba0b8] hover:text-white hover:bg-white/10 transition-colors"
           >
             ← Back to site
           </Link>
+          <LogoutButton />
         </div>
       </aside>
 

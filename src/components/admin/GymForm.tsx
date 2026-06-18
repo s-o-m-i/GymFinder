@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { PlusCircle, X, ImagePlus } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { ImageUploader } from "@/components/admin/ImageUploader";
+import type { UploadedImage } from "@/lib/gym-images-form";
 import {
   GYM_TYPES,
   LADIES_STATUS_OPTIONS,
@@ -33,7 +34,8 @@ interface GymFormData {
   coachInfo: string;
   featured: boolean;
   rating: string;
-  images: string[];
+  coverImage: UploadedImage | null;
+  galleryImages: UploadedImage[];
   disciplineIds: string[];
   amenityIds: string[];
 }
@@ -43,16 +45,34 @@ interface GymFormProps {
   disciplines: Discipline[];
   amenities: Amenity[];
   mode: "create" | "edit";
+  variant?: "admin" | "owner";
+  cancelPath?: string;
+  successPath?: string;
 }
 
 const ADMIN_SECRET = process.env.NEXT_PUBLIC_ADMIN_SECRET ?? "gymfinder-admin-2024";
 
-export function GymForm({ initialData, disciplines, amenities, mode }: GymFormProps) {
+function SectionCard({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6">
+      <h3 className="font-heading font-bold text-[var(--text)] mb-5">{title}</h3>
+      {children}
+    </div>
+  );
+}
+
+export function GymForm({
+  initialData,
+  disciplines,
+  amenities,
+  mode,
+  variant = "admin",
+  cancelPath,
+  successPath,
+}: GymFormProps) {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-  const [newImageUrl, setNewImageUrl] = useState("");
-  const [newAmenityName, setNewAmenityName] = useState("");
 
   const [form, setForm] = useState<GymFormData>({
     name: initialData?.name ?? "",
@@ -73,7 +93,8 @@ export function GymForm({ initialData, disciplines, amenities, mode }: GymFormPr
     coachInfo: initialData?.coachInfo ?? "",
     featured: initialData?.featured ?? false,
     rating: initialData?.rating ?? "",
-    images: initialData?.images ?? [],
+    coverImage: initialData?.coverImage ?? null,
+    galleryImages: initialData?.galleryImages ?? [],
     disciplineIds: initialData?.disciplineIds ?? [],
     amenityIds: initialData?.amenityIds ?? [],
   });
@@ -83,16 +104,6 @@ export function GymForm({ initialData, disciplines, amenities, mode }: GymFormPr
   const set = (key: keyof GymFormData, value: GymFormData[keyof GymFormData]) => {
     setForm((prev) => ({ ...prev, [key]: value }));
     setError("");
-  };
-
-  const addImage = () => {
-    if (!newImageUrl.trim()) return;
-    set("images", [...form.images, newImageUrl.trim()]);
-    setNewImageUrl("");
-  };
-
-  const removeImage = (i: number) => {
-    set("images", form.images.filter((_, idx) => idx !== i));
   };
 
   const toggleDiscipline = (id: string) => {
@@ -113,10 +124,33 @@ export function GymForm({ initialData, disciplines, amenities, mode }: GymFormPr
     );
   };
 
+  const hasUploadingImages =
+    form.coverImage?.status === "uploading" ||
+    form.coverImage?.status === "pending" ||
+    form.galleryImages.some((img) => img.status === "uploading" || img.status === "pending");
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (hasUploadingImages) {
+      setError("Please wait for all images to finish uploading.");
+      return;
+    }
+
     setSaving(true);
     setError("");
+
+    const coverPayload = form.coverImage?.imageUrl
+      ? { imageUrl: form.coverImage.imageUrl, publicId: form.coverImage.publicId }
+      : null;
+
+    const galleryPayload = form.galleryImages
+      .filter((img) => img.status === "uploaded" && img.imageUrl)
+      .map((img) => ({
+        id:       img.id,
+        imageUrl: img.imageUrl,
+        publicId: img.publicId,
+      }));
 
     const payload = {
       name: form.name,
@@ -135,24 +169,31 @@ export function GymForm({ initialData, disciplines, amenities, mode }: GymFormPr
       whatsappNumber: form.whatsappNumber,
       openingHours: form.openingHours || null,
       coachInfo: form.coachInfo || null,
-      featured: form.featured,
-      rating: form.rating ? parseFloat(form.rating) : null,
+      ...(variant === "admin" && {
+        featured: form.featured,
+        rating: form.rating ? parseFloat(form.rating) : null,
+      }),
       disciplines: form.disciplineIds,
       amenities: form.amenityIds,
-      images: form.images,
+      coverImage: coverPayload,
+      galleryImages: galleryPayload,
     };
 
     try {
-      const url = mode === "edit" && initialData?.id
-        ? `/api/gyms/${initialData.id}`
-        : "/api/gyms";
+      const isOwner = variant === "owner";
+      const url = isOwner
+        ? "/api/owner/gym"
+        : mode === "edit" && initialData?.id
+          ? `/api/gyms/${initialData.id}`
+          : "/api/gyms";
+
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (!isOwner) headers["x-admin-secret"] = ADMIN_SECRET;
 
       const res = await fetch(url, {
-        method: mode === "edit" ? "PUT" : "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-admin-secret": ADMIN_SECRET,
-        },
+        method: isOwner ? (mode === "edit" ? "PUT" : "POST") : mode === "edit" ? "PUT" : "POST",
+        headers,
+        credentials: isOwner ? "include" : "same-origin",
         body: JSON.stringify(payload),
       });
 
@@ -163,9 +204,9 @@ export function GymForm({ initialData, disciplines, amenities, mode }: GymFormPr
         return;
       }
 
-      router.push("/admin");
+      router.push(successPath ?? (isOwner ? "/owner/dashboard" : "/admin"));
       router.refresh();
-    } catch (err) {
+    } catch {
       setError("Network error. Please try again.");
     } finally {
       setSaving(false);
@@ -176,13 +217,6 @@ export function GymForm({ initialData, disciplines, amenities, mode }: GymFormPr
     "w-full px-3 py-2.5 text-sm bg-[var(--bg)] border border-[var(--border)] rounded-xl text-[var(--text)] placeholder:text-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[#FF6A3D]/30 focus:border-[#FF6A3D]";
 
   const labelClass = "block text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wide mb-1.5";
-
-  const SectionCard = ({ title, children }: { title: string; children: React.ReactNode }) => (
-    <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6">
-      <h3 className="font-heading font-bold text-[var(--text)] mb-5">{title}</h3>
-      {children}
-    </div>
-  );
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -391,19 +425,21 @@ export function GymForm({ initialData, disciplines, amenities, mode }: GymFormPr
             </select>
           </div>
 
-          <div>
-            <label className={labelClass}>Rating (optional)</label>
-            <input
-              type="number"
-              min={1}
-              max={5}
-              step={0.1}
-              value={form.rating}
-              onChange={(e) => set("rating", e.target.value)}
-              placeholder="4.5"
-              className={inputClass}
-            />
-          </div>
+          {variant === "admin" && (
+            <div>
+              <label className={labelClass}>Rating (optional)</label>
+              <input
+                type="number"
+                min={1}
+                max={5}
+                step={0.1}
+                value={form.rating}
+                onChange={(e) => set("rating", e.target.value)}
+                placeholder="4.5"
+                className={inputClass}
+              />
+            </div>
+          )}
 
           <div>
             <label className={labelClass}>WhatsApp Number *</label>
@@ -417,18 +453,20 @@ export function GymForm({ initialData, disciplines, amenities, mode }: GymFormPr
             />
           </div>
 
-          <div className="sm:col-span-2 flex items-center gap-3 pt-5">
-            <input
-              type="checkbox"
-              id="featured"
-              checked={form.featured}
-              onChange={(e) => set("featured", e.target.checked)}
-              className="w-4 h-4 accent-[#FF6A3D] rounded"
-            />
-            <label htmlFor="featured" className="text-sm font-medium text-[var(--text)] cursor-pointer">
-              Mark as Featured (shows in homepage)
-            </label>
-          </div>
+          {variant === "admin" && (
+            <div className="sm:col-span-2 flex items-center gap-3 pt-5">
+              <input
+                type="checkbox"
+                id="featured"
+                checked={form.featured}
+                onChange={(e) => set("featured", e.target.checked)}
+                className="w-4 h-4 accent-[#FF6A3D] rounded"
+              />
+              <label htmlFor="featured" className="text-sm font-medium text-[var(--text)] cursor-pointer">
+                Mark as Featured (shows in homepage)
+              </label>
+            </div>
+          )}
         </div>
 
         <div className="mt-4">
@@ -483,67 +521,48 @@ export function GymForm({ initialData, disciplines, amenities, mode }: GymFormPr
         </div>
       </SectionCard>
 
-      {/* Images */}
+      {/* Images — Cloudinary */}
       <SectionCard title="Images">
-        {form.images.length > 0 && (
-          <div className="mb-4 space-y-2">
-            {form.images.map((url, i) => (
-              <div
-                key={i}
-                className="flex items-center gap-3 p-3 bg-[var(--bg)] border border-[var(--border)] rounded-xl"
-              >
-                <img
-                  src={url}
-                  alt={`Image ${i + 1}`}
-                  className="w-12 h-10 object-cover rounded-lg"
-                  onError={(e) => { (e.target as HTMLImageElement).src = "data:image/svg+xml,..."; }}
-                />
-                <span className="flex-1 text-xs text-[var(--text-muted)] truncate">{url}</span>
-                <button
-                  type="button"
-                  onClick={() => removeImage(i)}
-                  className="p-1 text-[var(--text-muted)] hover:text-red-500 transition-colors"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-
-        <div className="flex gap-2">
-          <input
-            type="url"
-            value={newImageUrl}
-            onChange={(e) => setNewImageUrl(e.target.value)}
-            placeholder="https://example.com/image.jpg"
-            className={`${inputClass} flex-1`}
-            onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addImage(); } }}
+        <div className="space-y-8">
+          <ImageUploader
+            label="Cover Image"
+            description="Main photo shown on gym cards and at the top of the profile page."
+            uploadType="cover"
+            multiple={false}
+            images={form.coverImage ? [form.coverImage] : []}
+            onChange={(imgs) => set("coverImage", imgs[0] ?? null)}
+            authMode={variant === "owner" ? "cookie" : "admin-secret"}
           />
-          <button
-            type="button"
-            onClick={addImage}
-            className="flex items-center gap-1.5 px-4 py-2.5 bg-[var(--bg)] border border-[var(--border)] rounded-xl text-sm font-medium text-[var(--text-muted)] hover:text-[var(--text)] transition-colors whitespace-nowrap"
-          >
-            <ImagePlus className="w-4 h-4" />
-            Add URL
-          </button>
+
+          <ImageUploader
+            label="Gallery Images"
+            description="Additional photos for the gym profile gallery. Upload up to 10 images."
+            uploadType="gallery"
+            multiple
+            maxImages={10}
+            images={form.galleryImages}
+            onChange={(imgs) => set("galleryImages", imgs)}
+            authMode={variant === "owner" ? "cookie" : "admin-secret"}
+          />
         </div>
-        <p className="mt-2 text-xs text-[var(--text-muted)]">
-          Enter image URLs. The first image will be used as the cover photo.
-        </p>
       </SectionCard>
 
       {/* Submit */}
       <div className="flex items-center gap-3 pb-8">
-        <Button type="submit" variant="secondary" size="lg" isLoading={saving}>
-          {saving ? "Saving…" : mode === "edit" ? "Save Changes" : "Create Gym"}
+        <Button
+          type="submit"
+          variant="secondary"
+          size="lg"
+          isLoading={saving}
+          disabled={hasUploadingImages}
+        >
+          {saving ? "Saving…" : mode === "edit" ? "Save Changes" : variant === "owner" ? "Submit Listing" : "Create Gym"}
         </Button>
         <Button
           type="button"
           variant="outline"
           size="lg"
-          onClick={() => router.push("/admin")}
+          onClick={() => router.push(cancelPath ?? (variant === "owner" ? "/owner/dashboard" : "/admin"))}
         >
           Cancel
         </Button>
@@ -551,3 +570,4 @@ export function GymForm({ initialData, disciplines, amenities, mode }: GymFormPr
     </form>
   );
 }
+

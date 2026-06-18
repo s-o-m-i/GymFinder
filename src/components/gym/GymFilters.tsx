@@ -1,12 +1,14 @@
 "use client";
 
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { useCallback, useState, useTransition } from "react";
+import { useCallback, useState, useTransition, useEffect } from "react";
 import { Search, SlidersHorizontal, X, ChevronDown } from "lucide-react";
 import { GYM_TYPES, CITIES, LADIES_STATUS_OPTIONS, RAWALPINDI_AREAS, ISLAMABAD_AREAS, PRICE_RANGE } from "@/lib/constants";
 import { GymTypeIcon } from "@/components/ui/GymTypeIcon";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
+import { getGymsBasePath, parseCityFromPath, parseTypeFromPath } from "@/lib/gyms-routes";
+import type { City } from "@/lib/constants";
 
 interface FilterState {
   search: string;
@@ -20,24 +22,82 @@ interface FilterState {
   sort: string;
 }
 
-export function GymFilters() {
+export function GymFilters({ fixedCity, fixedType }: { fixedCity?: City; fixedType?: string }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
   const [showMobileFilters, setShowMobileFilters] = useState(false);
 
+  const pathCity = parseCityFromPath(pathname) ?? "";
+  const pathType = parseTypeFromPath(pathname) ?? "";
+
   const [filters, setFilters] = useState<FilterState>({
     search: searchParams.get("search") ?? "",
-    city: searchParams.get("city") ?? "",
+    city: fixedCity ?? pathCity ?? searchParams.get("city") ?? "",
     area: searchParams.get("area") ?? "",
-    type: searchParams.get("type") ?? "",
+    type: fixedType ?? pathType ?? searchParams.get("type") ?? "",
     priceMin: Number(searchParams.get("priceMin")) || PRICE_RANGE.min,
     priceMax: Number(searchParams.get("priceMax")) || PRICE_RANGE.max,
     ladiesStatus: searchParams.get("ladiesStatus") ?? "",
     discipline: searchParams.get("discipline") ?? "",
     sort: searchParams.get("sort") ?? "featured",
   });
+
+  // Sync when URL changes (back/forward navigation)
+  useEffect(() => {
+    setFilters({
+      search: searchParams.get("search") ?? "",
+      city: fixedCity ?? parseCityFromPath(pathname) ?? searchParams.get("city") ?? "",
+      area: searchParams.get("area") ?? "",
+      type: fixedType ?? parseTypeFromPath(pathname) ?? searchParams.get("type") ?? "",
+      priceMin: Number(searchParams.get("priceMin")) || PRICE_RANGE.min,
+      priceMax: Number(searchParams.get("priceMax")) || PRICE_RANGE.max,
+      ladiesStatus: searchParams.get("ladiesStatus") ?? "",
+      discipline: searchParams.get("discipline") ?? "",
+      sort: searchParams.get("sort") ?? "featured",
+    });
+  }, [searchParams, pathname, fixedCity, fixedType]);
+
+  const buildFilterUrl = useCallback((next: FilterState) => {
+    const params = new URLSearchParams();
+    if (next.search) params.set("search", next.search);
+    if (next.area) params.set("area", next.area);
+    // Type as query only when city is in the URL path
+    if (next.city && next.type) params.set("type", next.type);
+    if (next.priceMin > PRICE_RANGE.min) params.set("priceMin", String(next.priceMin));
+    if (next.priceMax < PRICE_RANGE.max) params.set("priceMax", String(next.priceMax));
+    if (next.ladiesStatus) params.set("ladiesStatus", next.ladiesStatus);
+    if (next.discipline) params.set("discipline", next.discipline);
+    if (next.sort && next.sort !== "featured") params.set("sort", next.sort);
+
+    let base = "/gyms";
+    if (next.city) {
+      base = getGymsBasePath({ city: next.city });
+    } else if (next.type) {
+      base = getGymsBasePath({ type: next.type });
+    }
+
+    const qs = params.toString();
+    return qs ? `${base}?${qs}` : base;
+  }, []);
+
+  const applyFilters = useCallback(
+    (updated: Partial<FilterState>) => {
+      const next = { ...filters, ...updated };
+      setFilters(next);
+
+      startTransition(() => {
+        router.push(buildFilterUrl(next), { scroll: false });
+      });
+    },
+    [filters, router, buildFilterUrl]
+  );
+
+  const handleCityToggle = (city: City) => {
+    const isActive = filters.city === city;
+    applyFilters({ city: isActive ? "" : city, area: "" });
+  };
 
   // Build grouped area options to avoid duplicate keys when areas share names across cities
   const areaGroups: { city: string; areas: readonly string[] }[] =
@@ -50,35 +110,12 @@ export function GymFilters() {
           { city: "Islamabad", areas: ISLAMABAD_AREAS },
         ];
 
-  const applyFilters = useCallback(
-    (updated: Partial<FilterState>) => {
-      const next = { ...filters, ...updated };
-      setFilters(next);
-
-      const params = new URLSearchParams();
-      if (next.search) params.set("search", next.search);
-      if (next.city) params.set("city", next.city);
-      if (next.area) params.set("area", next.area);
-      if (next.type) params.set("type", next.type);
-      if (next.priceMin > PRICE_RANGE.min) params.set("priceMin", String(next.priceMin));
-      if (next.priceMax < PRICE_RANGE.max) params.set("priceMax", String(next.priceMax));
-      if (next.ladiesStatus) params.set("ladiesStatus", next.ladiesStatus);
-      if (next.discipline) params.set("discipline", next.discipline);
-      if (next.sort && next.sort !== "featured") params.set("sort", next.sort);
-
-      startTransition(() => {
-        router.push(`${pathname}?${params.toString()}`, { scroll: false });
-      });
-    },
-    [filters, pathname, router]
-  );
-
   const clearFilters = () => {
     const reset: FilterState = {
       search: "",
-      city: "",
+      city: fixedCity ?? "",
       area: "",
-      type: "",
+      type: fixedType ?? "",
       priceMin: PRICE_RANGE.min,
       priceMax: PRICE_RANGE.max,
       ladiesStatus: "",
@@ -86,7 +123,12 @@ export function GymFilters() {
       sort: "featured",
     };
     setFilters(reset);
-    startTransition(() => router.push(pathname, { scroll: false }));
+    const base = fixedCity
+      ? getGymsBasePath({ city: fixedCity })
+      : fixedType
+      ? getGymsBasePath({ type: fixedType })
+      : "/gyms";
+    startTransition(() => router.push(base, { scroll: false }));
   };
 
   const hasActiveFilters =
@@ -127,7 +169,7 @@ export function GymFilters() {
           {CITIES.map((city) => (
             <button
               key={city}
-              onClick={() => applyFilters({ city: filters.city === city ? "" : city, area: "" })}
+              onClick={() => handleCityToggle(city)}
               className={cn(
                 "flex-1 py-2 text-sm font-medium rounded-xl border transition-colors",
                 filters.city === city

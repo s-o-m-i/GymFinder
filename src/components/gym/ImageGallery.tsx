@@ -4,9 +4,10 @@ import { useState } from "react";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight, X, ZoomIn, Dumbbell } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { optimizedImageUrl } from "@/lib/images";
 
 interface GalleryImage {
-  url: string;
+  imageUrl: string;
   alt?: string | null;
 }
 
@@ -40,7 +41,7 @@ export function ImageGallery({ images, gymName }: ImageGalleryProps) {
           onClick={() => setLightboxOpen(true)}
         >
           <Image
-            src={images[activeIndex].url}
+            src={optimizedImageUrl(images[activeIndex].imageUrl, { width: 1200, quality: 85 })}
             alt={images[activeIndex].alt ?? gymName}
             fill
             className="object-cover transition-transform duration-300 group-hover:scale-102"
@@ -100,7 +101,7 @@ export function ImageGallery({ images, gymName }: ImageGalleryProps) {
                 )}
               >
                 <Image
-                  src={img.url}
+                  src={optimizedImageUrl(img.imageUrl, { width: 128, height: 96 })}
                   alt={img.alt ?? `${gymName} photo ${i + 1}`}
                   fill
                   className="object-cover"
@@ -129,7 +130,7 @@ export function ImageGallery({ images, gymName }: ImageGalleryProps) {
             onClick={(e) => e.stopPropagation()}
           >
             <Image
-              src={images[activeIndex].url}
+              src={optimizedImageUrl(images[activeIndex].imageUrl, { width: 1200, quality: 85 })}
               alt={images[activeIndex].alt ?? gymName}
               fill
               className="object-contain"

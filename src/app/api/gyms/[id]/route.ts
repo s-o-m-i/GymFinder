@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/utils";
+import { syncGymImages, deleteGymCloudinaryAssets } from "@/lib/gym-images";
 
 const GYM_FULL_INCLUDE = {
-  images: true,
+  galleryImages: true,
   disciplines: { include: { discipline: true } },
   amenities: { include: { amenity: true } },
   reviews: { orderBy: { createdAt: "desc" as const }, take: 10 },
@@ -13,7 +14,6 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   try {
     const { id } = await params;
 
-    // Support both ID and slug lookup
     const gym = await prisma.gym.findFirst({
       where: { OR: [{ id }, { slug: id }] },
       include: GYM_FULL_INCLUDE,
@@ -39,11 +39,13 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
     const { id } = await params;
     const body = await req.json();
-    const { disciplines, amenities, images, ...gymData } = body;
+    const { disciplines, amenities, coverImage, galleryImages, ...gymData } = body;
 
-    // Update slug if name changed
     if (gymData.name && !gymData.slug) {
-      const gym = await prisma.gym.findUnique({ where: { id }, select: { name: true, area: true, city: true } });
+      const gym = await prisma.gym.findUnique({
+        where: { id },
+        select: { name: true, area: true, city: true },
+      });
       if (gym && gymData.name !== gym.name) {
         const newSlug = slugify(`${gymData.name}-${gym.area}-${gym.city}`);
         const existing = await prisma.gym.findFirst({ where: { slug: newSlug, NOT: { id } } });
@@ -71,17 +73,21 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
             })),
           },
         }),
-        ...(images !== undefined && {
-          images: {
-            deleteMany: {},
-            create: images.map((url: string) => ({ url })),
-          },
-        }),
       },
+    });
+
+    await syncGymImages(
+      gym.id,
+      coverImage !== undefined ? coverImage : undefined,
+      galleryImages !== undefined ? galleryImages : undefined
+    );
+
+    const full = await prisma.gym.findUnique({
+      where: { id: gym.id },
       include: GYM_FULL_INCLUDE,
     });
 
-    return NextResponse.json({ data: gym });
+    return NextResponse.json({ data: full });
   } catch (error) {
     console.error("PUT /api/gyms/[id] error:", error);
     return NextResponse.json({ error: "Failed to update gym" }, { status: 500 });
@@ -97,6 +103,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
 
     const { id } = await params;
 
+    await deleteGymCloudinaryAssets(id);
     await prisma.gym.delete({ where: { id } });
 
     return NextResponse.json({ data: { success: true } });

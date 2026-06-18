@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { GYM_TYPES } from "@/lib/constants";
 import { GymTypeIcon } from "@/components/ui/GymTypeIcon";
+import { getGymsBasePath } from "@/lib/gyms-routes";
 
 export function CategoryGrid() {
   return (
@@ -18,7 +19,7 @@ export function CategoryGrid() {
         {GYM_TYPES.map((type) => (
           <Link
             key={type.value}
-            href={`/gyms?type=${type.value}`}
+            href={getGymsBasePath({ type: type.value })}
             className="group flex flex-col items-center gap-3 p-5 bg-[var(--card)] border border-[var(--border)] rounded-2xl hover:border-[#FF6A3D]/50 hover:bg-[#FF6A3D]/5 transition-all duration-200 card-shadow hover:shadow-md text-center"
           >
             <div className="w-10 h-10 rounded-xl bg-[#0B2545]/6 group-hover:bg-[#FF6A3D]/15 flex items-center justify-center transition-colors duration-200">

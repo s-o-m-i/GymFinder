@@ -29,6 +29,31 @@ enum SizeCategory {
   large
 }
 
+enum BusinessCategory {
+  gym
+  fighting_club
+}
+
+enum ListingStatus {
+  pending
+  approved
+  rejected
+}
+
+model GymOwner {
+  id               String           @id @default(cuid())
+  email            String           @unique
+  passwordHash     String
+  name             String
+  phone            String?
+  businessCategory BusinessCategory
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  gym              Gym?
+
+  @@index([businessCategory])
+}
+
 model Gym {
   id             String       @id @default(cuid())
   name           String
@@ -48,14 +73,19 @@ model Gym {
   openingHours   String?
   rating         Float?
   featured       Boolean      @default(false)
-  coachInfo      String?      @db.Text
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
+  coachInfo          String?      @db.Text
+  coverImage         String?
+  coverImagePublicId String?
+  listingStatus      ListingStatus @default(approved)
+  ownerId            String?       @unique
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
 
-  disciplines GymDiscipline[]
-  amenities   GymAmenity[]
-  images      GymImage[]
-  reviews     Review[]
+  owner         GymOwner?     @relation(fields: [ownerId], references: [id], onDelete: SetNull)
+  disciplines   GymDiscipline[]
+  amenities     GymAmenity[]
+  galleryImages GymImage[]
+  reviews       Review[]
 
   @@index([city])
   @@index([area])
@@ -63,6 +93,8 @@ model Gym {
   @@index([priceMin, priceMax])
   @@index([featured])
   @@index([slug])
+  @@index([listingStatus])
+  @@index([ownerId])
 }
 
 model Discipline {
@@ -96,11 +128,12 @@ model GymAmenity {
 }
 
 model GymImage {
-  id    String @id @default(cuid())
-  gymId String
-  url   String
-  alt   String?
-  gym   Gym    @relation(fields: [gymId], references: [id], onDelete: Cascade)
+  id       String  @id @default(cuid())
+  gymId    String
+  imageUrl String  @map("url")
+  publicId String?
+  alt      String?
+  gym      Gym     @relation(fields: [gymId], references: [id], onDelete: Cascade)
 
   @@index([gymId])
 }

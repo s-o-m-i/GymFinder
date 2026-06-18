@@ -19,7 +19,8 @@ const NEARBY_GYM_SELECT = {
   openingHours: true,
   latitude: true,
   longitude: true,
-  images: { select: { url: true, alt: true }, take: 1 },
+  coverImage: true,
+  galleryImages: { select: { imageUrl: true, alt: true }, take: 1 },
   disciplines: {
     select: {
       discipline: { select: { name: true } },
@@ -57,6 +58,7 @@ export async function POST(req: NextRequest) {
       where: {
         latitude: { not: null },
         longitude: { not: null },
+        listingStatus: "approved",
       },
       select: NEARBY_GYM_SELECT,
     });

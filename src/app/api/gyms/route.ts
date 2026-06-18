@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/utils";
+import { syncGymImages } from "@/lib/gym-images";
 import type { GymFilters } from "@/types";
 import type { Prisma } from "@prisma/client";
 
 const GYM_INCLUDE = {
-  images: { select: { url: true, alt: true }, take: 1 },
+  galleryImages: { select: { imageUrl: true, alt: true }, take: 1 },
   disciplines: {
     include: { discipline: { select: { name: true } } },
   },
@@ -30,9 +31,7 @@ export async function GET(req: NextRequest) {
     };
 
     const where = buildWhereClause(filters);
-
     const orderBy = buildOrderBy(filters.sort);
-
     const page = filters.page ?? 1;
     const limit = Math.min(filters.limit ?? 12, 50);
     const skip = (page - 1) * limit;
@@ -69,15 +68,11 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-
-    // Auto-generate slug if not provided
     const slug = body.slug ?? slugify(`${body.name}-${body.area}-${body.city}`);
-
-    // Ensure slug uniqueness
     const existing = await prisma.gym.findUnique({ where: { slug } });
     const finalSlug = existing ? `${slug}-${Date.now()}` : slug;
 
-    const { disciplines, amenities, images, ...gymData } = body;
+    const { disciplines, amenities, coverImage, galleryImages, ...gymData } = body;
 
     const gym = await prisma.gym.create({
       data: {
@@ -97,18 +92,21 @@ export async function POST(req: NextRequest) {
               })),
             }
           : undefined,
-        images: images?.length
-          ? { create: images.map((url: string) => ({ url })) }
-          : undefined,
       },
+    });
+
+    await syncGymImages(gym.id, coverImage, galleryImages);
+
+    const full = await prisma.gym.findUnique({
+      where: { id: gym.id },
       include: {
-        images: true,
+        galleryImages: true,
         disciplines: { include: { discipline: true } },
         amenities: { include: { amenity: true } },
       },
     });
 
-    return NextResponse.json({ data: gym }, { status: 201 });
+    return NextResponse.json({ data: full }, { status: 201 });
   } catch (error) {
     console.error("POST /api/gyms error:", error);
     return NextResponse.json({ error: "Failed to create gym" }, { status: 500 });
@@ -116,7 +114,7 @@ export async function POST(req: NextRequest) {
 }
 
 function buildWhereClause(filters: GymFilters): Prisma.GymWhereInput {
-  const where: Prisma.GymWhereInput = {};
+  const where: Prisma.GymWhereInput = { listingStatus: "approved" };
 
   if (filters.search) {
     where.OR = [

@@ -1,22 +1,41 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useState } from "react";
-import { Menu, X, Dumbbell } from "lucide-react";
+import { Menu, X, Dumbbell, PlusCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SITE_NAME } from "@/lib/constants";
 
+function isNavActive(pathname: string, href: string, searchParams: URLSearchParams) {
+  const [path, queryString] = href.split("?");
+
+  if (pathname !== path) return false;
+
+  // Path-only links
+  if (!queryString) {
+    if (href === "/gyms") return !searchParams.get("type") && !searchParams.get("city");
+    return true;
+  }
+
+  const hrefParams = new URLSearchParams(queryString);
+  for (const [key, value] of hrefParams.entries()) {
+    if (searchParams.get(key) !== value) return false;
+  }
+  return true;
+}
+
 const navLinks = [
   { href: "/gyms", label: "Browse Gyms" },
-  { href: "/gyms?type=boxing", label: "Boxing" },
-  { href: "/gyms?type=mma", label: "MMA" },
-  { href: "/gyms?city=Islamabad", label: "Islamabad" },
-  { href: "/gyms?city=Rawalpindi", label: "Rawalpindi" },
+  { href: "/gyms/boxing", label: "Boxing" },
+  { href: "/gyms/mma", label: "MMA" },
+  { href: "/gyms/islamabad", label: "Islamabad" },
+  { href: "/gyms/rawalpindi", label: "Rawalpindi" },
 ];
 
 export function Navbar() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
@@ -39,7 +58,7 @@ export function Navbar() {
                 href={link.href}
                 className={cn(
                   "px-3 py-2 rounded-lg text-sm font-medium transition-colors",
-                  pathname === link.href
+                  isNavActive(pathname, link.href, searchParams)
                     ? "text-[#FF6A3D] bg-orange-50"
                     : "text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--bg)]"
                 )}
@@ -50,7 +69,14 @@ export function Navbar() {
           </div>
 
           {/* CTA + mobile toggle */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Link
+              href="/owner/register"
+              className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 border border-[#0B2545] text-[#0B2545] text-sm font-semibold rounded-xl hover:bg-[#0B2545] hover:text-white transition-colors"
+            >
+              <PlusCircle className="w-4 h-4" />
+              List Your Gym
+            </Link>
             <Link
               href="/gyms"
               className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 bg-[#FF6A3D] text-white text-sm font-semibold rounded-xl hover:bg-[#e85528] transition-colors"
@@ -78,7 +104,7 @@ export function Navbar() {
                   onClick={() => setMobileOpen(false)}
                   className={cn(
                     "px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
-                    pathname === link.href
+                    isNavActive(pathname, link.href, searchParams)
                       ? "text-[#FF6A3D] bg-orange-50"
                       : "text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--bg)]"
                   )}
@@ -87,9 +113,17 @@ export function Navbar() {
                 </Link>
               ))}
               <Link
+                href="/owner/register"
+                onClick={() => setMobileOpen(false)}
+                className="mt-2 flex items-center justify-center gap-1.5 px-4 py-2.5 border border-[#0B2545] text-[#0B2545] text-sm font-semibold rounded-xl hover:bg-[#0B2545] hover:text-white transition-colors"
+              >
+                <PlusCircle className="w-4 h-4" />
+                List Your Gym
+              </Link>
+              <Link
                 href="/gyms"
                 onClick={() => setMobileOpen(false)}
-                className="mt-2 px-4 py-2.5 bg-[#FF6A3D] text-white text-sm font-semibold rounded-xl hover:bg-[#e85528] transition-colors text-center"
+                className="px-4 py-2.5 bg-[#FF6A3D] text-white text-sm font-semibold rounded-xl hover:bg-[#e85528] transition-colors text-center"
               >
                 Find a Gym
               </Link>

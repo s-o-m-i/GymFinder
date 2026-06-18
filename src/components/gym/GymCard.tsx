@@ -4,6 +4,7 @@ import { MapPin, Star, Clock, ChevronRight, Navigation } from "lucide-react";
 import { WhatsAppButton } from "@/components/gym/WhatsAppButton";
 import { GymTypeIcon } from "@/components/ui/GymTypeIcon";
 import { LadiesStatusBadge } from "@/components/ui/LadiesStatusBadge";
+import { getGymCoverUrl, optimizedImageUrl } from "@/lib/images";
 import { formatPriceShort, gymTypeLabel } from "@/lib/utils";
 import { formatDistance } from "@/lib/getDistance";
 import type { GymCardData } from "@/types";
@@ -14,7 +15,8 @@ interface GymCardProps {
 }
 
 export function GymCard({ gym, distanceKm }: GymCardProps) {
-  const coverImage = gym.images[0]?.url;
+  const coverUrl = getGymCoverUrl(gym);
+  const coverImage = coverUrl ? optimizedImageUrl(coverUrl, { width: 600, quality: 80 }) : undefined;
   const disciplineNames = gym.disciplines.map((d) => d.discipline.name);
 
   return (
