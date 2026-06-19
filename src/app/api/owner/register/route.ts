@@ -11,12 +11,18 @@ export async function POST(req: NextRequest) {
       name:             string;
       email:            string;
       password:         string;
-      phone?:           string;
+      phone:            string;
       businessCategory: BusinessCategory;
     };
 
-    if (!name?.trim() || !email?.trim() || !password || !businessCategory) {
+    if (!name?.trim() || !email?.trim() || !phone?.trim() || !password || !businessCategory) {
       return NextResponse.json({ error: "All required fields must be filled." }, { status: 400 });
+    }
+
+    const normalizedPhone = phone.trim();
+    const phoneDigits = normalizedPhone.replace(/\D/g, "");
+    if (phoneDigits.length < 10) {
+      return NextResponse.json({ error: "Please enter a valid phone number." }, { status: 400 });
     }
 
     if (!["gym", "fighting_club"].includes(businessCategory)) {
@@ -40,7 +46,7 @@ export async function POST(req: NextRequest) {
         name:             name.trim(),
         email:            normalizedEmail,
         passwordHash,
-        phone:            phone?.trim() || null,
+        phone:            normalizedPhone,
         businessCategory,
       },
     });

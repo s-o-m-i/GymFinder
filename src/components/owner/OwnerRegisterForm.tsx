@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { User, Mail, Lock, Phone, AlertCircle, Loader2, Dumbbell, Swords } from "lucide-react";
+import { User, Mail, Phone, AlertCircle, Loader2, Dumbbell, Swords, Eye, EyeOff } from "lucide-react";
 import type { BusinessCategory } from "@prisma/client";
 
 export function OwnerRegisterForm() {
@@ -18,6 +18,8 @@ export function OwnerRegisterForm() {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const inputClass =
     "w-full h-11 px-4 rounded-xl border border-gray-200 bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-[#0B2545]";
@@ -32,6 +34,10 @@ export function OwnerRegisterForm() {
       setError("Password must be at least 8 characters.");
       return;
     }
+    if (!form.phone.trim()) {
+      setError("Phone number is required.");
+      return;
+    }
 
     setLoading(true);
     setError(null);
@@ -44,7 +50,7 @@ export function OwnerRegisterForm() {
         body: JSON.stringify({
           name: form.name,
           email: form.email,
-          phone: form.phone || undefined,
+          phone: form.phone.trim(),
           password: form.password,
           businessCategory: form.businessCategory,
         }),
@@ -123,21 +129,57 @@ export function OwnerRegisterForm() {
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">Phone (optional)</label>
+            <label className="block text-sm font-semibold text-gray-700 mb-1.5">Phone *</label>
             <div className="relative">
               <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <input type="text" value={form.phone} onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))} placeholder="03001234567" className={`${inputClass} pl-10`} />
+              <input required type="tel" value={form.phone} onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))} placeholder="03001234567" className={`${inputClass} pl-10`} />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-1.5">Password *</label>
-              <input required type="password" value={form.password} onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))} placeholder="Min 8 chars" className={inputClass} />
+              <div className="relative">
+                <input
+                  required
+                  type={showPassword ? "text" : "password"}
+                  value={form.password}
+                  onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
+                  placeholder="Min 8 chars"
+                  className={`${inputClass} pr-10`}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors p-0.5"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  tabIndex={-1}
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
             </div>
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-1.5">Confirm *</label>
-              <input required type="password" value={form.confirmPassword} onChange={(e) => setForm((f) => ({ ...f, confirmPassword: e.target.value }))} placeholder="Repeat password" className={inputClass} />
+              <div className="relative">
+                <input
+                  required
+                  type={showConfirmPassword ? "text" : "password"}
+                  value={form.confirmPassword}
+                  onChange={(e) => setForm((f) => ({ ...f, confirmPassword: e.target.value }))}
+                  placeholder="Repeat password"
+                  className={`${inputClass} pr-10`}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword((v) => !v)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors p-0.5"
+                  aria-label={showConfirmPassword ? "Hide confirm password" : "Show confirm password"}
+                  tabIndex={-1}
+                >
+                  {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
             </div>
           </div>
 

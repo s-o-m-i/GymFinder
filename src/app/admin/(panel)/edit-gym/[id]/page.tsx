@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { GymForm } from "@/components/admin/GymForm";
 import { toUploaded } from "@/lib/gym-images-form";
+import { splitLinkedTags } from "@/lib/gym-tags";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -31,11 +32,28 @@ export default async function EditGymPage({ params }: PageProps) {
 
   if (!gym) notFound();
 
+  const disciplineTags = splitLinkedTags(
+    gym.disciplines.map((item) => ({
+      id: item.disciplineId,
+      name: item.discipline.name,
+    })),
+    disciplines
+  );
+
+  const amenityTags = splitLinkedTags(
+    gym.amenities.map((item) => ({
+      id: item.amenityId,
+      name: item.amenity.name,
+    })),
+    amenities
+  );
+
   const initialData = {
     id: gym.id,
     name: gym.name,
     slug: gym.slug,
     type: gym.type,
+    customTypeLabel: gym.customTypeLabel ?? "",
     description: gym.description,
     address: gym.address,
     area: gym.area,
@@ -48,6 +66,7 @@ export default async function EditGymPage({ params }: PageProps) {
     sizeCategory: gym.sizeCategory,
     whatsappNumber: gym.whatsappNumber,
     openingHours: gym.openingHours ?? "",
+    ladiesHours: gym.ladiesHours ?? "",
     coachInfo: gym.coachInfo ?? "",
     featured: gym.featured,
     rating: gym.rating?.toString() ?? "",
@@ -57,8 +76,10 @@ export default async function EditGymPage({ params }: PageProps) {
     galleryImages: gym.galleryImages.map((img) =>
       toUploaded({ id: img.id, imageUrl: img.imageUrl, publicId: img.publicId ?? undefined })
     ),
-    disciplineIds: gym.disciplines.map((d) => d.disciplineId),
-    amenityIds: gym.amenities.map((a) => a.amenityId),
+    disciplineIds: disciplineTags.selectedIds,
+    customDisciplineNames: disciplineTags.customNames,
+    amenityIds: amenityTags.selectedIds,
+    customAmenityNames: amenityTags.customNames,
   };
 
   return (

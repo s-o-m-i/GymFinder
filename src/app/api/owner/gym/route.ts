@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getOwnerSession } from "@/lib/owner-auth";
 import { slugify } from "@/lib/utils";
 import { syncGymImages } from "@/lib/gym-images";
+import { resolveAmenityIds, resolveDisciplineIds } from "@/lib/gym-tags";
 
 const GYM_INCLUDE = {
   galleryImages: true,
@@ -40,7 +41,26 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { disciplines, amenities, coverImage, galleryImages, ...gymData } = body;
+    const {
+      disciplines,
+      customDisciplines,
+      amenities,
+      customAmenities,
+      coverImage,
+      galleryImages,
+      ...gymData
+    } = body;
+
+    const disciplineIds = await resolveDisciplineIds(
+      prisma,
+      disciplines ?? [],
+      customDisciplines ?? []
+    );
+    const amenityIds = await resolveAmenityIds(
+      prisma,
+      amenities ?? [],
+      customAmenities ?? []
+    );
 
     const slug = gymData.slug ?? slugify(`${gymData.name}-${gymData.area}-${gymData.city}`);
     const slugTaken = await prisma.gym.findUnique({ where: { slug } });
@@ -54,11 +74,11 @@ export async function POST(req: NextRequest) {
         rating:        null,
         listingStatus: "pending",
         ownerId:       session.ownerId,
-        disciplines: disciplines?.length
-          ? { create: disciplines.map((id: string) => ({ discipline: { connect: { id } } })) }
+        disciplines: disciplineIds.length
+          ? { create: disciplineIds.map((id: string) => ({ discipline: { connect: { id } } })) }
           : undefined,
-        amenities: amenities?.length
-          ? { create: amenities.map((id: string) => ({ amenity: { connect: { id } } })) }
+        amenities: amenityIds.length
+          ? { create: amenityIds.map((id: string) => ({ amenity: { connect: { id } } })) }
           : undefined,
       },
     });
@@ -86,22 +106,47 @@ export async function PUT(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { disciplines, amenities, coverImage, galleryImages, featured, rating, listingStatus, ownerId, ...gymData } = body;
+    const {
+      disciplines,
+      customDisciplines,
+      amenities,
+      customAmenities,
+      coverImage,
+      galleryImages,
+      featured,
+      rating,
+      listingStatus,
+      ownerId,
+      ...gymData
+    } = body;
+
+    const disciplineIds =
+      disciplines !== undefined
+        ? await resolveDisciplineIds(
+            prisma,
+            disciplines ?? [],
+            customDisciplines ?? []
+          )
+        : undefined;
+    const amenityIds =
+      amenities !== undefined
+        ? await resolveAmenityIds(prisma, amenities ?? [], customAmenities ?? [])
+        : undefined;
 
     const updated = await prisma.gym.update({
       where: { id: gym.id },
       data: {
         ...gymData,
-        ...(disciplines !== undefined && {
+        ...(disciplineIds !== undefined && {
           disciplines: {
             deleteMany: {},
-            create: disciplines.map((id: string) => ({ discipline: { connect: { id } } })),
+            create: disciplineIds.map((id: string) => ({ discipline: { connect: { id } } })),
           },
         }),
-        ...(amenities !== undefined && {
+        ...(amenityIds !== undefined && {
           amenities: {
             deleteMany: {},
-            create: amenities.map((id: string) => ({ amenity: { connect: { id } } })),
+            create: amenityIds.map((id: string) => ({ amenity: { connect: { id } } })),
           },
         }),
       },

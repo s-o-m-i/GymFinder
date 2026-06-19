@@ -13,6 +13,7 @@ export type GymCardData = Pick<
   | "name"
   | "slug"
   | "type"
+  | "customTypeLabel"
   | "area"
   | "city"
   | "priceMin"

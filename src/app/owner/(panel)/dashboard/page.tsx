@@ -7,6 +7,7 @@ import { prisma } from "@/lib/prisma";
 import { businessCategoryLabel, businessCategoryBadgeClass } from "@/lib/owner-constants";
 import { gymTypeLabel } from "@/lib/utils";
 import { PlusCircle, Edit, Clock, CheckCircle2, XCircle, ExternalLink } from "lucide-react";
+import { ShareListingUrl } from "@/components/owner/ShareListingUrl";
 
 async function getOwnerData(ownerId: string) {
   return prisma.gymOwner.findUnique({
@@ -18,6 +19,7 @@ async function getOwnerData(ownerId: string) {
           name: true,
           slug: true,
           type: true,
+          customTypeLabel: true,
           area: true,
           city: true,
           listingStatus: true,
@@ -61,8 +63,11 @@ export default async function OwnerDashboardPage() {
       </div>
 
       {!owner.gym ? (
-        <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-8 text-center">
-          <div className="w-16 h-16 bg-[#FF6A3D]/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+        <Link
+          href="/owner/gym"
+          className="group block bg-[var(--card)] border border-[var(--border)] rounded-2xl p-8 text-center transition-all hover:border-[#FF6A3D]/40 hover:shadow-md hover:shadow-[#FF6A3D]/10 cursor-pointer"
+        >
+          <div className="w-16 h-16 bg-[#FF6A3D]/10 rounded-2xl flex items-center justify-center mx-auto mb-4 transition-colors group-hover:bg-[#FF6A3D]/15">
             <PlusCircle className="w-8 h-8 text-[#FF6A3D]" />
           </div>
           <h2 className="font-heading font-bold text-lg text-[var(--text)] mb-2">
@@ -71,21 +76,18 @@ export default async function OwnerDashboardPage() {
           <p className="text-[var(--text-muted)] text-sm mb-6 max-w-sm mx-auto">
             You haven&apos;t added a listing yet. Each account can manage one gym or fighting club.
           </p>
-          <Link
-            href="/owner/gym"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-[#FF6A3D] text-white font-semibold text-sm rounded-xl hover:bg-[#e85528] transition-colors"
-          >
+          <span className="inline-flex items-center gap-2 px-6 py-3 bg-[#FF6A3D] text-white font-semibold text-sm rounded-xl group-hover:bg-[#e85528] transition-colors">
             <PlusCircle className="w-4 h-4" />
             Create Listing
-          </Link>
-        </div>
+          </span>
+        </Link>
       ) : (
         <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6">
           <div className="flex items-start justify-between gap-4 flex-wrap mb-4">
             <div>
               <h2 className="font-heading font-bold text-lg text-[var(--text)]">{owner.gym.name}</h2>
               <p className="text-sm text-[var(--text-muted)] mt-0.5">
-                {gymTypeLabel(owner.gym.type)} · {owner.gym.area}, {owner.gym.city}
+                {gymTypeLabel(owner.gym.type, owner.gym.customTypeLabel)} · {owner.gym.area}, {owner.gym.city}
               </p>
             </div>
             {statusInfo && (() => {
@@ -123,6 +125,14 @@ export default async function OwnerDashboardPage() {
                 View Public Page
               </Link>
             )}
+          </div>
+
+          <div className="mt-5">
+            <ShareListingUrl
+              slug={owner.gym.slug}
+              listingName={owner.gym.name}
+              listingStatus={owner.gym.listingStatus}
+            />
           </div>
         </div>
       )}

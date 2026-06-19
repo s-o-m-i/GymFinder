@@ -121,7 +121,7 @@ export async function GymProfilePage({ slug }: GymProfilePageProps) {
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2 space-y-6">
+            <div className="lg:col-span-2 space-y-6 min-w-0">
               <ImageGallery images={galleryImages} gymName={gym.name} />
 
               <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6">
@@ -130,7 +130,7 @@ export async function GymProfilePage({ slug }: GymProfilePageProps) {
                     <div className="flex items-center gap-2 mb-2">
                       <Badge variant="default" className="inline-flex items-center gap-1.5">
                         <GymTypeIcon type={gym.type} className="w-3.5 h-3.5" />
-                        {gymTypeLabel(gym.type)}
+                        {gymTypeLabel(gym.type, gym.customTypeLabel)}
                       </Badge>
                       {gym.featured && (
                         <Badge variant="accent" className="inline-flex items-center gap-1">
@@ -154,12 +154,18 @@ export async function GymProfilePage({ slug }: GymProfilePageProps) {
                       {gym.openingHours}
                     </div>
                   )}
+                  {gym.ladiesHours && gym.ladiesStatus === "ladies_timings" && (
+                    <div className="flex items-center gap-2 text-sm text-purple-700 bg-purple-50 px-3 py-2 rounded-xl border border-purple-200">
+                      <Clock className="w-4 h-4" />
+                      Ladies-only hours: {gym.ladiesHours}
+                    </div>
+                  )}
                 </div>
               </div>
 
-              <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6">
+              <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6 min-w-0 overflow-hidden">
                 <h2 className="font-heading font-bold text-lg text-[var(--text)] mb-3">About</h2>
-                <p className="text-[var(--text-muted)] leading-relaxed whitespace-pre-line">
+                <p className="text-[var(--text-muted)] leading-relaxed whitespace-pre-line break-words break-all max-w-full">
                   {gym.description}
                 </p>
               </div>
@@ -208,7 +214,7 @@ export async function GymProfilePage({ slug }: GymProfilePageProps) {
                     <User className="w-5 h-5 text-[#FF6A3D]" />
                     Coach & Trainers
                   </h2>
-                  <p className="text-[var(--text-muted)] leading-relaxed whitespace-pre-line">
+                  <p className="text-[var(--text-muted)] leading-relaxed whitespace-pre-line break-words break-all max-w-full">
                     {gym.coachInfo}
                   </p>
                 </div>
@@ -272,6 +278,7 @@ export async function GymProfilePage({ slug }: GymProfilePageProps) {
                 priceMin={gym.priceMin}
                 priceMax={gym.priceMax}
                 openingHours={gym.openingHours}
+                ladiesHours={gym.ladiesHours}
                 disciplines={disciplineNames}
                 sizeCategory={gym.sizeCategory}
                 ladiesStatus={gym.ladiesStatus}
@@ -328,7 +335,7 @@ export async function GymProfilePage({ slug }: GymProfilePageProps) {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-[var(--text-muted)]">Type</span>
-                    <span className="font-medium text-[var(--text)]">{gymTypeLabel(gym.type)}</span>
+                    <span className="font-medium text-[var(--text)]">{gymTypeLabel(gym.type, gym.customTypeLabel)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-[var(--text-muted)]">Ladies</span>

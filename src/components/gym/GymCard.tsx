@@ -62,7 +62,7 @@ export function GymCard({ gym, distanceKm }: GymCardProps) {
         <div className="absolute top-3 right-3">
           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-black/55 backdrop-blur-sm text-white text-[11px] font-semibold">
             <GymTypeIcon type={gym.type} className="w-3.5 h-3.5" />
-            {gymTypeLabel(gym.type)}
+            {gymTypeLabel(gym.type, gym.customTypeLabel)}
           </span>
         </div>
 

@@ -4,8 +4,12 @@ import { redirect } from "next/navigation";
 import { getOwnerSession } from "@/lib/owner-auth";
 import { prisma } from "@/lib/prisma";
 import { GymForm } from "@/components/admin/GymForm";
-import { toUploaded } from "@/lib/gym-images-form";
-import { businessCategoryLabel } from "@/lib/owner-constants";
+import { buildGymFormImageState } from "@/lib/gym-images-form";
+import {
+  businessCategoryLabel,
+  isDisciplineAllowedForOwner,
+} from "@/lib/owner-constants";
+import { splitLinkedTags } from "@/lib/gym-tags";
 
 async function getData(ownerId: string) {
   const [owner, disciplines, amenities, gym] = await Promise.all([
@@ -33,13 +37,44 @@ export default async function OwnerGymPage() {
 
   const isEdit = !!gym;
   const listingLabel = owner.businessCategory === "fighting_club" ? "Fighting Club" : "Gym";
+  const visibleDisciplines = disciplines.filter((item) =>
+    isDisciplineAllowedForOwner(item.name, owner.businessCategory)
+  );
+
+  const disciplineTags = gym
+    ? splitLinkedTags(
+        gym.disciplines.map((item) => ({
+          id: item.disciplineId,
+          name: item.discipline.name,
+        })),
+        visibleDisciplines
+      )
+    : { selectedIds: [], customNames: [] };
+
+  const amenityTags = gym
+    ? splitLinkedTags(
+        gym.amenities.map((item) => ({
+          id: item.amenityId,
+          name: item.amenity.name,
+        })),
+        amenities
+      )
+    : { selectedIds: [], customNames: [] };
 
   const initialData = gym
-    ? {
+    ? (() => {
+        const { coverImage, galleryImages } = buildGymFormImageState({
+          coverImage: gym.coverImage,
+          coverImagePublicId: gym.coverImagePublicId,
+          galleryImages: gym.galleryImages,
+        });
+
+        return {
         id: gym.id,
         name: gym.name,
         slug: gym.slug,
         type: gym.type,
+        customTypeLabel: gym.customTypeLabel ?? "",
         description: gym.description,
         address: gym.address,
         area: gym.area,
@@ -52,16 +87,16 @@ export default async function OwnerGymPage() {
         sizeCategory: gym.sizeCategory,
         whatsappNumber: gym.whatsappNumber,
         openingHours: gym.openingHours ?? "",
+        ladiesHours: gym.ladiesHours ?? "",
         coachInfo: gym.coachInfo ?? "",
-        coverImage: gym.coverImage
-          ? toUploaded({ imageUrl: gym.coverImage, publicId: gym.coverImagePublicId ?? undefined })
-          : null,
-        galleryImages: gym.galleryImages.map((img) =>
-          toUploaded({ id: img.id, imageUrl: img.imageUrl, publicId: img.publicId ?? undefined })
-        ),
-        disciplineIds: gym.disciplines.map((d) => d.disciplineId),
-        amenityIds: gym.amenities.map((a) => a.amenityId),
-      }
+        coverImage,
+        galleryImages,
+        disciplineIds: disciplineTags.selectedIds,
+        customDisciplineNames: disciplineTags.customNames,
+        amenityIds: amenityTags.selectedIds,
+        customAmenityNames: amenityTags.customNames,
+      };
+      })()
     : undefined;
 
   return (
@@ -81,6 +116,7 @@ export default async function OwnerGymPage() {
         amenities={amenities}
         mode={isEdit ? "edit" : "create"}
         variant="owner"
+        businessCategory={owner.businessCategory}
       />
     </div>
   );

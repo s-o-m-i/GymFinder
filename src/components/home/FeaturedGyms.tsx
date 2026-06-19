@@ -22,7 +22,7 @@ export function FeaturedGyms({ gyms }: FeaturedGymsProps) {
               </span>
             </div>
             <h2 className="font-heading font-bold text-2xl sm:text-3xl text-[var(--text)]">
-              Featured Gyms & Clubs
+              Featured Gyms &  Fighting Clubs
             </h2>
           </div>
           <Link

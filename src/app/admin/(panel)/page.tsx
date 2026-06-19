@@ -23,6 +23,7 @@ async function getAllGyms() {
       area: true,
       city: true,
       type: true,
+      customTypeLabel: true,
       priceMin: true,
       priceMax: true,
       featured: true,

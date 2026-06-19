@@ -185,14 +185,19 @@ export function ImageUploader({
 
       {/* Previews */}
       {images.length > 0 && (
-        <div className={cn(
-          "mb-4 gap-3",
-          multiple ? "grid grid-cols-2 sm:grid-cols-3" : "flex"
-        )}>
+        <div
+          className={cn(
+            "mb-4 gap-3",
+            multiple ? "grid grid-cols-2 sm:grid-cols-3" : "w-full max-w-2xl"
+          )}
+        >
           {images.map((img, i) => (
             <div
               key={img.id ?? img.publicId ?? img.preview ?? i}
-              className="relative group aspect-video rounded-xl overflow-hidden border border-[var(--border)] bg-[var(--bg)]"
+              className={cn(
+                "relative group aspect-video rounded-xl overflow-hidden border border-[var(--border)] bg-[var(--bg)]",
+                !multiple && "w-full min-h-[200px]"
+              )}
             >
               {displaySrc(img) ? (
                 <Image
@@ -201,7 +206,7 @@ export function ImageUploader({
                   fill
                   className="object-cover"
                   sizes="200px"
-                  unoptimized={!!img.preview}
+                  unoptimized
                 />
               ) : (
                 <div className="absolute inset-0 flex items-center justify-center">
@@ -247,6 +252,16 @@ export function ImageUploader({
         </div>
       )}
 
+      {!multiple && images.length > 0 && images[0].status === "uploaded" && (
+        <button
+          type="button"
+          onClick={() => inputRef.current?.click()}
+          className="mb-4 text-sm font-medium text-[#FF6A3D] hover:underline"
+        >
+          Replace cover image
+        </button>
+      )}
+
       {/* Drop zone */}
       {canAddMore && (
         <div
@@ -256,6 +271,7 @@ export function ImageUploader({
           onClick={() => inputRef.current?.click()}
           className={cn(
             "flex flex-col items-center justify-center gap-2 p-8 border-2 border-dashed rounded-2xl cursor-pointer transition-colors",
+            !multiple && "max-w-2xl",
             dragging
               ? "border-[#FF6A3D] bg-[#FF6A3D]/5"
               : "border-[var(--border)] hover:border-[#FF6A3D]/50 hover:bg-[var(--bg)]"
@@ -276,19 +292,20 @@ export function ImageUploader({
               or click to browse · JPEG, PNG, WebP · max 10 MB
             </p>
           </div>
-          <input
-            ref={inputRef}
-            type="file"
-            accept="image/jpeg,image/png,image/webp,image/gif"
-            multiple={multiple}
-            className="hidden"
-            onChange={(e) => {
-              if (e.target.files) uploadFiles(e.target.files);
-              e.target.value = "";
-            }}
-          />
         </div>
       )}
+
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/jpeg,image/png,image/webp,image/gif"
+        multiple={multiple}
+        className="hidden"
+        onChange={(e) => {
+          if (e.target.files) uploadFiles(e.target.files);
+          e.target.value = "";
+        }}
+      />
     </div>
   );
 }

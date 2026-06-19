@@ -11,7 +11,7 @@ const STATUS_CONFIG: Record<
     className: "bg-pink-50 text-pink-700 border-pink-200",
   },
   ladies_timings: {
-    label: "Ladies Timings",
+    label: "Ladies-Only Hours",
     icon: Venus,
     className: "bg-purple-50 text-purple-700 border-purple-200",
   },

@@ -15,7 +15,8 @@ export interface AdminGymRow {
   slug:     string;
   area:     string;
   city:     string;
-  type:     string;
+  type:             string;
+  customTypeLabel?: string | null;
   priceMin: number;
   priceMax: number;
   featured: boolean;
@@ -104,7 +105,7 @@ export function AdminGymsTable({ gyms }: AdminGymsTableProps) {
               <td className="px-4 py-4">
                 <span className="inline-flex items-center gap-1.5 text-[var(--text)]">
                   <GymTypeIcon type={gym.type} className="w-3.5 h-3.5 text-[var(--text-muted)]" />
-                  {gymTypeLabel(gym.type)}
+                  {gymTypeLabel(gym.type, gym.customTypeLabel)}
                 </span>
               </td>
               <td className="px-4 py-4 font-mono-nums text-[var(--text)]">

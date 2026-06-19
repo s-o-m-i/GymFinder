@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/utils";
 import { syncGymImages } from "@/lib/gym-images";
+import { resolveAmenityIds, resolveDisciplineIds } from "@/lib/gym-tags";
 import type { GymFilters } from "@/types";
 import type { Prisma } from "@prisma/client";
 
@@ -72,22 +73,41 @@ export async function POST(req: NextRequest) {
     const existing = await prisma.gym.findUnique({ where: { slug } });
     const finalSlug = existing ? `${slug}-${Date.now()}` : slug;
 
-    const { disciplines, amenities, coverImage, galleryImages, ...gymData } = body;
+    const {
+      disciplines,
+      customDisciplines,
+      amenities,
+      customAmenities,
+      coverImage,
+      galleryImages,
+      ...gymData
+    } = body;
+
+    const disciplineIds = await resolveDisciplineIds(
+      prisma,
+      disciplines ?? [],
+      customDisciplines ?? []
+    );
+    const amenityIds = await resolveAmenityIds(
+      prisma,
+      amenities ?? [],
+      customAmenities ?? []
+    );
 
     const gym = await prisma.gym.create({
       data: {
         ...gymData,
         slug: finalSlug,
-        disciplines: disciplines?.length
+        disciplines: disciplineIds.length
           ? {
-              create: disciplines.map((disciplineId: string) => ({
+              create: disciplineIds.map((disciplineId: string) => ({
                 discipline: { connect: { id: disciplineId } },
               })),
             }
           : undefined,
-        amenities: amenities?.length
+        amenities: amenityIds.length
           ? {
-              create: amenities.map((amenityId: string) => ({
+              create: amenityIds.map((amenityId: string) => ({
                 amenity: { connect: { id: amenityId } },
               })),
             }

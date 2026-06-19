@@ -1,6 +1,9 @@
 export const CITIES = ["Rawalpindi", "Islamabad"] as const;
 export type City = (typeof CITIES)[number];
 
+/** Select value when the owner enters a custom primary discipline / type. */
+export const CUSTOM_TYPE_VALUE = "__custom__";
+
 export const GYM_TYPES = [
   { value: "gym",          label: "Gym" },
   { value: "boxing",       label: "Boxing" },
@@ -11,9 +14,13 @@ export const GYM_TYPES = [
 ] as const;
 
 export const LADIES_STATUS_OPTIONS = [
-  { value: "mixed", label: "Mixed" },
+  { value: "mixed", label: "Mixed (Open to All)" },
   { value: "ladies_only", label: "Ladies Only" },
-  { value: "ladies_timings", label: "Ladies Timings" },
+  {
+    value: "ladies_timings",
+    label: "Mixed — with Ladies-Only Hours",
+    description: "General mixed access plus dedicated women's-only training hours.",
+  },
   { value: "men_only", label: "Men Only" },
 ] as const;
 

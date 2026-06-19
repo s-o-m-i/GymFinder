@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/utils";
 import { syncGymImages, deleteGymCloudinaryAssets } from "@/lib/gym-images";
+import { resolveAmenityIds, resolveDisciplineIds } from "@/lib/gym-tags";
 
 const GYM_FULL_INCLUDE = {
   galleryImages: true,
@@ -39,7 +40,28 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
     const { id } = await params;
     const body = await req.json();
-    const { disciplines, amenities, coverImage, galleryImages, ...gymData } = body;
+    const {
+      disciplines,
+      customDisciplines,
+      amenities,
+      customAmenities,
+      coverImage,
+      galleryImages,
+      ...gymData
+    } = body;
+
+    const disciplineIds =
+      disciplines !== undefined
+        ? await resolveDisciplineIds(
+            prisma,
+            disciplines ?? [],
+            customDisciplines ?? []
+          )
+        : undefined;
+    const amenityIds =
+      amenities !== undefined
+        ? await resolveAmenityIds(prisma, amenities ?? [], customAmenities ?? [])
+        : undefined;
 
     if (gymData.name && !gymData.slug) {
       const gym = await prisma.gym.findUnique({
@@ -57,18 +79,18 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       where: { id },
       data: {
         ...gymData,
-        ...(disciplines !== undefined && {
+        ...(disciplineIds !== undefined && {
           disciplines: {
             deleteMany: {},
-            create: disciplines.map((disciplineId: string) => ({
+            create: disciplineIds.map((disciplineId: string) => ({
               discipline: { connect: { id: disciplineId } },
             })),
           },
         }),
-        ...(amenities !== undefined && {
+        ...(amenityIds !== undefined && {
           amenities: {
             deleteMany: {},
-            create: amenities.map((amenityId: string) => ({
+            create: amenityIds.map((amenityId: string) => ({
               amenity: { connect: { id: amenityId } },
             })),
           },

@@ -13,12 +13,14 @@ async function getOwners() {
       email: true,
       phone: true,
       businessCategory: true,
+      createdAt: true,
       gym: {
         select: {
           id: true,
           name: true,
           slug: true,
           type: true,
+          customTypeLabel: true,
           area: true,
           city: true,
           priceMin: true,

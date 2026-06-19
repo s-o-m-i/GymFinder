@@ -1,10 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { ImageUploader } from "@/components/admin/ImageUploader";
+import { OpeningHoursFields, LadiesOnlyHoursFields } from "@/components/admin/OpeningHoursFields";
+import { CustomTagPicker } from "@/components/admin/CustomTagPicker";
+import {
+  OwnerGymStepIndicator,
+  OWNER_GYM_STEPS,
+} from "@/components/owner/OwnerGymStepIndicator";
+import { parseOpeningHours } from "@/lib/opening-hours";
 import type { UploadedImage } from "@/lib/gym-images-form";
+import { buildGymFormImageState } from "@/lib/gym-images-form";
 import {
   GYM_TYPES,
   LADIES_STATUS_OPTIONS,
@@ -12,13 +20,23 @@ import {
   CITIES,
   RAWALPINDI_AREAS,
   ISLAMABAD_AREAS,
+  CUSTOM_TYPE_VALUE,
 } from "@/lib/constants";
+import {
+  getOwnerFormCopy,
+  getOwnerListingTypes,
+  getInitialFormType,
+  isDisciplineAllowedForOwner,
+  resolveGymTypeForSave,
+} from "@/lib/owner-constants";
+import type { BusinessCategory } from "@prisma/client";
 import type { Discipline, Amenity } from "@prisma/client";
 
 interface GymFormData {
   name: string;
   slug: string;
   type: string;
+  customTypeLabel: string;
   description: string;
   address: string;
   area: string;
@@ -31,13 +49,16 @@ interface GymFormData {
   sizeCategory: string;
   whatsappNumber: string;
   openingHours: string;
+  ladiesHours: string;
   coachInfo: string;
   featured: boolean;
   rating: string;
   coverImage: UploadedImage | null;
   galleryImages: UploadedImage[];
   disciplineIds: string[];
+  customDisciplineNames: string[];
   amenityIds: string[];
+  customAmenityNames: string[];
 }
 
 interface GymFormProps {
@@ -46,6 +67,7 @@ interface GymFormProps {
   amenities: Amenity[];
   mode: "create" | "edit";
   variant?: "admin" | "owner";
+  businessCategory?: BusinessCategory;
   cancelPath?: string;
   successPath?: string;
 }
@@ -67,17 +89,47 @@ export function GymForm({
   amenities,
   mode,
   variant = "admin",
+  businessCategory,
   cancelPath,
   successPath,
 }: GymFormProps) {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const isOwnerWizard = variant === "owner";
+  const [step, setStep] = useState(1);
+  const totalSteps = OWNER_GYM_STEPS.length;
+
+  const showStep = (stepNumber: number) =>
+    !isOwnerWizard || step === stepNumber;
+
+  const ownerCopy =
+    variant === "owner" && businessCategory
+      ? getOwnerFormCopy(businessCategory)
+      : null;
+  const typeOptions =
+    variant === "owner" && businessCategory
+      ? getOwnerListingTypes(businessCategory)
+      : GYM_TYPES;
+  const visibleDisciplines =
+    variant === "owner" && businessCategory
+      ? disciplines.filter((d) =>
+          isDisciplineAllowedForOwner(d.name, businessCategory)
+        )
+      : disciplines;
 
   const [form, setForm] = useState<GymFormData>({
     name: initialData?.name ?? "",
     slug: initialData?.slug ?? "",
-    type: initialData?.type ?? "gym",
+    type:
+      variant === "owner" && businessCategory
+        ? getInitialFormType(
+            businessCategory,
+            initialData?.type,
+            initialData?.customTypeLabel
+          )
+        : getInitialFormType(undefined, initialData?.type, initialData?.customTypeLabel),
+    customTypeLabel: initialData?.customTypeLabel ?? "",
     description: initialData?.description ?? "",
     address: initialData?.address ?? "",
     area: initialData?.area ?? "",
@@ -90,38 +142,76 @@ export function GymForm({
     sizeCategory: initialData?.sizeCategory ?? "medium",
     whatsappNumber: initialData?.whatsappNumber ?? "",
     openingHours: initialData?.openingHours ?? "",
+    ladiesHours: initialData?.ladiesHours ?? "",
     coachInfo: initialData?.coachInfo ?? "",
     featured: initialData?.featured ?? false,
     rating: initialData?.rating ?? "",
     coverImage: initialData?.coverImage ?? null,
     galleryImages: initialData?.galleryImages ?? [],
     disciplineIds: initialData?.disciplineIds ?? [],
+    customDisciplineNames: initialData?.customDisciplineNames ?? [],
     amenityIds: initialData?.amenityIds ?? [],
+    customAmenityNames: initialData?.customAmenityNames ?? [],
   });
 
+  useEffect(() => {
+    if (variant !== "owner" || mode !== "edit") return;
+
+    let cancelled = false;
+
+    async function hydrateOwnerImages() {
+      try {
+        const res = await fetch("/api/owner/gym", { credentials: "include" });
+        if (!res.ok || cancelled) return;
+
+        const json = await res.json();
+        const gym = json.data as {
+          coverImage?: string | null;
+          coverImagePublicId?: string | null;
+          galleryImages?: Array<{
+            id: string;
+            imageUrl: string;
+            publicId?: string | null;
+          }>;
+        } | null;
+
+        if (!gym || cancelled) return;
+
+        const { coverImage, galleryImages } = buildGymFormImageState(gym);
+        setForm((prev) => ({
+          ...prev,
+          coverImage,
+          galleryImages,
+        }));
+      } catch {
+        // Keep server-provided initial values if hydration fails.
+      }
+    }
+
+    void hydrateOwnerImages();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [variant, mode]);
+
   const areas = form.city === "Islamabad" ? ISLAMABAD_AREAS : RAWALPINDI_AREAS;
+  const areaQuickPickValue = areas.includes(form.area) ? form.area : "";
+  const isCustomType = form.type === CUSTOM_TYPE_VALUE;
+  const typeHint =
+    ownerCopy?.typeHint ??
+    "Pick a category or choose Other to specify your own.";
+  const customTypeFieldLabel =
+    ownerCopy?.customTypeLabel ?? "Custom type";
+  const customTypePlaceholder =
+    ownerCopy?.customTypePlaceholder ?? "e.g. CrossFit, Powerlifting Studio";
+  const areaHint =
+    ownerCopy?.areaHint ??
+    "Type any neighbourhood, or use the quick pick if yours is listed.";
 
   const set = (key: keyof GymFormData, value: GymFormData[keyof GymFormData]) => {
     setForm((prev) => ({ ...prev, [key]: value }));
     setError("");
-  };
-
-  const toggleDiscipline = (id: string) => {
-    set(
-      "disciplineIds",
-      form.disciplineIds.includes(id)
-        ? form.disciplineIds.filter((d) => d !== id)
-        : [...form.disciplineIds, id]
-    );
-  };
-
-  const toggleAmenity = (id: string) => {
-    set(
-      "amenityIds",
-      form.amenityIds.includes(id)
-        ? form.amenityIds.filter((a) => a !== id)
-        : [...form.amenityIds, id]
-    );
   };
 
   const hasUploadingImages =
@@ -129,36 +219,171 @@ export function GymForm({
     form.coverImage?.status === "pending" ||
     form.galleryImages.some((img) => img.status === "uploading" || img.status === "pending");
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  function validateOwnerStep(stepNumber: number): string | null {
+    switch (stepNumber) {
+      case 1:
+        if (!form.name.trim()) {
+          return ownerCopy?.nameRequiredError ?? "Please enter the name.";
+        }
+        if (isCustomType && !form.customTypeLabel.trim()) {
+          return (
+            ownerCopy?.customTypeRequiredError ??
+            "Please enter your custom type."
+          );
+        }
+        if (!form.description.trim()) return "Please add a description.";
+        return null;
+      case 2:
+        if (!form.area.trim()) return "Please enter an area or neighbourhood.";
+        if (!form.address.trim()) return "Please enter your full address.";
+        return null;
+      case 3:
+        if (!form.priceMin || !form.priceMax) {
+          return "Please enter both minimum and maximum monthly price.";
+        }
+        if (Number(form.priceMin) > Number(form.priceMax)) {
+          return "Minimum price cannot be higher than maximum price.";
+        }
+        if (form.ladiesStatus === "ladies_timings") {
+          const ladiesSchedule = parseOpeningHours(form.ladiesHours);
+          if (
+            !ladiesSchedule.days.length ||
+            !ladiesSchedule.openTime ||
+            !ladiesSchedule.closeTime
+          ) {
+            return "Please set the full ladies-only hours schedule.";
+          }
+        }
+        return null;
+      case 4:
+        if (!form.whatsappNumber.trim()) {
+          return "Please enter a WhatsApp number for client inquiries.";
+        }
+        return null;
+      default:
+        return null;
+    }
+  }
+
+  const completedOwnerSteps = useMemo(() => {
+    if (!isOwnerWizard) return new Set<number>();
+
+    const done = new Set<number>();
+    for (let stepNumber = 1; stepNumber <= totalSteps; stepNumber++) {
+      if (stepNumber === 6) {
+        if (
+          form.coverImage?.imageUrl ||
+          form.galleryImages.some((img) => img.imageUrl)
+        ) {
+          done.add(6);
+        }
+        continue;
+      }
+
+      if (validateOwnerStep(stepNumber) === null) {
+        done.add(stepNumber);
+      }
+    }
+    return done;
+  }, [form, isOwnerWizard, totalSteps, isCustomType, ownerCopy]);
+
+  function goToStep(nextStep: number) {
+    setError("");
+    setStep(nextStep);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function goNext() {
+    const validationError = validateOwnerStep(step);
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+    goToStep(Math.min(step + 1, totalSteps));
+  }
+
+  function goBack() {
+    goToStep(Math.max(step - 1, 1));
+  }
+
+  async function submitForm() {
+    if (saving) return;
 
     if (hasUploadingImages) {
       setError("Please wait for all images to finish uploading.");
       return;
     }
 
+    if (!isOwnerWizard) {
+      if (isCustomType && !form.customTypeLabel.trim()) {
+        setError(
+          ownerCopy?.customTypeRequiredError ??
+            "Please enter your custom type."
+        );
+        return;
+      }
+      if (!form.area.trim()) {
+        setError("Please enter an area or neighbourhood.");
+        return;
+      }
+      if (form.ladiesStatus === "ladies_timings") {
+        const ladiesSchedule = parseOpeningHours(form.ladiesHours);
+        if (
+          !ladiesSchedule.days.length ||
+          !ladiesSchedule.openTime ||
+          !ladiesSchedule.closeTime
+        ) {
+          setError(
+            "Please set the full ladies-only hours schedule (days, start time, and end time)."
+          );
+          return;
+        }
+      }
+    } else {
+      for (let i = 1; i <= 4; i++) {
+        const validationError = validateOwnerStep(i);
+        if (validationError) {
+          setError(validationError);
+          setStep(i);
+          return;
+        }
+      }
+    }
+
     setSaving(true);
     setError("");
 
-    const coverPayload = form.coverImage?.imageUrl
-      ? { imageUrl: form.coverImage.imageUrl, publicId: form.coverImage.publicId }
-      : null;
+    const coverPayload =
+      form.coverImage?.imageUrl &&
+      form.coverImage.status !== "uploading" &&
+      form.coverImage.status !== "pending"
+        ? { imageUrl: form.coverImage.imageUrl, publicId: form.coverImage.publicId }
+        : null;
 
     const galleryPayload = form.galleryImages
-      .filter((img) => img.status === "uploaded" && img.imageUrl)
+      .filter(
+        (img) =>
+          img.imageUrl &&
+          img.status !== "uploading" &&
+          img.status !== "pending"
+      )
       .map((img) => ({
         id:       img.id,
         imageUrl: img.imageUrl,
         publicId: img.publicId,
       }));
 
+    const { type: resolvedType, customTypeLabel: resolvedCustomTypeLabel } =
+      resolveGymTypeForSave(form.type, form.customTypeLabel, businessCategory);
+
     const payload = {
       name: form.name,
       slug: form.slug || undefined,
-      type: form.type,
+      type: resolvedType,
+      customTypeLabel: resolvedCustomTypeLabel,
       description: form.description,
       address: form.address,
-      area: form.area,
+      area: form.area.trim(),
       city: form.city,
       latitude: form.latitude ? parseFloat(form.latitude) : null,
       longitude: form.longitude ? parseFloat(form.longitude) : null,
@@ -168,13 +393,17 @@ export function GymForm({
       sizeCategory: form.sizeCategory,
       whatsappNumber: form.whatsappNumber,
       openingHours: form.openingHours || null,
+      ladiesHours:
+        form.ladiesStatus === "ladies_timings" ? form.ladiesHours || null : null,
       coachInfo: form.coachInfo || null,
       ...(variant === "admin" && {
         featured: form.featured,
         rating: form.rating ? parseFloat(form.rating) : null,
       }),
       disciplines: form.disciplineIds,
+      customDisciplines: form.customDisciplineNames,
       amenities: form.amenityIds,
+      customAmenities: form.customAmenityNames,
       coverImage: coverPayload,
       galleryImages: galleryPayload,
     };
@@ -211,7 +440,16 @@ export function GymForm({
     } finally {
       setSaving(false);
     }
-  };
+  }
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (isOwnerWizard && step < totalSteps) {
+      goNext();
+      return;
+    }
+    void submitForm();
+  }
 
   const inputClass =
     "w-full px-3 py-2.5 text-sm bg-[var(--bg)] border border-[var(--border)] rounded-xl text-[var(--text)] placeholder:text-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[#FF6A3D]/30 focus:border-[#FF6A3D]";
@@ -219,7 +457,22 @@ export function GymForm({
   const labelClass = "block text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wide mb-1.5";
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} noValidate={isOwnerWizard} className="space-y-6">
+      {isOwnerWizard && (
+        <OwnerGymStepIndicator
+          currentStep={step}
+          completedSteps={completedOwnerSteps}
+          onStepClick={(targetStep) => {
+            if (targetStep === step) return;
+            if (mode === "edit" && completedOwnerSteps.has(targetStep)) {
+              goToStep(targetStep);
+              return;
+            }
+            if (targetStep < step) goToStep(targetStep);
+          }}
+        />
+      )}
+
       {error && (
         <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700">
           {error}
@@ -227,16 +480,19 @@ export function GymForm({
       )}
 
       {/* Basic info */}
+      {showStep(1) && (
       <SectionCard title="Basic Information">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="sm:col-span-2">
-            <label className={labelClass}>Gym Name *</label>
+            <label className={labelClass}>
+              {ownerCopy?.nameLabel ?? "Gym Name"} *
+            </label>
             <input
               required
               type="text"
               value={form.name}
               onChange={(e) => set("name", e.target.value)}
-              placeholder="e.g. Iron Will Fitness Club"
+              placeholder={ownerCopy?.namePlaceholder ?? "e.g. Iron Will Fitness Club"}
               className={inputClass}
             />
           </div>
@@ -253,19 +509,40 @@ export function GymForm({
           </div>
 
           <div>
-            <label className={labelClass}>Type *</label>
+            <label className={labelClass}>
+              {ownerCopy?.typeLabel ?? "Type"} *
+            </label>
             <select
               required
               value={form.type}
-              onChange={(e) => set("type", e.target.value)}
+              onChange={(e) => {
+                const value = e.target.value;
+                set("type", value);
+                if (value !== CUSTOM_TYPE_VALUE) set("customTypeLabel", "");
+              }}
               className={inputClass}
             >
-              {GYM_TYPES.map((t) => (
+              {typeOptions.map((t) => (
                 <option key={t.value} value={t.value}>
                   {t.label}
                 </option>
               ))}
+              <option value={CUSTOM_TYPE_VALUE}>Other — specify below</option>
             </select>
+            <p className="mt-1.5 text-xs text-[var(--text-muted)]">{typeHint}</p>
+            {isCustomType && (
+              <div className="mt-3">
+                <label className={labelClass}>{customTypeFieldLabel} *</label>
+                <input
+                  required
+                  type="text"
+                  value={form.customTypeLabel}
+                  onChange={(e) => set("customTypeLabel", e.target.value)}
+                  placeholder={customTypePlaceholder}
+                  className={inputClass}
+                />
+              </div>
+            )}
           </div>
 
           <div className="sm:col-span-2">
@@ -275,14 +552,19 @@ export function GymForm({
               rows={4}
               value={form.description}
               onChange={(e) => set("description", e.target.value)}
-              placeholder="Describe the gym, its facilities, atmosphere, and what makes it special…"
+              placeholder={
+                ownerCopy?.descriptionPlaceholder ??
+                "Describe the gym, its facilities, atmosphere, and what makes it special…"
+              }
               className={`${inputClass} resize-none`}
             />
           </div>
         </div>
       </SectionCard>
+      )}
 
       {/* Location */}
+      {showStep(2) && (
       <SectionCard title="Location">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
@@ -302,16 +584,26 @@ export function GymForm({
           <div>
             <label className={labelClass}>Area *</label>
             <select
-              required
-              value={form.area}
-              onChange={(e) => set("area", e.target.value)}
-              className={inputClass}
+              value={areaQuickPickValue}
+              onChange={(e) => {
+                if (e.target.value) set("area", e.target.value);
+              }}
+              className={`${inputClass} mb-2`}
             >
-              <option value="">Select area…</option>
+              <option value="">Quick pick from popular areas (optional)</option>
               {areas.map((a) => (
                 <option key={a} value={a}>{a}</option>
               ))}
             </select>
+            <input
+              required
+              type="text"
+              value={form.area}
+              onChange={(e) => set("area", e.target.value)}
+              placeholder="e.g. Dhoke Chaudhrian, F-7/2, or your neighbourhood"
+              className={inputClass}
+            />
+            <p className="mt-1.5 text-xs text-[var(--text-muted)]">{areaHint}</p>
           </div>
 
           <div className="sm:col-span-2">
@@ -351,9 +643,12 @@ export function GymForm({
           </div>
         </div>
       </SectionCard>
+      )}
 
-      {/* Pricing & hours */}
-      <SectionCard title="Pricing & Hours">
+      {/* Pricing */}
+      {showStep(3) && (
+      <>
+      <SectionCard title="Membership Pricing">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className={labelClass}>Min Price (PKR/month) *</label>
@@ -380,37 +675,106 @@ export function GymForm({
               className={inputClass}
             />
           </div>
-
-          <div className="sm:col-span-2">
-            <label className={labelClass}>Opening Hours</label>
-            <input
-              type="text"
-              value={form.openingHours}
-              onChange={(e) => set("openingHours", e.target.value)}
-              placeholder="e.g. Mon–Sat 6AM–10PM"
-              className={inputClass}
-            />
-          </div>
         </div>
       </SectionCard>
 
-      {/* Details */}
-      <SectionCard title="Details & Status">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div>
-            <label className={labelClass}>Ladies Status *</label>
-            <select
-              required
-              value={form.ladiesStatus}
-              onChange={(e) => set("ladiesStatus", e.target.value)}
-              className={inputClass}
-            >
-              {LADIES_STATUS_OPTIONS.map((o) => (
-                <option key={o.value} value={o.value}>{o.label}</option>
-              ))}
-            </select>
+      {/* Operating hours */}
+      <SectionCard title="Operating Hours">
+        <p className="text-sm text-[var(--text-muted)] mb-6">
+          Set your facility schedules here. Choose your access policy first — separate
+          men&apos;s/mixed and ladies-only timings appear when relevant.
+        </p>
+
+        <div className="mb-6 max-w-md">
+          <label className={labelClass}>Access & Gender Policy *</label>
+          <select
+            required
+            value={form.ladiesStatus}
+            onChange={(e) => {
+              const nextStatus = e.target.value;
+              set("ladiesStatus", nextStatus);
+              if (nextStatus !== "ladies_timings") set("ladiesHours", "");
+            }}
+            className={inputClass}
+          >
+            {LADIES_STATUS_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value}>{o.label}</option>
+            ))}
+          </select>
+        </div>
+
+        <div className="space-y-5">
+          <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg)] p-5">
+            <div className="mb-4">
+              <h4 className="font-heading font-bold text-[var(--text)]">
+                {form.ladiesStatus === "ladies_timings"
+                  ? "General Facility Hours"
+                  : "Facility Hours"}
+              </h4>
+              <p className="text-xs text-[var(--text-muted)] mt-1">
+                {form.ladiesStatus === "ladies_timings"
+                  ? "When the gym is open to mixed or men's access outside ladies-only windows."
+                  : form.ladiesStatus === "ladies_only"
+                    ? "Your ladies-only facility schedule."
+                    : form.ladiesStatus === "men_only"
+                      ? "Your men's facility schedule."
+                      : "Your standard opening schedule shown on the public listing."}
+              </p>
+            </div>
+            <OpeningHoursFields
+              value={form.openingHours}
+              onChange={(value) => set("openingHours", value)}
+              labelClass={labelClass}
+              inputClass={inputClass}
+              daysLabel={
+                form.ladiesStatus === "ladies_timings"
+                  ? "General Access Days"
+                  : "Opening Days"
+              }
+              openLabel={
+                form.ladiesStatus === "ladies_timings"
+                  ? "General access starts"
+                  : "Opens at"
+              }
+              closeLabel={
+                form.ladiesStatus === "ladies_timings"
+                  ? "General access ends"
+                  : "Closes at"
+              }
+              previewPrefix={
+                form.ladiesStatus === "ladies_timings" ? "General hours" : "Saved as"
+              }
+            />
           </div>
 
+          {form.ladiesStatus === "ladies_timings" && (
+            <div className="rounded-2xl border border-purple-200 bg-purple-50/60 p-5">
+              <div className="mb-4">
+                <h4 className="font-heading font-bold text-purple-900">
+                  Ladies-Only Hours
+                </h4>
+                <p className="text-xs text-purple-800/80 mt-1">
+                  Dedicated women&apos;s training window — separate from general
+                  facility hours above.
+                </p>
+              </div>
+              <LadiesOnlyHoursFields
+                value={form.ladiesHours}
+                onChange={(value) => set("ladiesHours", value)}
+                labelClass={labelClass}
+                inputClass={inputClass}
+              />
+            </div>
+          )}
+        </div>
+      </SectionCard>
+      </>
+      )}
+
+      {/* Details */}
+      {showStep(4) && (
+      <SectionCard title="Details & Status">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
             <label className={labelClass}>Size Category *</label>
             <select
@@ -470,58 +834,90 @@ export function GymForm({
         </div>
 
         <div className="mt-4">
-          <label className={labelClass}>Coach Information (optional)</label>
+          <label className={labelClass}>
+            {ownerCopy?.coachLabel ?? "Coach Information (optional)"}
+          </label>
           <textarea
             rows={3}
             value={form.coachInfo}
             onChange={(e) => set("coachInfo", e.target.value)}
-            placeholder="Describe the coaches, their experience, and certifications…"
+            placeholder={
+              ownerCopy?.coachPlaceholder ??
+              "Describe the coaches, their experience, and certifications…"
+            }
             className={`${inputClass} resize-none`}
           />
         </div>
       </SectionCard>
+      )}
 
       {/* Disciplines */}
-      <SectionCard title="Disciplines">
-        <div className="flex flex-wrap gap-2">
-          {disciplines.map((d) => (
-            <button
-              key={d.id}
-              type="button"
-              onClick={() => toggleDiscipline(d.id)}
-              className={`px-3 py-2 text-sm font-medium rounded-xl border transition-colors ${
-                form.disciplineIds.includes(d.id)
-                  ? "bg-[#0B2545] text-white border-[#0B2545]"
-                  : "bg-[var(--bg)] border-[var(--border)] text-[var(--text-muted)] hover:text-[var(--text)]"
-              }`}
-            >
-              {d.name}
-            </button>
-          ))}
-        </div>
+      {showStep(5) && (
+      <>
+      <SectionCard title={ownerCopy?.disciplinesTitle ?? "Disciplines"}>
+        <CustomTagPicker
+          predefined={visibleDisciplines}
+          selectedIds={form.disciplineIds}
+          customNames={form.customDisciplineNames}
+          onSelectedIdsChange={(ids) => set("disciplineIds", ids)}
+          onCustomNamesChange={(names) => set("customDisciplineNames", names)}
+          customLabel="Add Custom Discipline"
+          customPlaceholder="e.g. Sambo, Capoeira, Taekwondo"
+          customHint="Type a discipline not listed above and click Add."
+          inputClass={inputClass}
+          labelClass={labelClass}
+        />
       </SectionCard>
 
       {/* Amenities */}
       <SectionCard title="Amenities & Facilities">
-        <div className="flex flex-wrap gap-2 mb-4">
-          {amenities.map((a) => (
-            <button
-              key={a.id}
-              type="button"
-              onClick={() => toggleAmenity(a.id)}
-              className={`px-3 py-2 text-sm font-medium rounded-xl border transition-colors ${
-                form.amenityIds.includes(a.id)
-                  ? "bg-[#0B2545] text-white border-[#0B2545]"
-                  : "bg-[var(--bg)] border-[var(--border)] text-[var(--text-muted)] hover:text-[var(--text)]"
-              }`}
-            >
-              {a.name}
-            </button>
-          ))}
-        </div>
+        <CustomTagPicker
+          predefined={amenities}
+          selectedIds={form.amenityIds}
+          customNames={form.customAmenityNames}
+          onSelectedIdsChange={(ids) => set("amenityIds", ids)}
+          onCustomNamesChange={(names) => set("customAmenityNames", names)}
+          customLabel="Add Custom Amenity"
+          customPlaceholder="e.g. Outdoor Training Area, Recovery Room"
+          customHint="Type a facility not listed above and click Add."
+          inputClass={inputClass}
+          labelClass={labelClass}
+        />
       </SectionCard>
+      </>
+      )}
 
       {/* Images — Cloudinary */}
+      {isOwnerWizard ? (
+      <div className={step === 6 ? undefined : "hidden"} aria-hidden={step !== 6}>
+      <SectionCard title="Images">
+        <div className="space-y-8">
+          <ImageUploader
+            key={`owner-cover-${form.coverImage?.imageUrl ?? "empty"}`}
+            label="Cover Image"
+            description="Main photo shown on gym cards and at the top of the profile page."
+            uploadType="cover"
+            multiple={false}
+            images={form.coverImage ? [form.coverImage] : []}
+            onChange={(imgs) => set("coverImage", imgs[0] ?? null)}
+            authMode="cookie"
+          />
+
+          <ImageUploader
+            key={`owner-gallery-${form.galleryImages.map((img) => img.id ?? img.imageUrl).join(",") || "empty"}`}
+            label="Gallery Images"
+            description="Additional photos for the gym profile gallery. Upload up to 10 images."
+            uploadType="gallery"
+            multiple
+            maxImages={10}
+            images={form.galleryImages}
+            onChange={(imgs) => set("galleryImages", imgs)}
+            authMode="cookie"
+          />
+        </div>
+      </SectionCard>
+      </div>
+      ) : showStep(6) && (
       <SectionCard title="Images">
         <div className="space-y-8">
           <ImageUploader
@@ -531,7 +927,7 @@ export function GymForm({
             multiple={false}
             images={form.coverImage ? [form.coverImage] : []}
             onChange={(imgs) => set("coverImage", imgs[0] ?? null)}
-            authMode={variant === "owner" ? "cookie" : "admin-secret"}
+            authMode="admin-secret"
           />
 
           <ImageUploader
@@ -542,12 +938,60 @@ export function GymForm({
             maxImages={10}
             images={form.galleryImages}
             onChange={(imgs) => set("galleryImages", imgs)}
-            authMode={variant === "owner" ? "cookie" : "admin-secret"}
+            authMode="admin-secret"
           />
         </div>
       </SectionCard>
+      )}
 
-      {/* Submit */}
+      {/* Navigation */}
+      {isOwnerWizard ? (
+        <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3 pb-8 pt-2">
+          <Button
+            type="button"
+            variant="outline"
+            size="lg"
+            onClick={goBack}
+            disabled={step === 1}
+          >
+            Back
+          </Button>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Button
+              type="button"
+              variant="outline"
+              size="lg"
+              onClick={() =>
+                router.push(cancelPath ?? "/owner/dashboard")
+              }
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              size="lg"
+              isLoading={saving && step === totalSteps}
+              disabled={step === totalSteps && hasUploadingImages}
+              onClick={() => {
+                if (step < totalSteps) {
+                  goNext();
+                  return;
+                }
+                void submitForm();
+              }}
+            >
+              {step < totalSteps
+                ? "Continue"
+                : saving
+                  ? "Saving…"
+                  : mode === "edit"
+                    ? "Save Changes"
+                    : "Submit Listing"}
+            </Button>
+          </div>
+        </div>
+      ) : (
       <div className="flex items-center gap-3 pb-8">
         <Button
           type="submit"
@@ -556,17 +1000,18 @@ export function GymForm({
           isLoading={saving}
           disabled={hasUploadingImages}
         >
-          {saving ? "Saving…" : mode === "edit" ? "Save Changes" : variant === "owner" ? "Submit Listing" : "Create Gym"}
+          {saving ? "Saving…" : mode === "edit" ? "Save Changes" : "Create Gym"}
         </Button>
         <Button
           type="button"
           variant="outline"
           size="lg"
-          onClick={() => router.push(cancelPath ?? (variant === "owner" ? "/owner/dashboard" : "/admin"))}
+          onClick={() => router.push(cancelPath ?? "/admin")}
         >
           Cancel
         </Button>
       </div>
+      )}
     </form>
   );
 }

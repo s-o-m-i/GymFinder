@@ -5,6 +5,7 @@ interface TaleOfTheTapeProps {
   priceMin: number;
   priceMax: number;
   openingHours?: string | null;
+  ladiesHours?: string | null;
   disciplines: string[];
   sizeCategory: string;
   ladiesStatus: string;
@@ -40,6 +41,7 @@ export function TaleOfTheTape({
   priceMin,
   priceMax,
   openingHours,
+  ladiesHours,
   disciplines,
   sizeCategory,
   ladiesStatus,
@@ -80,6 +82,16 @@ export function TaleOfTheTape({
         />
       </div>
 
+      {ladiesHours && ladiesStatus === "ladies_timings" && (
+        <div className="mt-5 pt-5 border-t border-[var(--border)]">
+          <StatItem
+            icon={<Clock className="w-3.5 h-3.5" />}
+            label="Ladies-Only Hours"
+            value={ladiesHours}
+          />
+        </div>
+      )}
+
       {/* Disciplines */}
       {disciplines.length > 0 && (
         <div className="mt-5 pt-5 border-t border-[var(--border)]">
@@ -91,7 +103,7 @@ export function TaleOfTheTape({
             {disciplines.map((d) => (
               <span
                 key={d}
-                className="px-2.5 py-1 bg-[#0B2545]/8 text-[#0B2545] dark:bg-white/10 dark:text-[#EAF0F6] text-xs font-medium rounded-lg border border-[#0B2545]/15"
+                className="px-2.5 py-1 bg-[var(--card)] text-[var(--text)] text-xs font-semibold rounded-lg border border-[var(--border)]"
               >
                 {d}
               </span>

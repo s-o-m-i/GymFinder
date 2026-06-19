@@ -42,7 +42,8 @@ export function buildGoogleMapsUrl(address: string, lat?: number | null, lng?: n
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
 }
 
-export function gymTypeLabel(type: string): string {
+export function gymTypeLabel(type: string, customTypeLabel?: string | null): string {
+  if (customTypeLabel?.trim()) return customTypeLabel.trim();
   const map: Record<string, string> = {
     gym:          "Gym",
     boxing:       "Boxing",
@@ -58,7 +59,7 @@ export function ladiesStatusLabel(status: string): string {
   const map: Record<string, string> = {
     mixed:           "Mixed",
     ladies_only:     "Ladies Only",
-    ladies_timings:  "Ladies Timings",
+    ladies_timings:  "Ladies-Only Hours",
     men_only:        "Men Only",
   };
   return map[status] ?? status;
@@ -76,4 +77,16 @@ export function sizeCategoryLabel(size: string): string {
 export function truncate(text: string, maxLen: number): string {
   if (text.length <= maxLen) return text;
   return text.slice(0, maxLen).trimEnd() + "…";
+}
+
+export function formatRegistrationDate(date: Date | string): string {
+  const value = typeof date === "string" ? new Date(date) : date;
+  return value.toLocaleString("en-PK", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
 }

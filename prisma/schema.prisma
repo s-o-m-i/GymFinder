@@ -58,8 +58,9 @@ model Gym {
   id             String       @id @default(cuid())
   name           String
   slug           String       @unique
-  type           GymType
-  description    String       @db.Text
+  type             GymType
+  customTypeLabel  String?
+  description      String       @db.Text
   address        String
   area           String
   city           String
@@ -71,6 +72,7 @@ model Gym {
   sizeCategory   SizeCategory
   whatsappNumber String
   openingHours   String?
+  ladiesHours    String?
   rating         Float?
   featured       Boolean      @default(false)
   coachInfo          String?      @db.Text
