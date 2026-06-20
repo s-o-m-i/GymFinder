@@ -4,6 +4,7 @@ import { randomUUID } from "crypto";
 import { jwtVerify } from "jose";
 import { COOKIE_NAME as ADMIN_COOKIE } from "@/lib/auth";
 import { OWNER_COOKIE_NAME } from "@/lib/owner-auth";
+import { TRAINER_COOKIE_NAME } from "@/lib/trainer-auth";
 import {
   ANALYTICS_SESSION_COOKIE,
   ANALYTICS_SESSION_HEADER,
@@ -67,6 +68,15 @@ async function verifyOwnerToken(token: string): Promise<boolean> {
   try {
     const { payload } = await jwtVerify(token, getSecret());
     return payload.owner === true;
+  } catch {
+    return false;
+  }
+}
+
+async function verifyTrainerToken(token: string): Promise<boolean> {
+  try {
+    const { payload } = await jwtVerify(token, getSecret());
+    return payload.trainer === true;
   } catch {
     return false;
   }
@@ -140,9 +150,40 @@ export async function proxy(req: NextRequest) {
     return attachAnalyticsSession(req, res);
   }
 
+  // ── Trainer routes ──
+  if (pathname.startsWith("/trainer")) {
+    const isPublicTrainer =
+      pathname === "/trainer/auth" ||
+      pathname.startsWith("/api/trainer/auth/") ||
+      (/^\/trainer\/[^/]+$/.test(pathname) &&
+        pathname !== "/trainer/dashboard" &&
+        !pathname.startsWith("/trainer/dashboard/"));
+
+    if (isPublicTrainer) {
+      return nextWithAnalyticsSession(req);
+    }
+
+    if (pathname.startsWith("/trainer/dashboard") || pathname.startsWith("/api/trainer/me")) {
+      const token = req.cookies.get(TRAINER_COOKIE_NAME)?.value;
+      if (!token) {
+        const authUrl = new URL("/trainer/auth", req.url);
+        authUrl.searchParams.set("from", pathname);
+        return attachAnalyticsSession(req, NextResponse.redirect(authUrl));
+      }
+      if (await verifyTrainerToken(token)) {
+        return attachAnalyticsSession(req, NextResponse.next());
+      }
+      const authUrl = new URL("/trainer/auth", req.url);
+      const res = NextResponse.redirect(authUrl);
+      res.cookies.set(TRAINER_COOKIE_NAME, "", { maxAge: 0, path: "/" });
+      return attachAnalyticsSession(req, res);
+    }
+  }
+
   // ── Public gym pages & analytics redirects ──
   if (
     pathname.startsWith("/gyms") ||
+    pathname.startsWith("/trainers") ||
     pathname.startsWith("/api/analytics")
   ) {
     return nextWithAnalyticsSession(req);
@@ -155,7 +196,10 @@ export const config = {
   matcher: [
     "/admin/:path*",
     "/owner/:path*",
+    "/trainer/:path*",
     "/gyms/:path*",
+    "/trainers/:path*",
     "/api/analytics/:path*",
+    "/api/trainer/:path*",
   ],
 };

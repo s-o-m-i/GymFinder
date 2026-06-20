@@ -1,12 +1,13 @@
 export const dynamic = "force-dynamic";
 
+import Link from "next/link";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { HeroSection } from "@/components/home/HeroSection";
 import { CategoryGrid } from "@/components/home/CategoryGrid";
 import { FeaturedGyms } from "@/components/home/FeaturedGyms";
 import { prisma } from "@/lib/prisma";
-import { MapPin, Shield, MessageCircle } from "lucide-react";
+import { MapPin, Shield, MessageCircle, Users } from "lucide-react";
 
 async function getFeaturedGyms() {
   try {
@@ -87,15 +88,24 @@ export default async function HomePage() {
               Ready to Start Training?
             </h2>
             <p className="text-[#8ba0b8] mb-8">
-              Browse 50+ gyms and fighting clubs in Rawalpindi & Islamabad.
+              Browse gyms and fighting clubs, or find a personal trainer in Rawalpindi & Islamabad.
             </p>
-            <a
-              href="/gyms"
-              className="inline-flex items-center gap-2 px-8 py-4 bg-[#FF6A3D] text-white font-bold text-base rounded-2xl hover:bg-[#e85528] transition-colors shadow-lg"
-            >
-              Browse All Gyms
-              <MapPin className="w-5 h-5" />
-            </a>
+            <div className="flex flex-wrap justify-center gap-4">
+              <Link
+                href="/gyms"
+                className="inline-flex items-center gap-2 px-8 py-4 bg-[#FF6A3D] text-white font-bold text-base rounded-2xl hover:bg-[#e85528] transition-colors shadow-lg"
+              >
+                Browse All Gyms
+                <MapPin className="w-5 h-5" />
+              </Link>
+              <Link
+                href="/trainers"
+                className="inline-flex items-center gap-2 px-8 py-4 bg-transparent border-2 border-white/30 text-white font-bold text-base rounded-2xl hover:bg-white/10 transition-colors"
+              >
+                Find Trainers
+                <Users className="w-5 h-5" />
+              </Link>
+            </div>
           </div>
         </section>
       </main>

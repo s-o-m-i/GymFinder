@@ -26,11 +26,9 @@ function isNavActive(pathname: string, href: string, searchParams: URLSearchPara
 }
 
 const navLinks = [
-  { href: "/gyms", label: "Browse Gyms" },
-  { href: "/gyms/boxing", label: "Boxing" },
-  { href: "/gyms/mma", label: "MMA" },
-  { href: "/gyms/islamabad", label: "Islamabad" },
-  { href: "/gyms/rawalpindi", label: "Rawalpindi" },
+  { href: "/gyms", label: "Find Gyms" },
+  { href: "/gyms/fighting-clubs", label: "Fighting Clubs" },
+  { href: "/trainers", label: "Trainers" },
 ];
 
 export function Navbar() {
@@ -78,10 +76,10 @@ export function Navbar() {
               List Your Gym
             </Link>
             <Link
-              href="/gyms"
+              href="/trainer/auth"
               className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 bg-[#FF6A3D] text-white text-sm font-semibold rounded-xl hover:bg-[#e85528] transition-colors"
             >
-              Find a Gym
+              Join as Trainer
             </Link>
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
@@ -121,11 +119,11 @@ export function Navbar() {
                 List Your Gym
               </Link>
               <Link
-                href="/gyms"
+                href="/trainer/auth"
                 onClick={() => setMobileOpen(false)}
                 className="px-4 py-2.5 bg-[#FF6A3D] text-white text-sm font-semibold rounded-xl hover:bg-[#e85528] transition-colors text-center"
               >
-                Find a Gym
+                Join as Trainer
               </Link>
             </div>
           </div>

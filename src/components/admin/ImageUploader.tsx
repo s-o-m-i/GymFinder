@@ -20,6 +20,10 @@ interface ImageUploaderProps {
   uploadType:   "cover" | "gallery" | "coach" | "coach_cert";
   className?:   string;
   authMode?:    "admin-secret" | "cookie";
+  /** Square/portrait preview for profile photos (single upload) */
+  previewAspect?: "video" | "square" | "portrait";
+  centered?: boolean;
+  replaceLabel?: string;
 }
 
 function uploadWithProgress(
@@ -77,6 +81,9 @@ export function ImageUploader({
   uploadType,
   className,
   authMode = "admin-secret",
+  previewAspect = "video",
+  centered = false,
+  replaceLabel = "Replace cover image",
 }: ImageUploaderProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
@@ -174,6 +181,15 @@ export function ImageUploader({
 
   const displaySrc = (img: UploadedImage) => img.preview || img.imageUrl;
 
+  const aspectClass =
+    previewAspect === "square"
+      ? "aspect-square"
+      : previewAspect === "portrait"
+        ? "aspect-[3/4]"
+        : "aspect-video";
+
+  const singlePreviewWidth = centered ? "w-full max-w-[220px] mx-auto" : "w-full max-w-2xl";
+
   return (
     <div className={className}>
       <div className="mb-3">
@@ -188,15 +204,15 @@ export function ImageUploader({
         <div
           className={cn(
             "mb-4 gap-3",
-            multiple ? "grid grid-cols-2 sm:grid-cols-3" : "w-full max-w-2xl"
+            multiple ? "grid grid-cols-2 sm:grid-cols-3 w-full" : singlePreviewWidth
           )}
         >
           {images.map((img, i) => (
             <div
               key={img.id ?? img.publicId ?? img.preview ?? i}
               className={cn(
-                "relative group aspect-video rounded-xl overflow-hidden border border-[var(--border)] bg-[var(--bg)]",
-                !multiple && "w-full min-h-[200px]"
+                "relative group rounded-xl overflow-hidden border border-[var(--border)] bg-[var(--bg)]",
+                !multiple ? cn(aspectClass, "w-full") : aspectClass
               )}
             >
               {displaySrc(img) ? (
@@ -256,9 +272,12 @@ export function ImageUploader({
         <button
           type="button"
           onClick={() => inputRef.current?.click()}
-          className="mb-4 text-sm font-medium text-[#FF6A3D] hover:underline"
+          className={cn(
+            "mb-4 text-sm font-medium text-[#FF6A3D] hover:underline",
+            centered && "mx-auto block"
+          )}
         >
-          Replace cover image
+          {replaceLabel}
         </button>
       )}
 
@@ -270,8 +289,8 @@ export function ImageUploader({
           onDrop={handleDrop}
           onClick={() => inputRef.current?.click()}
           className={cn(
-            "flex flex-col items-center justify-center gap-2 p-8 border-2 border-dashed rounded-2xl cursor-pointer transition-colors",
-            !multiple && "max-w-2xl",
+            "flex flex-col items-center justify-center gap-2 p-8 border-2 border-dashed rounded-2xl cursor-pointer transition-colors w-full",
+            !multiple && (centered ? "max-w-[220px] mx-auto" : "max-w-2xl"),
             dragging
               ? "border-[#FF6A3D] bg-[#FF6A3D]/5"
               : "border-[var(--border)] hover:border-[#FF6A3D]/50 hover:bg-[var(--bg)]"

@@ -27,7 +27,11 @@ export function parseGymSearchParams(
   };
 }
 
-export function buildGymWhere(filters: GymFilters, publicOnly = true): Prisma.GymWhereInput {
+export function buildGymWhere(
+  filters: GymFilters,
+  publicOnly = true,
+  fixedTypes?: readonly string[]
+): Prisma.GymWhereInput {
   const where: Prisma.GymWhereInput = {};
 
   if (publicOnly) {
@@ -43,7 +47,11 @@ export function buildGymWhere(filters: GymFilters, publicOnly = true): Prisma.Gy
   }
   if (filters.city)        where.city        = { equals: filters.city,        mode: "insensitive" };
   if (filters.area)        where.area        = { equals: filters.area,        mode: "insensitive" };
-  if (filters.type)        where.type        = filters.type as Prisma.EnumGymTypeFilter["equals"];
+  if (fixedTypes?.length) {
+    where.type = { in: [...fixedTypes] as Prisma.EnumGymTypeFilter["in"] };
+  } else if (filters.type) {
+    where.type = filters.type as Prisma.EnumGymTypeFilter["equals"];
+  }
   if (filters.priceMin !== undefined) where.priceMin = { gte: filters.priceMin };
   if (filters.priceMax !== undefined) where.priceMax = { lte: filters.priceMax };
   if (filters.ladiesStatus) where.ladiesStatus = filters.ladiesStatus as Prisma.EnumLadiesStatusFilter["equals"];
@@ -68,10 +76,11 @@ export function buildGymOrderBy(sort?: string): Prisma.GymOrderByWithRelationInp
 export async function getGymsListing(
   searchParams: Record<string, string | string[] | undefined>,
   fixedCity?: string,
-  fixedType?: string
+  fixedType?: string,
+  fixedTypes?: readonly string[]
 ) {
   const filters = parseGymSearchParams(searchParams, fixedCity, fixedType);
-  const where   = buildGymWhere(filters);
+  const where   = buildGymWhere(filters, true, fixedTypes);
   const orderBy = buildGymOrderBy(filters.sort);
   const page    = filters.page ?? 1;
   const limit   = filters.limit ?? 12;

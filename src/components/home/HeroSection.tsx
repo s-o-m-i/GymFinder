@@ -2,9 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Search, MapPin } from "lucide-react";
+import Link from "next/link";
+import { Search, MapPin, Users } from "lucide-react";
 
 const QUICK_SEARCHES = [
+  { label: "Personal Trainers", href: "/trainers" },
   { label: "Boxing in Islamabad", href: "/gyms/islamabad?type=boxing" },
   { label: "MMA Rawalpindi", href: "/gyms/rawalpindi?type=mma" },
   { label: "Ladies Only", href: "/gyms?ladiesStatus=ladies_only" },
@@ -78,6 +80,22 @@ export function HeroSection() {
             </button>
           </div>
         </form>
+
+        <div className="flex flex-wrap justify-center gap-3 mb-8">
+          <Link
+            href="/gyms"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-[#FF6A3D] text-white font-semibold text-sm rounded-xl hover:bg-[#e85528] transition-colors"
+          >
+            Browse Gyms
+          </Link>
+          <Link
+            href="/trainers"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-white/10 border border-white/20 text-white font-semibold text-sm rounded-xl hover:bg-white/15 transition-colors"
+          >
+            <Users className="w-4 h-4" />
+            Find Trainers
+          </Link>
+        </div>
 
         {/* Quick searches */}
         <div className="flex flex-wrap justify-center gap-2">

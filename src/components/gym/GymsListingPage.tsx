@@ -14,6 +14,10 @@ interface GymsListingPageProps {
   searchParams: Record<string, string | string[] | undefined>;
   city?: City;
   fixedType?: string;
+  fixedTypes?: readonly string[];
+  listingLabel?: string;
+  pagePath?: string;
+  seoDescription?: string;
 }
 
 function sortLabel(sort?: string) {
@@ -26,24 +30,43 @@ function sortLabel(sort?: string) {
   return map[sort ?? "featured"] ?? "Featured";
 }
 
-export async function GymsListingPage({ searchParams, city, fixedType }: GymsListingPageProps) {
+export async function GymsListingPage({
+  searchParams,
+  city,
+  fixedType,
+  fixedTypes,
+  listingLabel,
+  pagePath: pagePathOverride,
+  seoDescription,
+}: GymsListingPageProps) {
   const { gyms, total, page, totalPages, filters } = await getGymsListing(
     searchParams,
     city,
-    fixedType
+    fixedType,
+    fixedTypes
   );
   const type = filters.type;
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
-  const pagePath = getGymsBasePath({ city, type: fixedType });
+  const pagePath = pagePathOverride ?? getGymsBasePath({ city, type: fixedType });
   const canonical = `${baseUrl}${pagePath}`;
 
-  const h1 = city
+  const h1 = listingLabel
+    ? city
+      ? `${listingLabel} in ${city}`
+      : `${listingLabel} in Rawalpindi & Islamabad`
+    : city
     ? `Gyms & Fighting Clubs in ${city}`
     : type
     ? `${gymTypeLabel(type)} Gyms & Clubs`
     : "All Gyms & Fighting Clubs";
 
-  const seoIntro = city ? CITY_SEO[city] : type ? TYPE_SEO[type] : null;
+  const seoIntro = seoDescription
+    ? { description: seoDescription }
+    : city
+    ? CITY_SEO[city]
+    : type
+    ? TYPE_SEO[type]
+    : null;
 
   const itemListSchema = {
     "@context": "https://schema.org",
@@ -63,7 +86,14 @@ export async function GymsListingPage({ searchParams, city, fixedType }: GymsLis
     { "@type": "ListItem", position: 1, name: "Home", item: baseUrl },
     { "@type": "ListItem", position: 2, name: "Gyms", item: `${baseUrl}/gyms` },
   ];
-  if (type && !city) {
+  if (listingLabel && !city) {
+    breadcrumbItems.push({
+      "@type": "ListItem",
+      position: 3,
+      name: listingLabel,
+      item: `${baseUrl}${pagePath}`,
+    });
+  } else if (type && !city) {
     breadcrumbItems.push({
       "@type": "ListItem",
       position: 3,
@@ -98,7 +128,13 @@ export async function GymsListingPage({ searchParams, city, fixedType }: GymsLis
               <Link href="/" className="hover:text-[var(--text)] transition-colors">Home</Link>
               <span>/</span>
               <Link href="/gyms" className="hover:text-[var(--text)] transition-colors">Gyms</Link>
-              {type && !city && (
+              {listingLabel && !city && (
+                <>
+                  <span>/</span>
+                  <span className="text-[var(--text)] font-medium">{listingLabel}</span>
+                </>
+              )}
+              {type && !city && !listingLabel && (
                 <>
                   <span>/</span>
                   <span className="text-[var(--text)] font-medium">{gymTypeLabel(type)}</span>
@@ -113,7 +149,7 @@ export async function GymsListingPage({ searchParams, city, fixedType }: GymsLis
             </nav>
 
             <h1 className="font-heading font-bold text-xl sm:text-2xl text-[var(--text)]">
-              {type && city
+              {type && city && !listingLabel
                 ? `${gymTypeLabel(type)} in ${city}`
                 : h1}
             </h1>

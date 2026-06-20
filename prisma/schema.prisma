@@ -60,6 +60,17 @@ enum AnalyticsEventType {
   DIRECTIONS_CLICK
 }
 
+enum TrainerAuthTokenType {
+  EMAIL_OTP
+}
+
+enum TrainerLeadEventType {
+  WHATSAPP_CLICK
+  PHONE_CLICK
+  CONTACT_CLICK
+  PROFILE_VIEW
+}
+
 model GymOwner {
   id               String           @id @default(cuid())
   email            String           @unique
@@ -131,6 +142,7 @@ model Gym {
   membershipPlans  MembershipPlan[]
   staffMembers     StaffMember[]
   analyticsEvents  GymAnalyticsEvent[]
+  trainers         Trainer[]
 
   @@index([city])
   @@index([area])
@@ -255,4 +267,98 @@ model GymAnalyticsEvent {
   @@index([createdAt])
   @@index([gymId, eventType, createdAt])
   @@index([gymId, eventType, visitorHash, createdAt])
+}
+
+model TrainerAccount {
+  id            String             @id @default(cuid())
+  email         String             @unique
+  emailVerified Boolean            @default(false)
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+  trainer       Trainer?
+  authTokens    TrainerAuthToken[]
+
+  @@index([emailVerified])
+}
+
+model TrainerAuthToken {
+  id        String               @id @default(cuid())
+  accountId String
+  tokenHash String               @unique
+  type      TrainerAuthTokenType
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime             @default(now())
+  account   TrainerAccount       @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@index([accountId, type])
+  @@index([expiresAt])
+}
+
+model Trainer {
+  id              String   @id @default(cuid())
+  accountId       String?  @unique
+
+  fullName        String
+  slug            String   @unique
+
+  headline        String?
+  bio             String?  @db.Text
+
+  profileImage    String?
+  cloudinaryId    String?
+
+  city            String
+  area            String?
+
+  specialization  String?
+
+  experienceYears Int?
+
+  certifications  String?  @db.Text
+  achievements    String?  @db.Text
+
+  hourlyRate      Int?
+
+  whatsappNumber  String?
+  email           String?
+
+  isVerified      Boolean  @default(false)
+  isFeatured      Boolean  @default(false)
+  isPublished     Boolean  @default(false)
+
+  rating          Float?
+  totalReviews    Int      @default(0)
+
+  gender          String?
+  availability    String?  @db.Text
+
+  gymId           String?
+  gym             Gym?     @relation(fields: [gymId], references: [id], onDelete: SetNull)
+  account         TrainerAccount? @relation(fields: [accountId], references: [id], onDelete: SetNull)
+  leadEvents      TrainerLeadEvent[]
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([city])
+  @@index([specialization])
+  @@index([isFeatured])
+  @@index([isPublished])
+  @@index([gymId])
+  @@index([slug])
+}
+
+model TrainerLeadEvent {
+  id        String               @id @default(cuid())
+  trainerId String
+  eventType TrainerLeadEventType
+  sessionId String?
+  createdAt DateTime             @default(now())
+  trainer   Trainer              @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+
+  @@index([trainerId])
+  @@index([eventType])
+  @@index([createdAt])
+  @@index([trainerId, eventType, createdAt])
 }
