@@ -48,6 +48,11 @@ enum MembershipDuration {
   yearly
 }
 
+enum OwnerAuthTokenType {
+  EMAIL_VERIFICATION
+  PASSWORD_RESET
+}
+
 enum AnalyticsEventType {
   PROFILE_VIEW
   WHATSAPP_CLICK
@@ -63,11 +68,29 @@ model GymOwner {
   phone            String?
   businessCategory BusinessCategory
   isPremium        Boolean          @default(false)
+  emailVerified    Boolean          @default(false)
+  emailVerifiedAt  DateTime?
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
   gym              Gym?
+  authTokens       OwnerAuthToken[]
 
   @@index([businessCategory])
+  @@index([emailVerified])
+}
+
+model OwnerAuthToken {
+  id        String             @id @default(cuid())
+  ownerId   String
+  tokenHash String             @unique
+  type      OwnerAuthTokenType
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime           @default(now())
+  owner     GymOwner           @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  @@index([ownerId, type])
+  @@index([expiresAt])
 }
 
 model Gym {

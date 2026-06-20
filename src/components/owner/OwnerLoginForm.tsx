@@ -15,6 +15,7 @@ function LoginFormInner() {
   const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [unverifiedEmail, setUnverifiedEmail] = useState<string | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -31,9 +32,19 @@ function LoginFormInner() {
       const data = await res.json();
 
       if (!res.ok) {
+        if (data.requiresVerification && data.email) {
+          setUnverifiedEmail(data.email);
+          setError(
+            `The account for ${data.email} is not verified yet. Use the link from signup, or request a new one below.`
+          );
+          return;
+        }
+        setUnverifiedEmail(null);
         setError(data.error ?? "Login failed.");
         return;
       }
+
+      setUnverifiedEmail(null);
 
       router.push(from);
       router.refresh();
@@ -68,7 +79,12 @@ function LoginFormInner() {
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">Password</label>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="block text-sm font-semibold text-gray-700">Password</label>
+              <Link href="/owner/forgot-password" className="text-xs font-semibold text-[#FF6A3D] hover:underline">
+                Forgot password?
+              </Link>
+            </div>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
               <input
@@ -90,9 +106,22 @@ function LoginFormInner() {
           </div>
 
           {error && (
-            <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700">
-              <AlertCircle className="w-4 h-4 shrink-0" />
-              {error}
+            <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700 space-y-2">
+              <div className="flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                {error}
+              </div>
+              {unverifiedEmail && (
+                <p className="text-xs pl-6">
+                  Lost the link?{" "}
+                  <Link
+                    href={`/owner/verify-email?email=${encodeURIComponent(unverifiedEmail)}`}
+                    className="font-semibold text-[#FF6A3D] hover:underline"
+                  >
+                    Request a new verification link
+                  </Link>
+                </p>
+              )}
             </div>
           )}
 

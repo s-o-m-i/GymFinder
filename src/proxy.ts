@@ -108,9 +108,16 @@ export async function proxy(req: NextRequest) {
     if (
       pathname === "/owner/login" ||
       pathname === "/owner/register" ||
+      pathname === "/owner/verify-email" ||
+      pathname === "/owner/forgot-password" ||
+      pathname === "/owner/reset-password" ||
       pathname.startsWith("/api/owner/login") ||
       pathname.startsWith("/api/owner/register") ||
-      pathname.startsWith("/api/owner/logout")
+      pathname.startsWith("/api/owner/logout") ||
+      pathname.startsWith("/api/owner/verify-email") ||
+      pathname.startsWith("/api/owner/resend-verification") ||
+      pathname.startsWith("/api/owner/forgot-password") ||
+      pathname.startsWith("/api/owner/reset-password")
     ) {
       return attachAnalyticsSession(req, NextResponse.next());
     }

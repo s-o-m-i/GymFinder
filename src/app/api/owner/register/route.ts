@@ -1,7 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { hashPassword } from "@/lib/password";
-import { signOwnerToken, OWNER_COOKIE_NAME, OWNER_COOKIE_MAX_AGE } from "@/lib/owner-auth";
+import { createOwnerAuthToken } from "@/lib/owner-auth-tokens";
+import { sendOwnerVerificationEmail } from "@/services/owner-email.service";
+import {
+  buildOwnerVerificationUrl,
+  formatOwnerEmailError,
+  isDevEmailLinksEnabled,
+  isResendRecipientRestrictionError,
+  logDevEmailLink,
+} from "@/lib/email-dev";
 import type { BusinessCategory } from "@prisma/client";
 
 export async function POST(req: NextRequest) {
@@ -36,6 +44,16 @@ export async function POST(req: NextRequest) {
     const normalizedEmail = email.trim().toLowerCase();
     const existing = await prisma.gymOwner.findUnique({ where: { email: normalizedEmail } });
     if (existing) {
+      if (!existing.emailVerified) {
+        return NextResponse.json(
+          {
+            error: "An account with this email already exists but is not verified.",
+            requiresVerification: true,
+            email: normalizedEmail,
+          },
+          { status: 409 }
+        );
+      }
       return NextResponse.json({ error: "An account with this email already exists." }, { status: 409 });
     }
 
@@ -48,25 +66,49 @@ export async function POST(req: NextRequest) {
         passwordHash,
         phone:            normalizedPhone,
         businessCategory,
+        emailVerified:    false,
       },
     });
 
-    const token = await signOwnerToken({
-      ownerId:          owner.id,
-      email:            owner.email,
-      businessCategory: owner.businessCategory,
-    });
+    const token = await createOwnerAuthToken(owner.id, "EMAIL_VERIFICATION");
+    const verificationUrl = buildOwnerVerificationUrl(token);
+    logDevEmailLink("Owner verification link", verificationUrl);
 
-    const res = NextResponse.json({ success: true, ownerId: owner.id });
-    res.cookies.set(OWNER_COOKIE_NAME, token, {
-      httpOnly: true,
-      secure:   process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge:   OWNER_COOKIE_MAX_AGE,
-      path:     "/",
-    });
+    try {
+      await sendOwnerVerificationEmail({
+        to: owner.email,
+        name: owner.name,
+        token,
+      });
+    } catch (emailError) {
+      console.error("Failed to send verification email:", emailError);
+      const message =
+        emailError instanceof Error ? emailError.message : "Email send failed";
 
-    return res;
+      if (
+        isDevEmailLinksEnabled() &&
+        isResendRecipientRestrictionError(message)
+      ) {
+        return NextResponse.json({
+          success: true,
+          requiresVerification: true,
+          email: owner.email,
+          devVerificationUrl: verificationUrl,
+        });
+      }
+
+      await prisma.gymOwner.delete({ where: { id: owner.id } });
+      return NextResponse.json(
+        { error: formatOwnerEmailError(emailError) },
+        { status: 503 }
+      );
+    }
+
+    return NextResponse.json({
+      success: true,
+      requiresVerification: true,
+      email: owner.email,
+    });
   } catch (error) {
     console.error("POST /api/owner/register error:", error);
     return NextResponse.json({ error: "Registration failed." }, { status: 500 });

@@ -20,6 +20,17 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid email or password." }, { status: 401 });
     }
 
+    if (!owner.emailVerified) {
+      return NextResponse.json(
+        {
+          error: "Please verify your email before signing in.",
+          requiresVerification: true,
+          email: owner.email,
+        },
+        { status: 403 }
+      );
+    }
+
     const token = await signOwnerToken({
       ownerId:          owner.id,
       email:            owner.email,

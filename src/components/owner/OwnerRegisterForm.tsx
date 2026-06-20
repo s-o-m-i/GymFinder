@@ -14,6 +14,7 @@ export function OwnerRegisterForm() {
     phone: "",
     password: "",
     confirmPassword: "",
+    confirmEmail: "",
     businessCategory: "gym" as BusinessCategory,
   });
   const [loading, setLoading] = useState(false);
@@ -28,6 +29,10 @@ export function OwnerRegisterForm() {
     e.preventDefault();
     if (form.password !== form.confirmPassword) {
       setError("Passwords do not match.");
+      return;
+    }
+    if (form.email.trim().toLowerCase() !== form.confirmEmail.trim().toLowerCase()) {
+      setError("Email addresses do not match. Check for typos.");
       return;
     }
     if (form.password.length < 8) {
@@ -58,7 +63,21 @@ export function OwnerRegisterForm() {
       const data = await res.json();
 
       if (!res.ok) {
+        if (data.requiresVerification && data.email) {
+          router.push(`/owner/verify-email?email=${encodeURIComponent(data.email)}&pending=1`);
+          return;
+        }
         setError(data.error ?? "Registration failed.");
+        return;
+      }
+
+      if (data.requiresVerification) {
+        if (data.devVerificationUrl) {
+          sessionStorage.setItem("owner_dev_verification_url", data.devVerificationUrl);
+        }
+        router.push(
+          `/owner/verify-email?email=${encodeURIComponent(data.email ?? form.email)}&pending=1`
+        );
         return;
       }
 
@@ -129,7 +148,21 @@ export function OwnerRegisterForm() {
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">Phone *</label>
+            <label className="block text-sm font-semibold text-gray-700 mb-1.5">Confirm email *</label>
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                required
+                type="email"
+                value={form.confirmEmail}
+                onChange={(e) => setForm((f) => ({ ...f, confirmEmail: e.target.value }))}
+                placeholder="Repeat your email"
+                className={`${inputClass} pl-10`}
+              />
+            </div>
+          </div>
+
+          <div>
             <div className="relative">
               <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
               <input required type="tel" value={form.phone} onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))} placeholder="03001234567" className={`${inputClass} pl-10`} />

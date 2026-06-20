@@ -26,6 +26,7 @@ import {
   Dumbbell,
 } from "lucide-react";
 import { ShareListingUrl } from "@/components/owner/ShareListingUrl";
+import { EmailVerifiedBanner } from "@/components/owner/EmailVerifiedBanner";
 
 async function getOwnerData(ownerId: string) {
   return prisma.gymOwner.findUnique({
@@ -170,6 +171,8 @@ export default async function OwnerDashboardPage({ searchParams }: PageProps) {
           {businessCategoryLabel(owner.businessCategory)} · {owner.email}
         </p>
       </div>
+
+      <EmailVerifiedBanner />
 
       <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold border mb-6 ${businessCategoryBadgeClass(owner.businessCategory)}`}>
         {owner.businessCategory === "fighting_club" ? "🥊" : "🏋️"}
