@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Edit, Star, MapPin, Trash2 } from "lucide-react";
+import { Edit, Star, MapPin, Trash2, BarChart3 } from "lucide-react";
 import { GymTypeIcon } from "@/components/ui/GymTypeIcon";
 import { gymTypeLabel, formatPriceShort } from "@/lib/utils";
 
@@ -129,6 +129,14 @@ export function AdminGymsTable({ gyms }: AdminGymsTableProps) {
                     target="_blank"
                   >
                     View
+                  </Link>
+                  <Link
+                    href={`/admin/analytics/${gym.id}`}
+                    className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-[#0B2545] border border-[var(--border)] rounded-lg hover:bg-[var(--bg)] transition-colors"
+                    title="Analytics"
+                  >
+                    <BarChart3 className="w-3 h-3" />
+                    Stats
                   </Link>
                   <Link
                     href={`/admin/edit-gym/${gym.id}`}

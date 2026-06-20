@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Dumbbell, LayoutDashboard, PlusCircle, Users } from "lucide-react";
+import { Dumbbell, LayoutDashboard, PlusCircle, Users, BarChart3 } from "lucide-react";
 import { LogoutButton } from "@/components/admin/LogoutButton";
 
 export const metadata: Metadata = {
@@ -46,6 +46,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           >
             <Users className="w-4 h-4" />
             Owners
+          </Link>
+          <Link
+            href="/admin/analytics"
+            className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 transition-colors"
+          >
+            <BarChart3 className="w-4 h-4" />
+            Analytics
           </Link>
         </nav>
 

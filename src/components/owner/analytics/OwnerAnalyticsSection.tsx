@@ -22,8 +22,21 @@ import {
   Legend,
 } from "recharts";
 import type { OwnerAnalyticsData } from "@/app/actions/owner/analytics";
+import type { GymAnalyticsViewData } from "@/services/analytics-query.service";
 import type { AnalyticsPeriod } from "@/lib/validations/analytics";
 import { cn } from "@/lib/utils";
+
+export type GymAnalyticsPanelData = OwnerAnalyticsData | GymAnalyticsViewData;
+
+interface OwnerAnalyticsSectionProps {
+  data: GymAnalyticsPanelData;
+  period: AnalyticsPeriod;
+  /** Base URL for period filter navigation (no query string) */
+  periodBasePath?: string;
+  /** Extra query params preserved when changing period (e.g. tab=analytics) */
+  periodSearchParams?: Record<string, string>;
+  showTopPerforming?: boolean;
+}
 
 const PERIODS: { value: AnalyticsPeriod; label: string }[] = [
   { value: "7d", label: "Last 7 Days" },
@@ -31,11 +44,6 @@ const PERIODS: { value: AnalyticsPeriod; label: string }[] = [
   { value: "90d", label: "Last 90 Days" },
   { value: "all", label: "All Time" },
 ];
-
-interface OwnerAnalyticsSectionProps {
-  data: OwnerAnalyticsData;
-  period: AnalyticsPeriod;
-}
 
 function StatCard({
   label,
@@ -78,16 +86,26 @@ function formatChartDate(date: string) {
 export function OwnerAnalyticsSection({
   data,
   period,
+  periodBasePath = "/owner/dashboard",
+  periodSearchParams = { tab: "analytics" },
+  showTopPerforming = "topPerforming" in data && "hasMultipleGyms" in data
+    ? data.hasMultipleGyms
+    : false,
 }: OwnerAnalyticsSectionProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
   function setPeriod(next: AnalyticsPeriod) {
     const params = new URLSearchParams(searchParams.toString());
-    params.set("tab", "analytics");
+    for (const [key, value] of Object.entries(periodSearchParams)) {
+      params.set(key, value);
+    }
     params.set("period", next);
-    router.push(`/owner/dashboard?${params.toString()}`);
+    router.push(`${periodBasePath}?${params.toString()}`);
   }
+
+  const topPerforming =
+    "topPerforming" in data ? data.topPerforming : { mostViewed: null, mostContacted: null };
 
   const chartData = data.dailySeries.map((point) => ({
     ...point,
@@ -155,34 +173,34 @@ export function OwnerAnalyticsSection({
         />
       </div>
 
-      {data.hasMultipleGyms &&
-        (data.topPerforming.mostViewed || data.topPerforming.mostContacted) && (
+      {showTopPerforming &&
+        (topPerforming.mostViewed || topPerforming.mostContacted) && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {data.topPerforming.mostViewed && (
+            {topPerforming.mostViewed && (
               <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-5">
                 <div className="flex items-center gap-2 text-[#0B2545] mb-2">
                   <Trophy className="w-4 h-4 text-[#FF6A3D]" />
                   <h3 className="font-heading font-bold text-sm">Most Viewed Gym</h3>
                 </div>
                 <p className="font-semibold text-[var(--text)]">
-                  {data.topPerforming.mostViewed.name}
+                  {topPerforming.mostViewed.name}
                 </p>
                 <p className="text-sm text-[var(--text-muted)] mt-1">
-                  {data.topPerforming.mostViewed.count.toLocaleString()} profile views
+                  {topPerforming.mostViewed.count.toLocaleString()} profile views
                 </p>
               </div>
             )}
-            {data.topPerforming.mostContacted && (
+            {topPerforming.mostContacted && (
               <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-5">
                 <div className="flex items-center gap-2 text-[#0B2545] mb-2">
                   <TrendingUp className="w-4 h-4 text-[#FF6A3D]" />
                   <h3 className="font-heading font-bold text-sm">Most Contacted Gym</h3>
                 </div>
                 <p className="font-semibold text-[var(--text)]">
-                  {data.topPerforming.mostContacted.name}
+                  {topPerforming.mostContacted.name}
                 </p>
                 <p className="text-sm text-[var(--text-muted)] mt-1">
-                  {data.topPerforming.mostContacted.count.toLocaleString()} contact clicks
+                  {topPerforming.mostContacted.count.toLocaleString()} contact clicks
                 </p>
               </div>
             )}

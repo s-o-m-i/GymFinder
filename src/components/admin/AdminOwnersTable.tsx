@@ -11,6 +11,7 @@ import {
   XCircle,
   ArrowUpDown,
   Filter,
+  BarChart3,
 } from "lucide-react";
 import { businessCategoryBadgeClass, BUSINESS_CATEGORY_SHORT } from "@/lib/owner-constants";
 import { gymTypeLabel, formatPriceShort, formatRegistrationDate } from "@/lib/utils";
@@ -251,7 +252,18 @@ export function AdminOwnersTable({ owners }: { owners: AdminOwnerRow[] }) {
                     {owner.gym ? <StatusBadge status={owner.gym.listingStatus} /> : <span className="text-xs text-[var(--text-muted)]">—</span>}
                   </td>
                   <td className="px-4 py-4 text-right">
-                    {owner.gym && <ListingActions gymId={owner.gym.id} status={owner.gym.listingStatus} />}
+                    <div className="flex items-center justify-end gap-1.5">
+                      {owner.gym && (
+                        <Link
+                          href={`/admin/analytics/${owner.gym.id}`}
+                          title="View analytics"
+                          className="p-1.5 rounded-lg text-[#0B2545] hover:bg-[#0B2545]/10"
+                        >
+                          <BarChart3 className="w-4 h-4" />
+                        </Link>
+                      )}
+                      {owner.gym && <ListingActions gymId={owner.gym.id} status={owner.gym.listingStatus} />}
+                    </div>
                   </td>
                 </tr>
               ))}

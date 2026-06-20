@@ -148,6 +148,125 @@ export async function getDailyAnalyticsSeries(
   return [...byDay.values()].sort((a, b) => a.date.localeCompare(b.date));
 }
 
+export type GymAnalyticsViewData = {
+  gymId: string;
+  gymName: string;
+  summary: AnalyticsSummary;
+  dailySeries: DailyAnalyticsPoint[];
+};
+
+export async function getGymAnalyticsData(
+  gymId: string,
+  period: AnalyticsPeriod
+): Promise<GymAnalyticsViewData | null> {
+  const gym = await prisma.gym.findUnique({
+    where: { id: gymId },
+    select: { id: true, name: true },
+  });
+  if (!gym) return null;
+
+  const [summary, dailySeries] = await Promise.all([
+    getAnalyticsSummary(gymId, period),
+    getDailyAnalyticsSeries(gymId, period),
+  ]);
+
+  return { gymId: gym.id, gymName: gym.name, summary, dailySeries };
+}
+
+export async function getPlatformAnalyticsSummary(
+  period: AnalyticsPeriod
+): Promise<AnalyticsSummary> {
+  const since = periodToDate(period);
+  const rows = await prisma.gymAnalyticsEvent.groupBy({
+    by: ["eventType"],
+    where: since ? { createdAt: { gte: since } } : {},
+    _count: { id: true },
+  });
+  return mapEventCounts(rows);
+}
+
+export type GymAnalyticsLeaderboardRow = {
+  gymId: string;
+  gymName: string;
+  city: string;
+  area: string;
+  ownerName: string | null;
+  ownerEmail: string | null;
+  profileViews: number;
+  whatsappClicks: number;
+  phoneClicks: number;
+  directionsClicks: number;
+  totalContactClicks: number;
+};
+
+export async function getGymAnalyticsLeaderboard(
+  period: AnalyticsPeriod
+): Promise<GymAnalyticsLeaderboardRow[]> {
+  const since = periodToDate(period);
+  const rows = await prisma.gymAnalyticsEvent.groupBy({
+    by: ["gymId", "eventType"],
+    where: since ? { createdAt: { gte: since } } : {},
+    _count: { id: true },
+  });
+
+  const byGym = new Map<string, AnalyticsSummary>();
+
+  for (const row of rows) {
+    const entry = byGym.get(row.gymId) ?? emptySummary();
+    const count = row._count.id;
+    switch (row.eventType) {
+      case "PROFILE_VIEW":
+        entry.profileViews += count;
+        break;
+      case "WHATSAPP_CLICK":
+        entry.whatsappClicks += count;
+        break;
+      case "PHONE_CLICK":
+        entry.phoneClicks += count;
+        break;
+      case "DIRECTIONS_CLICK":
+        entry.directionsClicks += count;
+        break;
+    }
+    byGym.set(row.gymId, entry);
+  }
+
+  const gymIds = [...byGym.keys()];
+  if (gymIds.length === 0) return [];
+
+  const gyms = await prisma.gym.findMany({
+    where: { id: { in: gymIds } },
+    select: {
+      id: true,
+      name: true,
+      city: true,
+      area: true,
+      owner: { select: { name: true, email: true } },
+    },
+  });
+
+  return gyms
+    .map((gym) => {
+      const stats = byGym.get(gym.id)!;
+      const totalContactClicks =
+        stats.whatsappClicks + stats.phoneClicks + stats.directionsClicks;
+      return {
+        gymId: gym.id,
+        gymName: gym.name,
+        city: gym.city,
+        area: gym.area,
+        ownerName: gym.owner?.name ?? null,
+        ownerEmail: gym.owner?.email ?? null,
+        profileViews: stats.profileViews,
+        whatsappClicks: stats.whatsappClicks,
+        phoneClicks: stats.phoneClicks,
+        directionsClicks: stats.directionsClicks,
+        totalContactClicks,
+      };
+    })
+    .sort((a, b) => b.profileViews - a.profileViews || b.totalContactClicks - a.totalContactClicks);
+}
+
 export async function getTopPerformingGymInsights(ownerId: string) {
   const gyms = await prisma.gym.findMany({
     where: { ownerId },
