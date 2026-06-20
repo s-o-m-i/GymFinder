@@ -10,6 +10,8 @@ import { GymTypeIcon } from "@/components/ui/GymTypeIcon";
 import { LadiesStatusBadge } from "@/components/ui/LadiesStatusBadge";
 import { ReviewForm } from "@/components/gym/ReviewForm";
 import { MembershipPlansSection } from "@/components/gym/MembershipPlansSection";
+import { MeetOurTeamSection } from "@/components/gym/MeetOurTeamSection";
+import { GymEquipmentSection } from "@/components/gym/GymEquipmentSection";
 import { prisma } from "@/lib/prisma";
 import {
   buildGoogleMapsUrl,
@@ -42,6 +44,10 @@ async function getGym(slug: string) {
       amenities: { include: { amenity: true } },
       reviews: { orderBy: { createdAt: "desc" }, take: 20 },
       membershipPlans: { orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }] },
+      staffMembers: {
+        where: { isActive: true },
+        orderBy: [{ displayOrder: "asc" }, { createdAt: "asc" }],
+      },
     },
   });
 }
@@ -210,6 +216,8 @@ export async function GymProfilePage({ slug }: GymProfilePageProps) {
                 </div>
               )}
 
+              <GymEquipmentSection equipmentRaw={gym.equipment} />
+
               {gym.coachInfo && (
                 <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6">
                   <h2 className="font-heading font-bold text-lg text-[var(--text)] mb-4 flex items-center gap-2">
@@ -221,6 +229,8 @@ export async function GymProfilePage({ slug }: GymProfilePageProps) {
                   </p>
                 </div>
               )}
+
+              <MeetOurTeamSection members={gym.staffMembers} />
 
               {gym.membershipPlans.length > 0 && (
                 <div className="lg:hidden">

@@ -69,8 +69,8 @@ export function useGeolocation(): UseGeolocationReturn {
       },
       {
         enableHighAccuracy: true,
-        timeout: 10_000,
-        maximumAge: 60_000, // cache position for 1 minute
+        timeout: 20_000,
+        maximumAge: 0,
       }
     );
   }, []);

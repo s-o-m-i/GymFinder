@@ -5,6 +5,8 @@ export const CLOUDINARY_FOLDERS = {
   root:    "gymxclubs/gyms",
   covers:  "gymxclubs/gyms/covers",
   gallery: "gymxclubs/gyms/gallery",
+  coaches: "gymxclubs/coaches",
+  coachCerts: "gymxclubs/coaches/certifications",
 } as const;
 
 export type CloudinaryFolder = (typeof CLOUDINARY_FOLDERS)[keyof typeof CLOUDINARY_FOLDERS];

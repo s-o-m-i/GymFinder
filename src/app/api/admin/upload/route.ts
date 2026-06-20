@@ -9,6 +9,8 @@ const FOLDER_MAP: Record<string, string> = {
   cover:   CLOUDINARY_FOLDERS.covers,
   gallery: CLOUDINARY_FOLDERS.gallery,
   gym:     CLOUDINARY_FOLDERS.root,
+  coach:       CLOUDINARY_FOLDERS.coaches,
+  coach_cert:  CLOUDINARY_FOLDERS.coachCerts,
 };
 
 export async function POST(req: NextRequest) {

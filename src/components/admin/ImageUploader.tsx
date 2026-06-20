@@ -17,14 +17,14 @@ interface ImageUploaderProps {
   onChange:     (images: UploadedImage[]) => void;
   multiple?:    boolean;
   maxImages?:   number;
-  uploadType:   "cover" | "gallery";
+  uploadType:   "cover" | "gallery" | "coach" | "coach_cert";
   className?:   string;
   authMode?:    "admin-secret" | "cookie";
 }
 
 function uploadWithProgress(
   file: File,
-  type: "cover" | "gallery",
+  type: "cover" | "gallery" | "coach" | "coach_cert",
   onProgress: (pct: number) => void,
   authMode: "admin-secret" | "cookie" = "admin-secret"
 ): Promise<{ secure_url: string; public_id: string }> {

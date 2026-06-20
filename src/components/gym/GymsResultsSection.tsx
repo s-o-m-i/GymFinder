@@ -17,9 +17,15 @@ import {
   ChevronUp,
 } from "lucide-react";
 import { GymCard } from "@/components/gym/GymCard";
-import { useGeolocation } from "@/hooks/useGeolocation";
 import type { GymCardData, GymCardDataWithDistance } from "@/types";
 import { useSearchParams } from "next/navigation";
+import {
+  formatAccuracyMeters,
+  geolocationErrorMessage,
+  getBestUserPosition,
+  isLowAccuracy,
+  type UserPosition,
+} from "@/lib/get-user-position";
 
 // Dynamically import the map — Leaflet requires browser APIs, cannot SSR
 const NearMeMap = dynamic(() => import("@/components/map/NearMeMap"), {
@@ -44,12 +50,13 @@ type Radius = (typeof RADIUS_OPTIONS)[number];
 type NearMeStatus = "idle" | "loading" | "active" | "error";
 
 interface LocationLabel {
-  display:     string; // "F-7/2, Islamabad"
-  area:        string; // "F-7/2"
-  city:        string; // "Islamabad"
-  fullAddress: string; // full Nominatim display_name
+  display:     string;
+  area:        string;
+  city:        string;
+  fullAddress: string;
   lat:         number;
   lng:         number;
+  accuracy?:   number;
 }
 
 // ── Reverse geocode via our API proxy → Nominatim ────────────────────────────
@@ -76,13 +83,18 @@ function LocationCard({
   gyms,
   radius,
   onClear,
+  onRefresh,
+  isRefreshing,
 }: {
-  label:   LocationLabel;
-  gyms:    GymCardDataWithDistance[];
-  radius:  Radius;
-  onClear: () => void;
+  label:        LocationLabel;
+  gyms:         GymCardDataWithDistance[];
+  radius:       Radius;
+  onClear:      () => void;
+  onRefresh:    () => void;
+  isRefreshing: boolean;
 }) {
   const [mapOpen, setMapOpen] = useState(true);
+  const lowAccuracy = label.accuracy != null && isLowAccuracy(label.accuracy);
 
   return (
     <div className="border border-emerald-200 bg-emerald-50 rounded-xl overflow-hidden">
@@ -113,11 +125,35 @@ function LocationCard({
           )}
           <p className="font-mono-nums text-[11px] text-emerald-600 mt-0.5">
             {label.lat.toFixed(5)}°N &nbsp;{label.lng.toFixed(5)}°E
+            {label.accuracy != null && (
+              <span className="ml-2 text-emerald-700">
+                · Accuracy {formatAccuracyMeters(label.accuracy)}
+              </span>
+            )}
           </p>
+          {lowAccuracy && (
+            <p className="text-[11px] text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-2 py-1.5 mt-2 leading-snug">
+              GPS looks approximate on this device. For a better fix, tap{" "}
+              <strong>Refresh location</strong> near a window or use your phone&apos;s browser.
+            </p>
+          )}
         </div>
 
         {/* Actions */}
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-2 shrink-0 flex-wrap justify-end">
+          <button
+            type="button"
+            onClick={onRefresh}
+            disabled={isRefreshing}
+            className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-emerald-700 border border-emerald-200 rounded-lg hover:bg-emerald-100 transition-colors disabled:opacity-60"
+          >
+            {isRefreshing ? (
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            ) : (
+              <LocateFixed className="w-3.5 h-3.5" />
+            )}
+            Refresh location
+          </button>
           <button
             onClick={() => setMapOpen((v) => !v)}
             className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-emerald-700 border border-emerald-200 rounded-lg hover:bg-emerald-100 transition-colors"
@@ -140,10 +176,11 @@ function LocationCard({
       {mapOpen && (
         <div className="px-4 pb-4">
           <div
-            className="w-full rounded-xl overflow-hidden border border-emerald-200"
+            className="near-me-map-wrapper w-full rounded-xl overflow-hidden border border-emerald-200 bg-[var(--bg)]"
             style={{ height: 320 }}
           >
             <NearMeMap
+              key={`${label.lat}-${label.lng}-${gyms.length}-${radius}`}
               userLat={label.lat}
               userLng={label.lng}
               gyms={gyms}
@@ -151,6 +188,7 @@ function LocationCard({
           </div>
           <p className="text-[11px] text-emerald-600 mt-1.5 text-center">
             Blue dot = your location &nbsp;·&nbsp; Orange pins = nearby gyms &nbsp;·&nbsp; Tap a pin for details
+            &nbsp;·&nbsp; Two-finger scroll or pinch on the map to zoom
           </p>
         </div>
       )}
@@ -234,78 +272,85 @@ function SortBar({ total, displayed, nearMeActive }: { total: number; displayed:
 
 // ── Main component ────────────────────────────────────────────────────────────
 export function GymsResultsSection({ initialGyms, total, page, totalPages }: GymsResultsSectionProps) {
-  const geo = useGeolocation();
-  const [nearMeStatus,  setNearMeStatus]  = useState<NearMeStatus>("idle");
-  const [nearbyGyms,    setNearbyGyms]    = useState<GymCardDataWithDistance[]>([]);
-  const [radius,        setRadius]        = useState<Radius>(10);
-  const [fetchError,    setFetchError]    = useState<string | null>(null);
+  const [nearMeStatus, setNearMeStatus] = useState<NearMeStatus>("idle");
+  const [nearbyGyms, setNearbyGyms] = useState<GymCardDataWithDistance[]>([]);
+  const [radius, setRadius] = useState<Radius>(10);
+  const [fetchError, setFetchError] = useState<string | null>(null);
   const [locationLabel, setLocationLabel] = useState<LocationLabel | null>(null);
+  const [activePosition, setActivePosition] = useState<UserPosition | null>(null);
+  const [isLocating, setIsLocating] = useState(false);
 
   const isNearMeActive = nearMeStatus === "active";
 
-  // ── Fetch nearby gyms ─────────────────────────────────────────────────────
-  const fetchNearby = useCallback(async (lat: number, lng: number, r: Radius) => {
-    setNearMeStatus("loading");
-    setFetchError(null);
+  const runNearMeSearch = useCallback(
+    async (lat: number, lng: number, r: Radius, accuracy: number) => {
+      setNearMeStatus("loading");
+      setFetchError(null);
+      setActivePosition({ lat, lng, accuracy });
 
-    // Reverse geocode in parallel (non-blocking)
-    reverseGeocode(lat, lng).then(setLocationLabel);
+      reverseGeocode(lat, lng).then((label) =>
+        setLocationLabel({ ...label, lat, lng, accuracy })
+      );
 
-    try {
-      const res  = await fetch("/api/gyms/nearby", {
-        method:  "POST",
-        headers: { "Content-Type": "application/json" },
-        body:    JSON.stringify({ lat, lng, radius: r }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "Request failed");
-      setNearbyGyms(data.gyms as GymCardDataWithDistance[]);
-      setNearMeStatus("active");
-    } catch (err) {
-      setFetchError(err instanceof Error ? err.message : "Failed to fetch nearby gyms.");
-      setNearMeStatus("error");
-    }
-  }, []);
-
-  // ── Trigger Near Me ───────────────────────────────────────────────────────
-  const handleNearMe = useCallback(() => {
-    if (geo.status === "success" && geo.lat && geo.lng) {
-      fetchNearby(geo.lat, geo.lng, radius);
-      return;
-    }
-    setNearMeStatus("loading");
-    if (typeof window === "undefined" || !navigator.geolocation) {
-      setFetchError("Geolocation is not supported by your browser.");
-      setNearMeStatus("error");
-      return;
-    }
-    navigator.geolocation.getCurrentPosition(
-      (pos) => fetchNearby(pos.coords.latitude, pos.coords.longitude, radius),
-      (err) => {
-        const msg = err.code === GeolocationPositionError.PERMISSION_DENIED
-          ? "Location access denied. Please allow location in browser settings."
-          : "Could not get your location. Please try again.";
-        setFetchError(msg);
+      try {
+        const res = await fetch("/api/gyms/nearby", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ lat, lng, radius: r }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error ?? "Request failed");
+        setNearbyGyms(data.gyms as GymCardDataWithDistance[]);
+        setNearMeStatus("active");
+      } catch (err) {
+        setFetchError(err instanceof Error ? err.message : "Failed to fetch nearby gyms.");
         setNearMeStatus("error");
-      },
-      { enableHighAccuracy: true, timeout: 10_000, maximumAge: 60_000 }
-    );
-  }, [geo, fetchNearby, radius]);
+      }
+    },
+    []
+  );
 
-  // ── Radius change ─────────────────────────────────────────────────────────
-  const handleRadiusChange = useCallback((r: Radius) => {
-    setRadius(r);
-    if (isNearMeActive && geo.lat && geo.lng) fetchNearby(geo.lat, geo.lng, r);
-  }, [isNearMeActive, geo.lat, geo.lng, fetchNearby]);
+  const requestLocation = useCallback(
+    async (r: Radius) => {
+      setIsLocating(true);
+      setNearMeStatus("loading");
+      setFetchError(null);
 
-  // ── Clear ─────────────────────────────────────────────────────────────────
+      try {
+        const pos = await getBestUserPosition();
+        await runNearMeSearch(pos.lat, pos.lng, r, pos.accuracy);
+      } catch (err) {
+        setFetchError(geolocationErrorMessage(err));
+        setNearMeStatus("error");
+      } finally {
+        setIsLocating(false);
+      }
+    },
+    [runNearMeSearch]
+  );
+
+  const handleNearMe = useCallback(() => {
+    requestLocation(radius);
+  }, [requestLocation, radius]);
+
+  const handleRadiusChange = useCallback(
+    (r: Radius) => {
+      setRadius(r);
+      if (isNearMeActive && activePosition) {
+        runNearMeSearch(activePosition.lat, activePosition.lng, r, activePosition.accuracy);
+      }
+    },
+    [isNearMeActive, activePosition, runNearMeSearch]
+  );
+
   const handleClear = useCallback(() => {
     setNearMeStatus("idle");
     setNearbyGyms([]);
     setFetchError(null);
     setLocationLabel(null);
-    geo.clear();
-  }, [geo]);
+    setActivePosition(null);
+    setIsLocating(false);
+  }, []);
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (
@@ -326,7 +371,7 @@ export function GymsResultsSection({ initialGyms, total, page, totalPages }: Gym
           ) : nearMeStatus === "loading" ? (
             <div className="inline-flex items-center gap-2 h-10 px-5 bg-[#0B2545]/80 text-white text-sm font-semibold rounded-xl">
               <Loader2 className="w-4 h-4 animate-spin" />
-              Detecting location…
+              {isLocating ? "Getting GPS fix…" : "Finding nearby gyms…"}
             </div>
           ) : (
             <div className="inline-flex items-center gap-2 h-10 px-4 bg-emerald-500/10 text-emerald-700 text-sm font-semibold rounded-xl border border-emerald-200">
@@ -367,6 +412,8 @@ export function GymsResultsSection({ initialGyms, total, page, totalPages }: Gym
               gyms={nearbyGyms}
               radius={radius}
               onClear={handleClear}
+              onRefresh={() => requestLocation(radius)}
+              isRefreshing={isLocating}
             />
           </div>
         )}

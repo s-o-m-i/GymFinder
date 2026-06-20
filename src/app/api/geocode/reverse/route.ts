@@ -24,13 +24,16 @@ interface NominatimResponse {
 }
 
 function buildAddressLabel(addr: NominatimAddress): { area: string; city: string; display: string } {
-  // Best local area name (most specific first)
+  const road =
+    addr.road ||
+    addr.neighbourhood ||
+    "";
+
   const area =
+    addr.suburb ||
     addr.neighbourhood ||
     addr.quarter ||
-    addr.suburb ||
     addr.village ||
-    addr.road ||
     "";
 
   const city =
@@ -41,10 +44,17 @@ function buildAddressLabel(addr: NominatimAddress): { area: string; city: string
     addr.state ||
     "Unknown";
 
-  // Build a display string like "F-7/2, Islamabad" or "Shalley Valley, Rawalpindi"
-  const display = area && area !== city ? `${area}, ${city}` : city;
+  // Prefer "Range Road, Shalley Valley" style when both road and suburb exist
+  let display = city;
+  if (road && area && road !== area) {
+    display = `${road}, ${area}`;
+  } else if (area && area !== city) {
+    display = `${area}, ${city}`;
+  } else if (road && road !== city) {
+    display = `${road}, ${city}`;
+  }
 
-  return { area, city, display };
+  return { area: area || road, city, display };
 }
 
 export async function GET(req: NextRequest) {

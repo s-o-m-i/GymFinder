@@ -85,6 +85,7 @@ model Gym {
   rating         Float?
   featured       Boolean      @default(false)
   coachInfo          String?      @db.Text
+  equipment          String?      @db.Text
   coverImage         String?
   coverImagePublicId String?
   listingStatus      ListingStatus @default(approved)
@@ -98,6 +99,7 @@ model Gym {
   galleryImages    GymImage[]
   reviews          Review[]
   membershipPlans  MembershipPlan[]
+  staffMembers     StaffMember[]
 
   @@index([city])
   @@index([area])
@@ -177,4 +179,31 @@ model MembershipPlan {
 
   @@index([gymId])
   @@index([gymId, sortOrder])
+}
+
+model StaffMember {
+  id              String   @id @default(cuid())
+  gymId           String
+  fullName        String
+  designation     String
+  bio             String?  @db.Text
+  yearsExperience Int?
+  specialization  String?
+  certifications  String?  @db.Text
+  achievements    String?  @db.Text
+  profileImage    String?
+  cloudinaryId    String?
+  instagramUrl    String?
+  facebookUrl     String?
+  linkedinUrl     String?
+  displayOrder    Int      @default(0)
+  isCoach         Boolean  @default(true)
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  gym             Gym      @relation(fields: [gymId], references: [id], onDelete: Cascade)
+
+  @@index([gymId])
+  @@index([gymId, displayOrder])
+  @@index([gymId, isActive])
 }
