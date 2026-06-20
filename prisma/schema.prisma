@@ -40,6 +40,14 @@ enum ListingStatus {
   rejected
 }
 
+enum MembershipDuration {
+  weekly
+  monthly
+  quarterly
+  semi_annual
+  yearly
+}
+
 model GymOwner {
   id               String           @id @default(cuid())
   email            String           @unique
@@ -47,6 +55,7 @@ model GymOwner {
   name             String
   phone            String?
   businessCategory BusinessCategory
+  isPremium        Boolean          @default(false)
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
   gym              Gym?
@@ -86,8 +95,9 @@ model Gym {
   owner         GymOwner?     @relation(fields: [ownerId], references: [id], onDelete: SetNull)
   disciplines   GymDiscipline[]
   amenities     GymAmenity[]
-  galleryImages GymImage[]
-  reviews       Review[]
+  galleryImages    GymImage[]
+  reviews          Review[]
+  membershipPlans  MembershipPlan[]
 
   @@index([city])
   @@index([area])
@@ -150,4 +160,21 @@ model Review {
   gym       Gym      @relation(fields: [gymId], references: [id], onDelete: Cascade)
 
   @@index([gymId])
+}
+
+model MembershipPlan {
+  id          String             @id @default(cuid())
+  gymId       String
+  name        String
+  description String?            @db.Text
+  price       Int
+  duration    MembershipDuration @default(monthly)
+  features    String?            @db.Text
+  sortOrder   Int                @default(0)
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  gym         Gym                @relation(fields: [gymId], references: [id], onDelete: Cascade)
+
+  @@index([gymId])
+  @@index([gymId, sortOrder])
 }

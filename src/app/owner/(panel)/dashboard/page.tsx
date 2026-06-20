@@ -6,7 +6,7 @@ import { getOwnerSession } from "@/lib/owner-auth";
 import { prisma } from "@/lib/prisma";
 import { businessCategoryLabel, businessCategoryBadgeClass } from "@/lib/owner-constants";
 import { gymTypeLabel } from "@/lib/utils";
-import { PlusCircle, Edit, Clock, CheckCircle2, XCircle, ExternalLink } from "lucide-react";
+import { PlusCircle, Edit, Clock, CheckCircle2, XCircle, ExternalLink, CreditCard } from "lucide-react";
 import { ShareListingUrl } from "@/components/owner/ShareListingUrl";
 
 async function getOwnerData(ownerId: string) {
@@ -114,6 +114,13 @@ export default async function OwnerDashboardPage() {
             >
               <Edit className="w-4 h-4" />
               Edit Listing
+            </Link>
+            <Link
+              href="/owner/memberships"
+              className="inline-flex items-center gap-2 px-4 py-2.5 bg-[var(--bg)] border border-[var(--border)] text-sm font-semibold text-[var(--text)] rounded-xl hover:border-[#FF6A3D]/30 transition-colors"
+            >
+              <CreditCard className="w-4 h-4" />
+              Membership Plans
             </Link>
             {owner.gym.listingStatus === "approved" && (
               <Link

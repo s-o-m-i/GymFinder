@@ -1,10 +1,11 @@
-import type { Gym, GymImage, GymDiscipline, GymAmenity, Discipline, Amenity, Review } from "@prisma/client";
+import type { Gym, GymImage, GymDiscipline, GymAmenity, Discipline, Amenity, Review, MembershipPlan } from "@prisma/client";
 
 export type GymWithRelations = Gym & {
   galleryImages: GymImage[];
   disciplines: (GymDiscipline & { discipline: Discipline })[];
   amenities: (GymAmenity & { amenity: Amenity })[];
   reviews: Review[];
+  membershipPlans?: MembershipPlan[];
 };
 
 export type GymCardData = Pick<

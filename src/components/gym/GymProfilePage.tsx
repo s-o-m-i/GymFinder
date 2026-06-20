@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/Badge";
 import { GymTypeIcon } from "@/components/ui/GymTypeIcon";
 import { LadiesStatusBadge } from "@/components/ui/LadiesStatusBadge";
 import { ReviewForm } from "@/components/gym/ReviewForm";
+import { MembershipPlansSection } from "@/components/gym/MembershipPlansSection";
 import { prisma } from "@/lib/prisma";
 import {
   buildGoogleMapsUrl,
@@ -40,6 +41,7 @@ async function getGym(slug: string) {
       disciplines: { include: { discipline: true } },
       amenities: { include: { amenity: true } },
       reviews: { orderBy: { createdAt: "desc" }, take: 20 },
+      membershipPlans: { orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }] },
     },
   });
 }
@@ -220,6 +222,12 @@ export async function GymProfilePage({ slug }: GymProfilePageProps) {
                 </div>
               )}
 
+              {gym.membershipPlans.length > 0 && (
+                <div className="lg:hidden">
+                  <MembershipPlansSection plans={gym.membershipPlans} gymName={gym.name} />
+                </div>
+              )}
+
               {/* Reviews — always visible with submit form */}
               <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6">
                 <h2 className="font-heading font-bold text-lg text-[var(--text)] mb-4">
@@ -283,6 +291,12 @@ export async function GymProfilePage({ slug }: GymProfilePageProps) {
                 sizeCategory={gym.sizeCategory}
                 ladiesStatus={gym.ladiesStatus}
                 rating={avgRating ?? undefined}
+              />
+
+              <MembershipPlansSection
+                plans={gym.membershipPlans}
+                gymName={gym.name}
+                className="hidden lg:block"
               />
 
               <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-5">
