@@ -151,7 +151,7 @@ export function GymCard({ gym, distanceKm }: GymCardProps) {
             <ChevronRight className="w-3.5 h-3.5 opacity-60 group-hover/btn:opacity-100 group-hover/btn:translate-x-0.5 transition-transform" />
           </Link>
           <WhatsAppButton
-            number={gym.whatsappNumber}
+            gymId={gym.id}
             gymName={gym.name}
             size="sm"
             className="h-9 text-xs rounded-xl"

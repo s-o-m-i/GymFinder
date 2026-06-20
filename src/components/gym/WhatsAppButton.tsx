@@ -1,11 +1,11 @@
 "use client";
 
 import { MessageCircle } from "lucide-react";
-import { buildWhatsAppUrl } from "@/lib/utils";
+import { analyticsRedirectUrl } from "@/lib/analytics-urls";
 import { cn } from "@/lib/utils";
 
 interface WhatsAppButtonProps {
-  number: string;
+  gymId: string;
   gymName?: string;
   size?: "sm" | "md" | "lg";
   className?: string;
@@ -15,14 +15,14 @@ interface WhatsAppButtonProps {
 }
 
 export function WhatsAppButton({
-  number,
+  gymId,
   gymName,
   size = "md",
   className,
   fullWidth = false,
   label,
 }: WhatsAppButtonProps) {
-  const url = buildWhatsAppUrl(number, gymName);
+  const url = analyticsRedirectUrl(gymId, "WHATSAPP_CLICK");
 
   const defaultLabel = size === "lg" ? "Contact on WhatsApp" : "WhatsApp";
   const displayLabel = label ?? defaultLabel;
@@ -42,8 +42,6 @@ export function WhatsAppButton({
   return (
     <a
       href={url}
-      target="_blank"
-      rel="noopener noreferrer"
       className={cn(
         "inline-flex items-center justify-center",
         "font-semibold bg-[#25D366] text-white",
@@ -62,7 +60,7 @@ export function WhatsAppButton({
             window as unknown as Record<string, (...args: unknown[]) => void>
           ).gtag("event", "whatsapp_click", {
             gym_name: gymName,
-            whatsapp_number: number,
+            gym_id: gymId,
           });
         }
       }}

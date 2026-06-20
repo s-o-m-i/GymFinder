@@ -4,6 +4,9 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { TaleOfTheTape } from "@/components/gym/TaleOfTheTape";
 import { WhatsAppButton } from "@/components/gym/WhatsAppButton";
+import { CallGymButton } from "@/components/gym/CallGymButton";
+import { TrackProfileView } from "@/components/gym/TrackProfileView";
+import { analyticsRedirectUrl } from "@/lib/analytics-urls";
 import { ImageGallery } from "@/components/gym/ImageGallery";
 import { Badge } from "@/components/ui/Badge";
 import { GymTypeIcon } from "@/components/ui/GymTypeIcon";
@@ -14,7 +17,6 @@ import { MeetOurTeamSection } from "@/components/gym/MeetOurTeamSection";
 import { GymEquipmentSection } from "@/components/gym/GymEquipmentSection";
 import { prisma } from "@/lib/prisma";
 import {
-  buildGoogleMapsUrl,
   gymTypeLabel,
   formatPrice,
 } from "@/lib/utils";
@@ -59,11 +61,6 @@ export async function GymProfilePage({ slug }: GymProfilePageProps) {
 
   const disciplineNames = gym.disciplines.map((d) => d.discipline.name);
   const amenityNames = gym.amenities.map((a) => a.amenity.name);
-  const mapsUrl = buildGoogleMapsUrl(
-    `${gym.name}, ${gym.address}`,
-    gym.latitude,
-    gym.longitude
-  );
 
   const avgRating =
     gym.reviews.length > 0
@@ -104,8 +101,11 @@ export async function GymProfilePage({ slug }: GymProfilePageProps) {
     priceRange: `PKR ${gym.priceMin}–${gym.priceMax}/month`,
   };
 
+  const directionsUrl = analyticsRedirectUrl(gym.id, "DIRECTIONS_CLICK");
+
   return (
     <>
+      <TrackProfileView gymId={gym.id} />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
@@ -316,12 +316,16 @@ export async function GymProfilePage({ slug }: GymProfilePageProps) {
                 <p className="text-[var(--text-muted)] text-sm mb-4">
                   Contact the gym directly on WhatsApp to ask about membership and availability.
                 </p>
-                <WhatsAppButton
-                  number={gym.whatsappNumber}
-                  gymName={gym.name}
-                  size="lg"
-                  fullWidth
-                />
+                <div className="space-y-2">
+                  <WhatsAppButton
+                    gymId={gym.id}
+                    gymName={gym.name}
+                    size="lg"
+                    fullWidth
+                    label="WhatsApp Gym"
+                  />
+                  <CallGymButton gymId={gym.id} size="lg" fullWidth />
+                </div>
               </div>
 
               <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-5">
@@ -334,13 +338,11 @@ export async function GymProfilePage({ slug }: GymProfilePageProps) {
                   {gym.area}, {gym.city}
                 </p>
                 <a
-                  href={mapsUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  href={directionsUrl}
                   className="flex items-center justify-center gap-2 w-full py-2.5 text-sm font-semibold text-[var(--navy)] border border-[var(--border)] rounded-xl hover:bg-[var(--bg)] transition-colors"
                 >
                   <ExternalLink className="w-4 h-4" />
-                  Open in Google Maps
+                  Get Directions
                 </a>
               </div>
 

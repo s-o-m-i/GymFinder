@@ -48,6 +48,13 @@ enum MembershipDuration {
   yearly
 }
 
+enum AnalyticsEventType {
+  PROFILE_VIEW
+  WHATSAPP_CLICK
+  PHONE_CLICK
+  DIRECTIONS_CLICK
+}
+
 model GymOwner {
   id               String           @id @default(cuid())
   email            String           @unique
@@ -100,6 +107,7 @@ model Gym {
   reviews          Review[]
   membershipPlans  MembershipPlan[]
   staffMembers     StaffMember[]
+  analyticsEvents  GymAnalyticsEvent[]
 
   @@index([city])
   @@index([area])
@@ -206,4 +214,22 @@ model StaffMember {
   @@index([gymId])
   @@index([gymId, displayOrder])
   @@index([gymId, isActive])
+}
+
+model GymAnalyticsEvent {
+  id          String             @id @default(cuid())
+  gymId       String
+  eventType   AnalyticsEventType
+  sessionId   String?
+  visitorHash String?
+  ipHash      String?
+  userAgent   String?
+  createdAt   DateTime           @default(now())
+  gym         Gym                @relation(fields: [gymId], references: [id], onDelete: Cascade)
+
+  @@index([gymId])
+  @@index([eventType])
+  @@index([createdAt])
+  @@index([gymId, eventType, createdAt])
+  @@index([gymId, eventType, visitorHash, createdAt])
 }
