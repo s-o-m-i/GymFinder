@@ -1,32 +1,23 @@
-import { CITIES, type City, SITE_NAME } from "@/lib/constants";
+import { CITIES, type City, SITE_NAME, cityNameToSlug } from "@/lib/constants";
+import { getEventCitySeoCopy } from "@/lib/pakistan-cities";
 import { eventTypeLabel } from "@/lib/event-constants";
 import type { EventType } from "@prisma/client";
 import type { Metadata } from "next";
 
-export const EVENT_CITY_SLUG_MAP: Record<string, City> = {
-  rawalpindi: "Rawalpindi",
-  islamabad: "Islamabad",
-};
+export const EVENT_CITY_SLUG_MAP: Record<string, City> = Object.fromEntries(
+  CITIES.map((city) => [cityNameToSlug(city)!, city])
+) as Record<string, City>;
 
-export const EVENT_CITY_SEO: Record<City, { title: string; description: string }> = {
-  Rawalpindi: {
-    title: "Fitness & Fighting Events in Rawalpindi",
-    description:
-      "Discover upcoming and past boxing, MMA, fitness, and martial arts events in Rawalpindi. Competitions, seminars, and gym-hosted events.",
-  },
-  Islamabad: {
-    title: "Fitness & Fighting Events in Islamabad",
-    description:
-      "Discover upcoming and past boxing, MMA, fitness, and martial arts events in Islamabad. Competitions, seminars, and gym-hosted events.",
-  },
-};
+export function getEventCitySeo(city: City) {
+  return getEventCitySeoCopy(city);
+}
 
 export function cityFromEventSlug(slug: string): City | null {
   return EVENT_CITY_SLUG_MAP[slug.toLowerCase()] ?? null;
 }
 
 export function eventCitySlug(city: City): string {
-  return city.toLowerCase();
+  return cityNameToSlug(city) ?? city.toLowerCase();
 }
 
 export function getEventsBasePath(opts?: { city?: City; time?: "upcoming" | "past"; type?: EventType; featured?: boolean }) {
@@ -49,13 +40,13 @@ export function generateEventsListingMetadata(opts?: {
   time?: "upcoming" | "past";
 }): Metadata {
   const base = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
-  const citySeo = opts?.city ? EVENT_CITY_SEO[opts.city] : null;
+  const citySeo = opts?.city ? getEventCitySeo(opts.city) : null;
   const typeLabel = opts?.type ? eventTypeLabel(opts.type) : null;
   const timeLabel = opts?.time === "past" ? "Past" : "Upcoming";
 
   let title = `${timeLabel} Fitness & Fighting Events | ${SITE_NAME}`;
   let description =
-    "Discover upcoming and past boxing, MMA, fitness, and martial arts events across Pakistan's top gym and fighting club platform.";
+    "Discover upcoming and past boxing, MMA, fitness, and martial arts events across Pakistan.";
 
   if (citySeo && typeLabel) {
     title = `${timeLabel} ${typeLabel} Events in ${opts!.city} | ${SITE_NAME}`;
@@ -115,5 +106,10 @@ export const EVENT_CITY_SLUGS = Object.keys(EVENT_CITY_SLUG_MAP);
 export function isEventCitySlug(slug: string): boolean {
   return slug.toLowerCase() in EVENT_CITY_SLUG_MAP;
 }
+
+/** @deprecated Use getEventCitySeo */
+export const EVENT_CITY_SEO = Object.fromEntries(
+  CITIES.map((city) => [city, getEventCitySeoCopy(city)])
+) as Record<City, ReturnType<typeof getEventCitySeoCopy>>;
 
 export { CITIES };

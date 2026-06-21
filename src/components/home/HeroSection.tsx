@@ -13,6 +13,7 @@ import {
   Users,
   Target,
 } from "lucide-react";
+import { CITIES, cityNameToSlug } from "@/lib/constants";
 import { formatHeroStatCount, type HeroStats } from "@/lib/hero-data";
 import { cn } from "@/lib/utils";
 
@@ -32,6 +33,7 @@ export function HeroSection({ stats }: HeroSectionProps) {
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [locationOpen, setLocationOpen] = useState(false);
+  const [selectedCity, setSelectedCity] = useState("");
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -105,7 +107,9 @@ export function HeroSection({ stats }: HeroSectionProps) {
                 >
                   <span className="flex items-center gap-2 min-w-0">
                     <MapPin className="w-4 h-4 text-[#FF6A3D] shrink-0" />
-                    <span className="truncate">Rawalpindi & Islamabad</span>
+                    <span className="truncate">
+                      {selectedCity || "All Pakistan"}
+                    </span>
                   </span>
                   <ChevronDown
                     className={cn(
@@ -121,28 +125,33 @@ export function HeroSection({ stats }: HeroSectionProps) {
                       onClick={() => setLocationOpen(false)}
                       aria-hidden
                     />
-                    <div className="absolute top-full left-0 right-0 mt-2 z-50 rounded-xl border border-white/10 bg-[#0B2545]/95 backdrop-blur-xl py-1 shadow-xl">
-                      <Link
-                        href="/gyms/rawalpindi"
-                        onClick={() => setLocationOpen(false)}
-                        className="block px-4 py-2.5 text-sm text-white/90 hover:bg-white/10 transition-colors"
-                      >
-                        Rawalpindi
-                      </Link>
-                      <Link
-                        href="/gyms/islamabad"
-                        onClick={() => setLocationOpen(false)}
-                        className="block px-4 py-2.5 text-sm text-white/90 hover:bg-white/10 transition-colors"
-                      >
-                        Islamabad
-                      </Link>
+                    <div className="absolute top-full left-0 right-0 mt-2 z-50 rounded-xl border border-white/10 bg-[#0B2545]/95 backdrop-blur-xl py-1 shadow-xl max-h-64 overflow-y-auto">
                       <Link
                         href="/gyms"
-                        onClick={() => setLocationOpen(false)}
-                        className="block px-4 py-2.5 text-sm text-white/90 hover:bg-white/10 transition-colors border-t border-white/10"
+                        onClick={() => {
+                          setSelectedCity("");
+                          setLocationOpen(false);
+                        }}
+                        className="block px-4 py-2.5 text-sm text-white/90 hover:bg-white/10 transition-colors border-b border-white/10"
                       >
-                        Both cities
+                        All Pakistan
                       </Link>
+                      {CITIES.map((city) => {
+                        const slug = cityNameToSlug(city);
+                        return (
+                          <Link
+                            key={city}
+                            href={slug ? `/gyms/${slug}` : `/gyms?city=${encodeURIComponent(city)}`}
+                            onClick={() => {
+                              setSelectedCity(city);
+                              setLocationOpen(false);
+                            }}
+                            className="block px-4 py-2.5 text-sm text-white/90 hover:bg-white/10 transition-colors"
+                          >
+                            {city}
+                          </Link>
+                        );
+                      })}
                     </div>
                   </>
                 )}

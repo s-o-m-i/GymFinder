@@ -1,13 +1,13 @@
-import { CITIES, GYM_TYPES, type City } from "@/lib/constants";
+import { CITIES, GYM_TYPES, type City, cityNameToSlug, citySlugToName } from "@/lib/constants";
+import { getCitySeoCopy } from "@/lib/pakistan-cities";
 import { gymTypeLabel } from "@/lib/utils";
 import type { Metadata } from "next";
 import { SITE_NAME } from "@/lib/constants";
 
 /** URL slug → display city name */
-export const CITY_SLUG_MAP: Record<string, City> = {
-  rawalpindi: "Rawalpindi",
-  islamabad:  "Islamabad",
-};
+export const CITY_SLUG_MAP: Record<string, City> = Object.fromEntries(
+  CITIES.map((city) => [cityNameToSlug(city)!, city])
+) as Record<string, City>;
 
 /** URL slug → gym type value (DB enum) */
 export const TYPE_SLUG_MAP: Record<string, string> = {
@@ -19,84 +19,50 @@ export const TYPE_SLUG_MAP: Record<string, string> = {
   "martial-arts": "martial_arts",
 };
 
-export const CITY_SEO: Record<City, { title: string; description: string; keywords: string[] }> = {
-  Rawalpindi: {
-    title:       "Best Gyms & Fighting Clubs in Rawalpindi",
-    description:
-      "Discover gyms, boxing clubs, MMA academies, and martial arts centers in Rawalpindi. Compare monthly fees, facilities, ladies timings, and contact gyms directly on WhatsApp.",
-    keywords: [
-      "gyms in Rawalpindi",
-      "boxing clubs Rawalpindi",
-      "MMA gym Rawalpindi",
-      "fighting clubs Rawalpindi",
-      "fitness centers Rawalpindi",
-      "ladies gym Rawalpindi",
-    ],
-  },
-  Islamabad: {
-    title:       "Best Gyms & Fighting Clubs in Islamabad",
-    description:
-      "Find top gyms, boxing clubs, MMA gyms, and martial arts studios in Islamabad. Filter by area, price, and discipline. Contact directly on WhatsApp — no booking fees.",
-    keywords: [
-      "gyms in Islamabad",
-      "boxing clubs Islamabad",
-      "MMA gym Islamabad",
-      "fighting clubs Islamabad",
-      "fitness centers Islamabad",
-      "ladies gym Islamabad",
-    ],
-  },
-};
+export function getGymCitySeo(city: City) {
+  return getCitySeoCopy(city);
+}
 
 export const TYPE_SEO: Record<string, { title: string; description: string; keywords: string[] }> = {
   gym: {
-    title:       "Best Gyms in Rawalpindi & Islamabad",
+    title:       "Best Gyms in Pakistan",
     description:
-      "Find the best fitness gyms in Rawalpindi and Islamabad. Compare monthly membership fees, equipment, facilities, and contact gyms directly on WhatsApp.",
-    keywords: ["gyms Rawalpindi Islamabad", "fitness centers Pakistan", "best gyms twin cities"],
+      "Find the best fitness gyms across Pakistan. Compare monthly membership fees, equipment, facilities, and contact gyms directly on WhatsApp.",
+    keywords: ["gyms Pakistan", "fitness centers Pakistan", "best gyms Pakistan"],
   },
   boxing: {
-    title:       "Best Boxing Clubs in Rawalpindi & Islamabad",
+    title:       "Best Boxing Clubs in Pakistan",
     description:
-      "Discover top boxing clubs and boxing gyms in Rawalpindi and Islamabad. Compare prices, training programs, and contact coaches directly on WhatsApp.",
-    keywords: ["boxing clubs Rawalpindi", "boxing gyms Islamabad", "boxing training Pakistan"],
+      "Discover top boxing clubs and boxing gyms across Pakistan. Compare prices, training programs, and contact coaches directly on WhatsApp.",
+    keywords: ["boxing clubs Pakistan", "boxing gyms Pakistan", "boxing training Pakistan"],
   },
   mma: {
-    title:       "Best MMA Gyms in Rawalpindi & Islamabad",
+    title:       "Best MMA Gyms in Pakistan",
     description:
-      "Find MMA gyms and mixed martial arts academies in Rawalpindi and Islamabad. Compare facilities, coaches, and membership prices. Contact on WhatsApp.",
-    keywords: ["MMA gym Rawalpindi", "MMA gym Islamabad", "mixed martial arts Pakistan"],
+      "Find MMA gyms and mixed martial arts academies across Pakistan. Compare facilities, coaches, and membership prices. Contact on WhatsApp.",
+    keywords: ["MMA gym Pakistan", "mixed martial arts Pakistan", "MMA training Pakistan"],
   },
   muay_thai: {
-    title:       "Muay Thai Gyms in Rawalpindi & Islamabad",
+    title:       "Muay Thai Gyms in Pakistan",
     description:
-      "Browse Muay Thai gyms and training centers in Rawalpindi and Islamabad. Compare prices and contact directly on WhatsApp.",
-    keywords: ["Muay Thai Rawalpindi", "Muay Thai Islamabad", "Muay Thai gym Pakistan"],
+      "Browse Muay Thai gyms and training centers across Pakistan. Compare prices and contact directly on WhatsApp.",
+    keywords: ["Muay Thai Pakistan", "Muay Thai gym Pakistan"],
   },
   kickboxing: {
-    title:       "Kickboxing Gyms in Rawalpindi & Islamabad",
+    title:       "Kickboxing Gyms in Pakistan",
     description:
-      "Find kickboxing gyms and classes in Rawalpindi and Islamabad. Compare membership fees and contact on WhatsApp.",
-    keywords: ["kickboxing Rawalpindi", "kickboxing Islamabad", "kickboxing gym Pakistan"],
+      "Find kickboxing gyms and classes across Pakistan. Compare membership fees and contact on WhatsApp.",
+    keywords: ["kickboxing Pakistan", "kickboxing gym Pakistan"],
   },
   martial_arts: {
-    title:       "Martial Arts Clubs in Rawalpindi & Islamabad",
+    title:       "Martial Arts Clubs in Pakistan",
     description:
-      "Discover martial arts academies and dojos in Rawalpindi and Islamabad. Filter by discipline, price, and area.",
-    keywords: ["martial arts Rawalpindi", "martial arts Islamabad", "martial arts gym Pakistan"],
+      "Discover martial arts academies and dojos across Pakistan. Filter by discipline, price, and area.",
+    keywords: ["martial arts Pakistan", "martial arts gym Pakistan"],
   },
 };
 
-export function citySlugToName(slug: string): City | null {
-  return CITY_SLUG_MAP[slug.toLowerCase()] ?? null;
-}
-
-export function cityNameToSlug(city: string): string | null {
-  const entry = Object.entries(CITY_SLUG_MAP).find(
-    ([, name]) => name.toLowerCase() === city.toLowerCase()
-  );
-  return entry?.[0] ?? null;
-}
+export { citySlugToName, cityNameToSlug };
 
 export function typeSlugToValue(slug: string): string | null {
   return TYPE_SLUG_MAP[slug.toLowerCase()] ?? null;
@@ -155,7 +121,6 @@ export function buildGymsUrl(
       sp.set(key, String(val));
     }
   }
-  // Secondary dimension as query when not in path
   if (opts?.city && params.type) sp.set("type", String(params.type));
   if (opts?.type && params.city) sp.set("city", String(params.city));
 
@@ -182,12 +147,12 @@ export function generateListingMetadata({
   const area = searchParams.area as string | undefined;
   const extraType = searchParams.type as string | undefined;
 
-  let title = "Gyms in Rawalpindi & Islamabad";
-  let description = "Browse gyms and fighting clubs in Rawalpindi and Islamabad.";
+  let title = "Gyms & Fighting Clubs in Pakistan";
+  let description = "Browse gyms and fighting clubs across Pakistan.";
   let keywords: string[] = [];
 
   if (city) {
-    const seo = CITY_SEO[city];
+    const seo = getGymCitySeo(city);
     title = seo.title;
     description = seo.description;
     keywords = seo.keywords;
@@ -200,7 +165,7 @@ export function generateListingMetadata({
       description = seo.description;
       keywords = seo.keywords;
     } else {
-      title = `${gymTypeLabel(type)} Gyms in Rawalpindi & Islamabad`;
+      title = `${gymTypeLabel(type)} Gyms in Pakistan`;
     }
   }
 
@@ -221,3 +186,8 @@ export function generateListingMetadata({
     robots: { index: true, follow: true },
   };
 }
+
+/** @deprecated Use getGymCitySeo */
+export const CITY_SEO = Object.fromEntries(
+  CITIES.map((city) => [city, getCitySeoCopy(city)])
+) as Record<City, ReturnType<typeof getCitySeoCopy>>;

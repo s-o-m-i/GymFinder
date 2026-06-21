@@ -7,6 +7,7 @@ import { HeroSection } from "@/components/home/HeroSection";
 import { DisciplinesSection } from "@/components/home/DisciplinesSection";
 import { FeaturedGyms } from "@/components/home/FeaturedGyms";
 import { prisma } from "@/lib/prisma";
+import { CITIES } from "@/lib/constants";
 import { HERO_DISCIPLINES } from "@/lib/hero-data";
 import { MapPin, Shield, MessageCircle, Users } from "lucide-react";
 
@@ -30,7 +31,7 @@ async function getHeroStats() {
   try {
     const approved = { listingStatus: "approved" as const };
 
-    const [gyms, trainers, clubs] = await Promise.all([
+    const [gyms, trainers, clubs, gymCities, trainerCities] = await Promise.all([
       prisma.gym.count({ where: approved }),
       prisma.trainer.count({ where: { isPublished: true } }),
       prisma.gym.count({
@@ -39,11 +40,23 @@ async function getHeroStats() {
           type: { in: ["boxing", "mma", "muay_thai", "kickboxing", "martial_arts"] },
         },
       }),
+      prisma.gym.groupBy({ by: ["city"], where: approved }),
+      prisma.trainer.groupBy({ by: ["city"], where: { isPublished: true } }),
     ]);
 
-    return { gyms, trainers, clubs, cities: 2 };
+    const citySet = new Set([
+      ...gymCities.map((r) => r.city),
+      ...trainerCities.map((r) => r.city),
+    ]);
+
+    return {
+      gyms,
+      trainers,
+      clubs,
+      cities: Math.max(citySet.size, CITIES.length),
+    };
   } catch {
-    return { gyms: 50, trainers: 25, clubs: 20, cities: 2 };
+    return { gyms: 50, trainers: 25, clubs: 20, cities: CITIES.length };
   }
 }
 
@@ -138,7 +151,7 @@ export default async function HomePage() {
               Ready to Start Training?
             </h2>
             <p className="text-[#8ba0b8] mb-8">
-              Browse gyms and fighting clubs, or find a personal trainer in Rawalpindi & Islamabad.
+              Browse gyms and fighting clubs, or find a personal trainer anywhere in Pakistan.
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               <Link

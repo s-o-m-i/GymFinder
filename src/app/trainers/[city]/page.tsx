@@ -17,7 +17,7 @@ interface PageProps {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { city: citySlug } = await params;
   if (!isTrainerCitySlug(citySlug)) return {};
-  const city = TRAINER_CITY_SLUG_MAP[citySlug];
+  const city = TRAINER_CITY_SLUG_MAP[citySlug.toLowerCase()];
   return generateTrainersListingMetadata({ city });
 }
 
@@ -25,7 +25,7 @@ export default async function TrainersCityPage({ params, searchParams }: PagePro
   const { city: citySlug } = await params;
   if (!isTrainerCitySlug(citySlug)) notFound();
 
-  const city = TRAINER_CITY_SLUG_MAP[citySlug];
+  const city = TRAINER_CITY_SLUG_MAP[citySlug.toLowerCase()];
   const query = await searchParams;
 
   return <TrainersListingPage searchParams={query} city={city} />;

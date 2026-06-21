@@ -24,18 +24,20 @@ const ibmPlexMono = IBM_Plex_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: `${SITE_NAME} – Gyms & Fighting Clubs in Rawalpindi & Islamabad`,
+    default: `${SITE_NAME} – Gyms & Fighting Clubs in Pakistan`,
     template: `%s | ${SITE_NAME}`,
   },
   description: SITE_DESCRIPTION,
   keywords: [
-    "gyms in Rawalpindi",
+    "gyms in Pakistan",
+    "gyms in Karachi",
+    "gyms in Lahore",
     "gyms in Islamabad",
     "boxing clubs Pakistan",
-    "MMA gym Islamabad",
-    "fighting clubs Rawalpindi",
-    "Muay Thai Islamabad",
-    "kickboxing Rawalpindi",
+    "MMA gym Pakistan",
+    "fighting clubs Pakistan",
+    "Muay Thai Pakistan",
+    "kickboxing Pakistan",
     "martial arts clubs Pakistan",
   ],
   authors: [{ name: SITE_NAME }],
@@ -45,7 +47,7 @@ export const metadata: Metadata = {
     locale: "en_PK",
     url: process.env.NEXT_PUBLIC_APP_URL,
     siteName: SITE_NAME,
-    title: `${SITE_NAME} – Gyms & Fighting Clubs in Rawalpindi & Islamabad`,
+    title: `${SITE_NAME} – Gyms & Fighting Clubs in Pakistan`,
     description: SITE_DESCRIPTION,
   },
   twitter: {

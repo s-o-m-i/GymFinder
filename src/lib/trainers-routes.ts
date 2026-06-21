@@ -1,59 +1,39 @@
 import type { Metadata } from "next";
-import { CITIES, type City, SITE_NAME } from "@/lib/constants";
+import { CITIES, type City, SITE_NAME, cityNameToSlug } from "@/lib/constants";
+import { getTrainerCitySeoCopy } from "@/lib/pakistan-cities";
 import { specializationLabel } from "@/lib/trainer-constants";
 
-export const TRAINER_CITY_SLUG_MAP: Record<string, City> = {
-  rawalpindi: "Rawalpindi",
-  islamabad: "Islamabad",
-};
+export const TRAINER_CITY_SLUG_MAP: Record<string, City> = Object.fromEntries(
+  CITIES.map((city) => [cityNameToSlug(city)!, city])
+) as Record<string, City>;
 
 export const TRAINER_CITY_SLUGS = new Set(Object.keys(TRAINER_CITY_SLUG_MAP));
 
 export function isTrainerCitySlug(slug: string): slug is keyof typeof TRAINER_CITY_SLUG_MAP {
-  return TRAINER_CITY_SLUGS.has(slug);
+  return TRAINER_CITY_SLUGS.has(slug.toLowerCase());
 }
 
 export function cityToTrainerSlug(city: City): string {
-  return city.toLowerCase();
+  return cityNameToSlug(city) ?? city.toLowerCase();
 }
 
-export function getTrainersBasePath(options?: { city?: City }): string {
+export function getTrainersBasePath(options?: { city?: City | string }): string {
   if (options?.city) {
-    return `/trainers/${cityToTrainerSlug(options.city)}`;
+    const slug = cityNameToSlug(options.city);
+    if (slug) return `/trainers/${slug}`;
   }
   return "/trainers";
 }
 
-export const TRAINER_CITY_SEO: Record<City, { title: string; description: string; keywords: string[] }> = {
-  Rawalpindi: {
-    title: "Personal Trainers & Coaches in Rawalpindi",
-    description:
-      "Find certified boxing, MMA, and fitness trainers in Rawalpindi. Compare experience, rates, and contact coaches directly on WhatsApp.",
-    keywords: [
-      "personal trainer Rawalpindi",
-      "boxing coach Rawalpindi",
-      "MMA trainer Rawalpindi",
-      "fitness coach Rawalpindi",
-    ],
-  },
-  Islamabad: {
-    title: "Personal Trainers & Coaches in Islamabad",
-    description:
-      "Discover top personal trainers and fighting coaches in Islamabad. Filter by specialization and experience. Contact directly on WhatsApp.",
-    keywords: [
-      "personal trainer Islamabad",
-      "boxing coach Islamabad",
-      "MMA trainer Islamabad",
-      "fitness coach Islamabad",
-    ],
-  },
-};
+export function getTrainerCitySeo(city: City) {
+  return getTrainerCitySeoCopy(city);
+}
 
 export function generateTrainersListingMetadata(options?: {
   city?: City;
   specialization?: string;
 }): Metadata {
-  const citySeo = options?.city ? TRAINER_CITY_SEO[options.city] : null;
+  const citySeo = options?.city ? getTrainerCitySeo(options.city) : null;
   const specLabel = options?.specialization
     ? specializationLabel(options.specialization)
     : null;
@@ -68,7 +48,7 @@ export function generateTrainersListingMetadata(options?: {
     ? citySeo.description
     : specLabel
       ? `Browse ${specLabel.toLowerCase()} trainers and coaches across Pakistan. Compare profiles, certifications, and contact directly.`
-      : "Browse certified personal trainers, boxing coaches, and fitness experts. Filter by city, specialization, and experience.";
+      : "Browse certified personal trainers, boxing coaches, and fitness experts across Pakistan. Filter by city, specialization, and experience.";
 
   return {
     title,
@@ -112,5 +92,10 @@ export function generateTrainerProfileMetadata(trainer: {
     },
   };
 }
+
+/** @deprecated Use getTrainerCitySeo */
+export const TRAINER_CITY_SEO = Object.fromEntries(
+  CITIES.map((city) => [city, getTrainerCitySeoCopy(city)])
+) as Record<City, ReturnType<typeof getTrainerCitySeoCopy>>;
 
 export { CITIES };

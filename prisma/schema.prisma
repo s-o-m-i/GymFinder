@@ -351,6 +351,7 @@ model Trainer {
   gym             Gym?     @relation(fields: [gymId], references: [id], onDelete: SetNull)
   account         TrainerAccount? @relation(fields: [accountId], references: [id], onDelete: SetNull)
   leadEvents      TrainerLeadEvent[]
+  reviews         TrainerReview[]
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -375,6 +376,18 @@ model TrainerLeadEvent {
   @@index([eventType])
   @@index([createdAt])
   @@index([trainerId, eventType, createdAt])
+}
+
+model TrainerReview {
+  id        String   @id @default(cuid())
+  trainerId String
+  rating    Int
+  text      String?  @db.Text
+  author    String?
+  createdAt DateTime @default(now())
+  trainer   Trainer  @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+
+  @@index([trainerId])
 }
 
 model Event {

@@ -3,7 +3,7 @@
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useState, useTransition, useEffect } from "react";
 import { Search, SlidersHorizontal, X, ChevronDown } from "lucide-react";
-import { GYM_TYPES, CITIES, LADIES_STATUS_OPTIONS, RAWALPINDI_AREAS, ISLAMABAD_AREAS, PRICE_RANGE } from "@/lib/constants";
+import { GYM_TYPES, CITIES, LADIES_STATUS_OPTIONS, PRICE_RANGE, GYM_RATING_FILTERS, getAreasForCity } from "@/lib/constants";
 import { GymTypeIcon } from "@/components/ui/GymTypeIcon";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
@@ -19,10 +19,28 @@ interface FilterState {
   priceMax: number;
   ladiesStatus: string;
   discipline: string;
+  amenity: string;
+  rating: string;
   sort: string;
 }
 
-export function GymFilters({ fixedCity, fixedType }: { fixedCity?: City; fixedType?: string }) {
+interface AmenityOption {
+  id: string;
+  name: string;
+}
+
+const selectClass =
+  "w-full appearance-none pl-3 pr-8 py-2.5 text-sm bg-[var(--bg)] border border-[var(--border)] rounded-xl text-[var(--text)] focus:outline-none focus:ring-2 focus:ring-[#FF6A3D]/30 focus:border-[#FF6A3D]";
+
+export function GymFilters({
+  fixedCity,
+  fixedType,
+  amenities = [],
+}: {
+  fixedCity?: City;
+  fixedType?: string;
+  amenities?: AmenityOption[];
+}) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -41,6 +59,8 @@ export function GymFilters({ fixedCity, fixedType }: { fixedCity?: City; fixedTy
     priceMax: Number(searchParams.get("priceMax")) || PRICE_RANGE.max,
     ladiesStatus: searchParams.get("ladiesStatus") ?? "",
     discipline: searchParams.get("discipline") ?? "",
+    amenity: searchParams.get("amenity") ?? "",
+    rating: searchParams.get("rating") ?? "",
     sort: searchParams.get("sort") ?? "featured",
   });
 
@@ -55,6 +75,8 @@ export function GymFilters({ fixedCity, fixedType }: { fixedCity?: City; fixedTy
       priceMax: Number(searchParams.get("priceMax")) || PRICE_RANGE.max,
       ladiesStatus: searchParams.get("ladiesStatus") ?? "",
       discipline: searchParams.get("discipline") ?? "",
+      amenity: searchParams.get("amenity") ?? "",
+      rating: searchParams.get("rating") ?? "",
       sort: searchParams.get("sort") ?? "featured",
     });
   }, [searchParams, pathname, fixedCity, fixedType]);
@@ -69,6 +91,8 @@ export function GymFilters({ fixedCity, fixedType }: { fixedCity?: City; fixedTy
     if (next.priceMax < PRICE_RANGE.max) params.set("priceMax", String(next.priceMax));
     if (next.ladiesStatus) params.set("ladiesStatus", next.ladiesStatus);
     if (next.discipline) params.set("discipline", next.discipline);
+    if (next.amenity) params.set("amenity", next.amenity);
+    if (next.rating) params.set("rating", next.rating);
     if (next.sort && next.sort !== "featured") params.set("sort", next.sort);
 
     let base = "/gyms";
@@ -94,21 +118,16 @@ export function GymFilters({ fixedCity, fixedType }: { fixedCity?: City; fixedTy
     [filters, router, buildFilterUrl]
   );
 
-  const handleCityToggle = (city: City) => {
-    const isActive = filters.city === city;
-    applyFilters({ city: isActive ? "" : city, area: "" });
-  };
-
   // Build grouped area options to avoid duplicate keys when areas share names across cities
   const areaGroups: { city: string; areas: readonly string[] }[] =
-    filters.city === "Islamabad"
-      ? [{ city: "Islamabad", areas: ISLAMABAD_AREAS }]
-      : filters.city === "Rawalpindi"
-      ? [{ city: "Rawalpindi", areas: RAWALPINDI_AREAS }]
-      : [
-          { city: "Rawalpindi", areas: RAWALPINDI_AREAS },
-          { city: "Islamabad", areas: ISLAMABAD_AREAS },
-        ];
+    filters.city
+      ? [{ city: filters.city, areas: getAreasForCity(filters.city) }]
+      : CITIES.filter((city) => getAreasForCity(city).length > 0).map((city) => ({
+          city,
+          areas: getAreasForCity(city),
+        }));
+
+  const cityAreas = filters.city ? getAreasForCity(filters.city) : [];
 
   const clearFilters = () => {
     const reset: FilterState = {
@@ -120,6 +139,8 @@ export function GymFilters({ fixedCity, fixedType }: { fixedCity?: City; fixedTy
       priceMax: PRICE_RANGE.max,
       ladiesStatus: "",
       discipline: "",
+      amenity: "",
+      rating: "",
       sort: "featured",
     };
     setFilters(reset);
@@ -139,7 +160,9 @@ export function GymFilters({ fixedCity, fixedType }: { fixedCity?: City; fixedTy
     filters.priceMin > PRICE_RANGE.min ||
     filters.priceMax < PRICE_RANGE.max ||
     filters.ladiesStatus ||
-    filters.discipline;
+    filters.discipline ||
+    filters.amenity ||
+    filters.rating;
 
   const FilterContent = () => (
     <div className="space-y-5">
@@ -165,21 +188,20 @@ export function GymFilters({ fixedCity, fixedType }: { fixedCity?: City; fixedTy
         <label className="block text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wide mb-2">
           City
         </label>
-        <div className="flex gap-2">
-          {CITIES.map((city) => (
-            <button
-              key={city}
-              onClick={() => handleCityToggle(city)}
-              className={cn(
-                "flex-1 py-2 text-sm font-medium rounded-xl border transition-colors",
-                filters.city === city
-                  ? "bg-[#0B2545] text-white border-[#0B2545]"
-                  : "bg-[var(--bg)] border-[var(--border)] text-[var(--text-muted)] hover:text-[var(--text)] hover:border-[var(--text-muted)]"
-              )}
-            >
-              {city}
-            </button>
-          ))}
+        <div className="relative">
+          <select
+            value={filters.city}
+            onChange={(e) => applyFilters({ city: e.target.value, area: "" })}
+            className="w-full appearance-none pl-3 pr-8 py-2.5 text-sm bg-[var(--bg)] border border-[var(--border)] rounded-xl text-[var(--text)] focus:outline-none focus:ring-2 focus:ring-[#FF6A3D]/30 focus:border-[#FF6A3D]"
+          >
+            <option value="">All cities</option>
+            {CITIES.map((city) => (
+              <option key={city} value={city}>
+                {city}
+              </option>
+            ))}
+          </select>
+          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)] pointer-events-none" />
         </div>
       </div>
 
@@ -188,35 +210,44 @@ export function GymFilters({ fixedCity, fixedType }: { fixedCity?: City; fixedTy
         <label className="block text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wide mb-2">
           Area
         </label>
-        <div className="relative">
-          <select
-            value={filters.area}
-            onChange={(e) => applyFilters({ area: e.target.value })}
-            className="w-full appearance-none pl-3 pr-8 py-2.5 text-sm bg-[var(--bg)] border border-[var(--border)] rounded-xl text-[var(--text)] focus:outline-none focus:ring-2 focus:ring-[#FF6A3D]/30 focus:border-[#FF6A3D]"
-          >
-            <option value="">All Areas</option>
-            {areaGroups.map((group) =>
-              areaGroups.length === 1 ? (
-                // Single city selected — flat list, no optgroup needed
-                group.areas.map((area) => (
-                  <option key={`${group.city}-${area}`} value={area}>
-                    {area}
-                  </option>
-                ))
-              ) : (
-                // Both cities — group by city to avoid duplicate keys
-                <optgroup key={group.city} label={group.city}>
-                  {group.areas.map((area) => (
+        {cityAreas.length > 0 ? (
+          <div className="relative">
+            <select
+              value={filters.area}
+              onChange={(e) => applyFilters({ area: e.target.value })}
+              className="w-full appearance-none pl-3 pr-8 py-2.5 text-sm bg-[var(--bg)] border border-[var(--border)] rounded-xl text-[var(--text)] focus:outline-none focus:ring-2 focus:ring-[#FF6A3D]/30 focus:border-[#FF6A3D]"
+            >
+              <option value="">All Areas</option>
+              {areaGroups.map((group) =>
+                areaGroups.length === 1 ? (
+                  group.areas.map((area) => (
                     <option key={`${group.city}-${area}`} value={area}>
                       {area}
                     </option>
-                  ))}
-                </optgroup>
-              )
-            )}
-          </select>
-          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)] pointer-events-none" />
-        </div>
+                  ))
+                ) : (
+                  <optgroup key={group.city} label={group.city}>
+                    {group.areas.map((area) => (
+                      <option key={`${group.city}-${area}`} value={area}>
+                        {area}
+                      </option>
+                    ))}
+                  </optgroup>
+                )
+              )}
+            </select>
+            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)] pointer-events-none" />
+          </div>
+        ) : (
+          <input
+            type="text"
+            placeholder={filters.city ? "Type area or neighbourhood…" : "Select a city first"}
+            value={filters.area}
+            onChange={(e) => applyFilters({ area: e.target.value })}
+            disabled={!filters.city}
+            className="w-full px-3 py-2.5 text-sm bg-[var(--bg)] border border-[var(--border)] rounded-xl text-[var(--text)] placeholder:text-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[#FF6A3D]/30 focus:border-[#FF6A3D] disabled:opacity-60"
+          />
+        )}
       </div>
 
       {/* Type */}
@@ -294,28 +325,71 @@ export function GymFilters({ fixedCity, fixedType }: { fixedCity?: City; fixedTy
         </div>
       </div>
 
+      {/* Amenities */}
+      {amenities.length > 0 && (
+        <div>
+          <label className="block text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wide mb-2">
+            Amenity
+          </label>
+          <div className="relative">
+            <select
+              value={filters.amenity}
+              onChange={(e) => applyFilters({ amenity: e.target.value })}
+              className={selectClass}
+            >
+              <option value="">All amenities</option>
+              {amenities.map((a) => (
+                <option key={a.id} value={a.name}>
+                  {a.name}
+                </option>
+              ))}
+            </select>
+            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)] pointer-events-none" />
+          </div>
+        </div>
+      )}
+
       {/* Ladies status */}
       <div>
         <label className="block text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wide mb-2">
           Ladies Status
         </label>
-        <div className="flex flex-col gap-2">
-          {LADIES_STATUS_OPTIONS.map((opt) => (
-            <button
-              key={opt.value}
-              onClick={() =>
-                applyFilters({ ladiesStatus: filters.ladiesStatus === opt.value ? "" : opt.value })
-              }
-              className={cn(
-                "py-2 px-3 text-sm font-medium rounded-xl border text-left transition-colors",
-                filters.ladiesStatus === opt.value
-                  ? "bg-[#0B2545] text-white border-[#0B2545]"
-                  : "bg-[var(--bg)] border-[var(--border)] text-[var(--text-muted)] hover:text-[var(--text)]"
-              )}
-            >
-              {opt.label}
-            </button>
-          ))}
+        <div className="relative">
+          <select
+            value={filters.ladiesStatus}
+            onChange={(e) => applyFilters({ ladiesStatus: e.target.value })}
+            className={selectClass}
+          >
+            <option value="">Any access type</option>
+            {LADIES_STATUS_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)] pointer-events-none" />
+        </div>
+      </div>
+
+      {/* Rating */}
+      <div>
+        <label className="block text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wide mb-2">
+          Rating
+        </label>
+        <div className="relative">
+          <select
+            value={filters.rating}
+            onChange={(e) => applyFilters({ rating: e.target.value })}
+            className={selectClass}
+          >
+            <option value="">Any rating</option>
+            {GYM_RATING_FILTERS.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)] pointer-events-none" />
         </div>
       </div>
 

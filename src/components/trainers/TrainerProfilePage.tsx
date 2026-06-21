@@ -7,6 +7,7 @@ import { TrainerHeroGallery } from "@/components/trainers/TrainerHeroGallery";
 import { TrainerQuickStats } from "@/components/trainers/TrainerQuickStats";
 import { TrainerCertificationsSection } from "@/components/trainers/TrainerCertificationsSection";
 import { TrainerAchievementsSection } from "@/components/trainers/TrainerAchievementsSection";
+import { TrainerReviewsSection } from "@/components/trainers/TrainerReviewsSection";
 import { Badge } from "@/components/ui/Badge";
 import { getTrainerBySlug } from "@/services/trainer/trainer.service";
 import { specializationLabel } from "@/lib/trainer-constants";
@@ -20,6 +21,7 @@ import {
 } from "@/lib/trainer-availability";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { SITE_NAME } from "@/lib/constants";
+import { getTrainersBasePath } from "@/lib/trainers-routes";
 import {
   MapPin,
   BadgeCheck,
@@ -46,12 +48,12 @@ export async function TrainerProfilePage({ slug }: TrainerProfilePageProps) {
       ? trainer.availability
       : null;
 
-  const cityTrainerPath =
-    trainer.city === "Islamabad"
-      ? "/trainers/islamabad"
-      : trainer.city === "Rawalpindi"
-        ? "/trainers/rawalpindi"
-        : "/trainers";
+  const avgRating =
+    trainer.reviews.length > 0
+      ? trainer.reviews.reduce((sum, r) => sum + r.rating, 0) / trainer.reviews.length
+      : trainer.rating;
+
+  const cityTrainerPath = getTrainersBasePath({ city: trainer.city });
 
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
   const profileUrl = `${baseUrl}/trainer/${trainer.slug}`;
@@ -69,11 +71,11 @@ export async function TrainerProfilePage({ slug }: TrainerProfilePageProps) {
       addressRegion: trainer.area ?? undefined,
     },
     aggregateRating:
-      trainer.rating != null
+      avgRating != null
         ? {
             "@type": "AggregateRating",
-            ratingValue: trainer.rating,
-            reviewCount: trainer.totalReviews,
+            ratingValue: avgRating,
+            reviewCount: trainer.reviews.length || trainer.totalReviews,
           }
         : undefined,
   };
@@ -201,6 +203,12 @@ export async function TrainerProfilePage({ slug }: TrainerProfilePageProps) {
 
               <TrainerCertificationsSection certifications={certifications} />
               <TrainerAchievementsSection achievements={achievements} />
+
+              <TrainerReviewsSection
+                trainerId={trainer.id}
+                reviews={trainer.reviews}
+                avgRating={avgRating}
+              />
 
               {/* Mobile contact CTA */}
               {trainer.whatsappNumber && (

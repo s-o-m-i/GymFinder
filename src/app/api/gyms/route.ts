@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { buildGymRatingWhere } from "@/lib/constants";
 import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/utils";
 import { syncGymImages } from "@/lib/gym-images";
@@ -26,6 +27,8 @@ export async function GET(req: NextRequest) {
       priceMax: searchParams.get("priceMax") ? Number(searchParams.get("priceMax")) : undefined,
       ladiesStatus: searchParams.get("ladiesStatus") ?? undefined,
       discipline: searchParams.get("discipline") ?? undefined,
+      amenity: searchParams.get("amenity") ?? undefined,
+      rating: searchParams.get("rating") ?? undefined,
       sort: (searchParams.get("sort") as GymFilters["sort"]) ?? "featured",
       page: searchParams.get("page") ? Number(searchParams.get("page")) : 1,
       limit: searchParams.get("limit") ? Number(searchParams.get("limit")) : 12,
@@ -181,6 +184,11 @@ function buildWhereClause(filters: GymFilters): Prisma.GymWhereInput {
         },
       },
     };
+  }
+
+  if (filters.rating) {
+    const ratingWhere = buildGymRatingWhere(filters.rating);
+    if (ratingWhere) Object.assign(where, ratingWhere);
   }
 
   return where;

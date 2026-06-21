@@ -13,7 +13,7 @@ import {
 } from "@/lib/event-constants";
 import { formatEventDateRange, formatEventPrice } from "@/components/events/EventCard";
 import { getEventsBasePath, getEventDetailPath } from "@/lib/events-routes";
-import { CITIES } from "@/lib/constants";
+import { isKnownCity } from "@/lib/constants";
 import { SITE_NAME } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import {
@@ -209,8 +209,8 @@ export async function EventDetailPage({ slug }: EventDetailPageProps) {
                 <p className="text-sm font-medium text-[var(--text)]">{areaCity}</p>
                 <Link
                   href={
-                    CITIES.includes(event.city as (typeof CITIES)[number])
-                      ? getEventsBasePath({ city: event.city as (typeof CITIES)[number] })
+                    isKnownCity(event.city)
+                      ? getEventsBasePath({ city: event.city })
                       : `/events?city=${encodeURIComponent(event.city)}`
                   }
                   className="inline-block mt-4 text-sm font-semibold text-[#FF6A3D] hover:underline"

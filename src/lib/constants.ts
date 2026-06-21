@@ -1,5 +1,16 @@
-export const CITIES = ["Rawalpindi", "Islamabad"] as const;
-export type City = (typeof CITIES)[number];
+import {
+  PAKISTAN_CITIES,
+  type PakistanCity,
+  cityNameToSlug,
+  citySlugToName,
+  isKnownCity,
+  slugifyCity,
+} from "@/lib/pakistan-cities";
+
+export const CITIES = PAKISTAN_CITIES;
+export type City = PakistanCity;
+
+export { cityNameToSlug, citySlugToName, isKnownCity, slugifyCity };
 
 /** Select value when the owner enters a custom primary discipline / type. */
 export const CUSTOM_TYPE_VALUE = "__custom__";
@@ -76,13 +87,19 @@ export const ALL_AREAS = [
   ...ISLAMABAD_AREAS.map((a) => ({ area: a, city: "Islamabad" })),
 ];
 
+export function getAreasForCity(city: string): readonly string[] {
+  if (city === "Rawalpindi") return RAWALPINDI_AREAS;
+  if (city === "Islamabad") return ISLAMABAD_AREAS;
+  return [];
+}
+
 export const WHATSAPP_DEFAULT_MESSAGE =
   "Hi, I found your gym on GymFinder PK. I want more details about membership.";
 
 export const SITE_NAME = "GymFinder PK";
 export const SITE_TAGLINE = "Find Gyms • Trainers • Fighting Clubs";
 export const SITE_DESCRIPTION =
-  "Discover the best gyms and fighting clubs in Rawalpindi & Islamabad. Compare prices, facilities, and contact directly on WhatsApp.";
+  "Discover the best gyms, fighting clubs, and personal trainers across Pakistan. Compare prices, facilities, and contact directly on WhatsApp.";
 
 export const SOCIAL_LINKS = {
   instagram: "https://instagram.com/gymfinderpk",
@@ -92,3 +109,56 @@ export const SOCIAL_LINKS = {
 } as const;
 
 export const PRICE_RANGE = { min: 0, max: 15000 };
+
+export type GymRatingFilterOption = {
+  value: string;
+  label: string;
+  min?: number;
+  max?: number;
+  unrated?: boolean;
+};
+
+/** Full rating coverage — minimum thresholds, star bands, and unrated gyms */
+export const GYM_RATING_FILTERS: readonly GymRatingFilterOption[] = [
+  { value: "4_5", label: "4.5+ stars", min: 4.5 },
+  { value: "4", label: "4+ stars", min: 4 },
+  { value: "3_5", label: "3.5+ stars", min: 3.5 },
+  { value: "3", label: "3+ stars", min: 3 },
+  { value: "2_plus", label: "2+ stars", min: 2 },
+  { value: "2", label: "2 stars (2.0 – 2.9)", min: 2, max: 3 },
+  { value: "1_plus", label: "1+ stars", min: 1 },
+  { value: "1", label: "1 star (1.0 – 1.9)", min: 1, max: 2 },
+  { value: "under_1", label: "Under 1 star", max: 1 },
+  { value: "none", label: "No rating yet", unrated: true },
+] as const;
+
+export type GymRatingFilter = (typeof GYM_RATING_FILTERS)[number]["value"];
+
+export function buildGymRatingWhere(
+  value: string
+): { rating: null } | { rating: { gte?: number; lt?: number } } | null {
+  const match = GYM_RATING_FILTERS.find((r) => r.value === value);
+  if (!match) return null;
+
+  if (match.unrated) {
+    return { rating: null };
+  }
+
+  if (match.min !== undefined && match.max !== undefined) {
+    return { rating: { gte: match.min, lt: match.max } };
+  }
+  if (match.min !== undefined) {
+    return { rating: { gte: match.min } };
+  }
+  if (match.max !== undefined) {
+    return { rating: { lt: match.max } };
+  }
+
+  return null;
+}
+
+/** @deprecated Use buildGymRatingWhere */
+export function gymRatingMin(value: string): number | null {
+  const match = GYM_RATING_FILTERS.find((r) => r.value === value);
+  return match?.min ?? null;
+}

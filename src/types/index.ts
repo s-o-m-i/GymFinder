@@ -55,6 +55,7 @@ export interface GymFilters {
   ladiesStatus?: string;
   discipline?: string;
   amenity?: string;
+  rating?: string;
   search?: string;
   sort?: "featured" | "price_asc" | "price_desc" | "rating";
   page?: number;

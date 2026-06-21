@@ -32,7 +32,7 @@ export function OwnerEventForm({ gymDefaults }: OwnerEventFormProps) {
     title: "",
     description: "",
     type: "boxing",
-    city: gymDefaults?.city ?? "Rawalpindi",
+    city: gymDefaults?.city ?? "Karachi",
     area: gymDefaults?.area ?? "",
     address: gymDefaults?.address ?? "",
     startDate: "",

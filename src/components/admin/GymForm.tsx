@@ -18,8 +18,7 @@ import {
   LADIES_STATUS_OPTIONS,
   SIZE_CATEGORIES,
   CITIES,
-  RAWALPINDI_AREAS,
-  ISLAMABAD_AREAS,
+  getAreasForCity,
   CUSTOM_TYPE_VALUE,
 } from "@/lib/constants";
 import {
@@ -195,7 +194,7 @@ export function GymForm({
     };
   }, [variant, mode]);
 
-  const areas = form.city === "Islamabad" ? ISLAMABAD_AREAS : RAWALPINDI_AREAS;
+  const areas = getAreasForCity(form.city);
   const areaQuickPickValue = areas.includes(form.area) ? form.area : "";
   const isCustomType = form.type === CUSTOM_TYPE_VALUE;
   const typeHint =

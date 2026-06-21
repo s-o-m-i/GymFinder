@@ -198,38 +198,15 @@ export function TrainerFilters({ basePath = "/trainers", fixedCity }: TrainerFil
 
       {/* City */}
       {!fixedCity && (
-        <div>
-          <FilterLabel>City</FilterLabel>
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={() => applyFilters({ city: "" })}
-              className={cn(
-                "flex-1 py-2 text-sm font-medium rounded-xl border transition-colors cursor-pointer",
-                !filters.city
-                  ? "bg-[#0B2545] text-white border-[#0B2545]"
-                  : "bg-[var(--bg)] border-[var(--border)] text-[var(--text-muted)] hover:text-[var(--text)]"
-              )}
-            >
-              All
-            </button>
-            {CITIES.map((city) => (
-              <button
-                key={city}
-                type="button"
-                onClick={() => applyFilters({ city: filters.city === city ? "" : city })}
-                className={cn(
-                  "flex-1 py-2 text-sm font-medium rounded-xl border transition-colors cursor-pointer",
-                  filters.city === city
-                    ? "bg-[#0B2545] text-white border-[#0B2545]"
-                    : "bg-[var(--bg)] border-[var(--border)] text-[var(--text-muted)] hover:text-[var(--text)]"
-                )}
-              >
-                {city === "Islamabad" ? "ISB" : "RWP"}
-              </button>
-            ))}
-          </div>
-        </div>
+        <SelectFilter
+          label="City"
+          value={filters.city}
+          onChange={(city) => applyFilters({ city })}
+          options={[
+            { value: "", label: "All cities" },
+            ...CITIES.map((city) => ({ value: city, label: city })),
+          ]}
+        />
       )}
 
       {/* Specialization */}

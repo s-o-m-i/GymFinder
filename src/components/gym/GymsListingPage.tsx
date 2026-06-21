@@ -7,8 +7,9 @@ import { GymsResultsSection } from "@/components/gym/GymsResultsSection";
 import { getGymsListing } from "@/lib/getGymsListing";
 import { gymTypeLabel } from "@/lib/utils";
 import type { City } from "@/lib/constants";
-import { CITY_SEO, TYPE_SEO, getGymsBasePath } from "@/lib/gyms-routes";
+import { TYPE_SEO, getGymCitySeo, getGymsBasePath } from "@/lib/gyms-routes";
 import { JsonLd } from "@/components/seo/JsonLd";
+import { prisma } from "@/lib/prisma";
 
 interface GymsListingPageProps {
   searchParams: Record<string, string | string[] | undefined>;
@@ -45,6 +46,13 @@ export async function GymsListingPage({
     fixedType,
     fixedTypes
   );
+  const amenities = await prisma.amenity.findMany({
+    where: {
+      gyms: { some: { gym: { listingStatus: "approved" } } },
+    },
+    orderBy: { name: "asc" },
+    select: { id: true, name: true },
+  });
   const type = filters.type;
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
   const pagePath = pagePathOverride ?? getGymsBasePath({ city, type: fixedType });
@@ -53,17 +61,17 @@ export async function GymsListingPage({
   const h1 = listingLabel
     ? city
       ? `${listingLabel} in ${city}`
-      : `${listingLabel} in Rawalpindi & Islamabad`
+      : `${listingLabel} in Pakistan`
     : city
     ? `Gyms & Fighting Clubs in ${city}`
     : type
     ? `${gymTypeLabel(type)} Gyms & Clubs`
-    : "All Gyms & Fighting Clubs";
+    : "All Gyms & Fighting Clubs in Pakistan";
 
   const seoIntro = seoDescription
     ? { description: seoDescription }
     : city
-    ? CITY_SEO[city]
+    ? getGymCitySeo(city)
     : type
     ? TYPE_SEO[type]
     : null;
@@ -170,7 +178,7 @@ export async function GymsListingPage({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex gap-8 items-start">
             <Suspense fallback={null}>
-              <GymFilters fixedCity={city} fixedType={fixedType} />
+              <GymFilters fixedCity={city} fixedType={fixedType} amenities={amenities} />
             </Suspense>
 
             <Suspense

@@ -1,3 +1,4 @@
+import { buildGymRatingWhere } from "@/lib/constants";
 import { prisma } from "@/lib/prisma";
 import type { Prisma } from "@prisma/client";
 import type { GymFilters } from "@/types";
@@ -21,6 +22,8 @@ export function parseGymSearchParams(
     priceMax:     getString("priceMax") ? Number(getString("priceMax")) : undefined,
     ladiesStatus: getString("ladiesStatus"),
     discipline:   getString("discipline"),
+    amenity:      getString("amenity"),
+    rating:       getString("rating"),
     sort:         (getString("sort") as GymFilters["sort"]) ?? "featured",
     page:         getString("page") ? Number(getString("page")) : 1,
     limit:        12,
@@ -59,6 +62,19 @@ export function buildGymWhere(
     where.disciplines = {
       some: { discipline: { name: { equals: filters.discipline, mode: "insensitive" } } },
     };
+  }
+  if (filters.amenity) {
+    where.amenities = {
+      some: {
+        amenity: {
+          name: { equals: filters.amenity, mode: "insensitive" },
+        },
+      },
+    };
+  }
+  if (filters.rating) {
+    const ratingWhere = buildGymRatingWhere(filters.rating);
+    if (ratingWhere) Object.assign(where, ratingWhere);
   }
 
   return where;

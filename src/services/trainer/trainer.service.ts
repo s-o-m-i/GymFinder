@@ -186,6 +186,7 @@ export async function getTrainerBySlug(slug: string) {
   return prisma.trainer.findUnique({
     where: { slug },
     include: {
+      reviews: { orderBy: { createdAt: "desc" }, take: 20 },
       gym: {
         select: {
           id: true,

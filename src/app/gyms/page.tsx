@@ -15,8 +15,8 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
   const base   = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 
   const title = type
-    ? `${gymTypeLabel(type)} Gyms in Rawalpindi & Islamabad`
-    : "All Gyms & Fighting Clubs in Rawalpindi & Islamabad";
+    ? `${gymTypeLabel(type)} Gyms in Pakistan`
+    : "All Gyms & Fighting Clubs in Pakistan";
 
   return {
     title,

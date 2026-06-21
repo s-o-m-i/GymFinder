@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Dumbbell } from "lucide-react";
-import { SITE_NAME, SOCIAL_LINKS } from "@/lib/constants";
+import { SITE_NAME, SOCIAL_LINKS, CITIES, cityNameToSlug } from "@/lib/constants";
 import {
   InstagramIcon,
   FacebookIcon,
@@ -14,6 +14,8 @@ const socialItems = [
   { label: "Twitter",   href: SOCIAL_LINKS.twitter,   Icon: TwitterIcon },
   { label: "TikTok",    href: SOCIAL_LINKS.tiktok,    Icon: TikTokIcon },
 ] as const;
+
+const FEATURED_CITIES = ["Karachi", "Lahore", "Islamabad", "Rawalpindi", "Faisalabad", "Peshawar"] as const;
 
 export function Footer() {
   return (
@@ -29,11 +31,10 @@ export function Footer() {
               <span className="font-heading font-bold text-lg">{SITE_NAME}</span>
             </div>
             <p className="text-sm text-[#8ba0b8] leading-relaxed max-w-xs">
-              Discover the best gyms and fighting clubs in Rawalpindi & Islamabad.
+              Discover the best gyms, fighting clubs, and trainers across Pakistan.
               Connect directly via WhatsApp.
             </p>
 
-            {/* Social links */}
             <div className="flex gap-2.5 mt-5">
               {socialItems.map(({ label, href, Icon }) => (
                 <a
@@ -57,11 +58,11 @@ export function Footer() {
             </h4>
             <ul className="space-y-3 text-sm">
               {[
-                { href: "/gyms/rawalpindi", label: "Gyms in Rawalpindi" },
-                { href: "/gyms/islamabad", label: "Gyms in Islamabad" },
+                { href: "/gyms", label: "All Gyms" },
+                { href: "/trainers", label: "Find Trainers" },
+                { href: "/events", label: "Events" },
                 { href: "/gyms/boxing", label: "Boxing Clubs" },
                 { href: "/gyms/mma", label: "MMA Gyms" },
-                { href: "/gyms/muay-thai", label: "Muay Thai" },
                 { href: "/gyms?ladiesStatus=ladies_only", label: "Ladies Only Gyms" },
                 { href: "/owner/register", label: "List Your Gym / Club" },
               ].map((item) => (
@@ -80,32 +81,37 @@ export function Footer() {
           {/* Cities */}
           <div>
             <h4 className="font-heading font-semibold text-sm uppercase tracking-widest text-[#8ba0b8] mb-4">
-              Popular Areas
+              Browse by City
             </h4>
             <ul className="space-y-3 text-sm">
-              {[
-                { href: "/gyms/islamabad?area=F-7", label: "F-7 Islamabad" },
-                { href: "/gyms/islamabad?area=F-10", label: "F-10 Islamabad" },
-                { href: "/gyms/rawalpindi?area=Bahria Town", label: "Bahria Town" },
-                { href: "/gyms/rawalpindi?area=Saddar", label: "Saddar Rawalpindi" },
-                { href: "/gyms/islamabad?area=DHA Phase 2", label: "DHA Islamabad" },
-              ].map((item) => (
-                <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    className="text-[#8ba0b8] hover:text-[#FF6A3D] transition-colors"
-                  >
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
+              {FEATURED_CITIES.map((city) => {
+                const slug = cityNameToSlug(city);
+                return (
+                  <li key={city}>
+                    <Link
+                      href={slug ? `/gyms/${slug}` : `/gyms?city=${encodeURIComponent(city)}`}
+                      className="text-[#8ba0b8] hover:text-[#FF6A3D] transition-colors"
+                    >
+                      Gyms in {city}
+                    </Link>
+                  </li>
+                );
+              })}
+              <li>
+                <Link
+                  href="/gyms"
+                  className="text-[#FF6A3D] hover:underline transition-colors"
+                >
+                  All {CITIES.length}+ cities →
+                </Link>
+              </li>
             </ul>
           </div>
         </div>
 
         <div className="mt-12 pt-6 border-t border-white/10 flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-[#8ba0b8]">
           <span>© {new Date().getFullYear()} {SITE_NAME}. All rights reserved.</span>
-          <span>Built for Rawalpindi & Islamabad 🇵🇰</span>
+          <span>Built for Pakistan 🇵🇰</span>
         </div>
       </div>
     </footer>

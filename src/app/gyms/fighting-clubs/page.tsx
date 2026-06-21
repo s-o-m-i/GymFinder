@@ -4,7 +4,7 @@ import { FIGHTING_CLUB_TYPE_VALUES } from "@/lib/owner-constants";
 import { SITE_NAME } from "@/lib/constants";
 
 const DESCRIPTION =
-  "Browse boxing clubs, MMA gyms, Muay Thai, kickboxing, and martial arts academies in Rawalpindi and Islamabad. Compare prices and contact directly on WhatsApp.";
+  "Browse boxing clubs, MMA gyms, Muay Thai, kickboxing, and martial arts academies across Pakistan. Compare prices and contact directly on WhatsApp.";
 
 interface PageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -12,15 +12,14 @@ interface PageProps {
 
 export async function generateMetadata(): Promise<Metadata> {
   const base = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
-  const title = "Fighting Clubs in Rawalpindi & Islamabad";
+  const title = "Fighting Clubs in Pakistan";
 
   return {
     title: `${title} | ${SITE_NAME}`,
     description: DESCRIPTION,
     keywords: [
-      "fighting clubs Rawalpindi",
-      "fighting clubs Islamabad",
-      "boxing clubs twin cities",
+      "fighting clubs Pakistan",
+      "boxing clubs Pakistan",
       "MMA gyms Pakistan",
     ],
     alternates: { canonical: `${base}/gyms/fighting-clubs` },

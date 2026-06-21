@@ -1,21 +1,50 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { GymProfilePage } from "@/components/gym/GymProfilePage";
+import { GymsListingPage } from "@/components/gym/GymsListingPage";
 import { prisma } from "@/lib/prisma";
 import { gymTypeLabel, formatPrice } from "@/lib/utils";
-import { isListingSlug } from "@/lib/gyms-routes";
+import {
+  citySlugToName,
+  generateListingMetadata,
+  isListingSlug,
+  typeSlugToValue,
+} from "@/lib/gyms-routes";
 import { getGymCoverUrl } from "@/lib/images";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({ params, searchParams }: PageProps): Promise<Metadata> {
   const { slug } = await params;
+  const query = await searchParams;
+
+  const city = citySlugToName(slug);
+  if (city) {
+    return generateListingMetadata({ slug, city, searchParams: query });
+  }
+
+  const type = typeSlugToValue(slug);
+  if (type) {
+    return generateListingMetadata({ slug, type, searchParams: query });
+  }
 
   const gym = await prisma.gym.findUnique({
     where: { slug },
-    select: { name: true, description: true, type: true, customTypeLabel: true, area: true, city: true, priceMin: true, priceMax: true, coverImage: true, galleryImages: { take: 1, select: { imageUrl: true } } },
+    select: {
+      name: true,
+      description: true,
+      type: true,
+      customTypeLabel: true,
+      area: true,
+      city: true,
+      priceMin: true,
+      priceMax: true,
+      coverImage: true,
+      galleryImages: { take: 1, select: { imageUrl: true } },
+    },
   });
 
   if (!gym) return { title: "Gym Not Found" };
@@ -40,10 +69,20 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export const revalidate = 3600;
 
-export default async function GymSlugPage({ params }: PageProps) {
+export default async function GymSlugPage({ params, searchParams }: PageProps) {
   const { slug } = await params;
+  const query = await searchParams;
 
-  // Listing slugs are handled by dedicated static routes (higher priority)
+  const city = citySlugToName(slug);
+  if (city) {
+    return <GymsListingPage searchParams={query} city={city} />;
+  }
+
+  const type = typeSlugToValue(slug);
+  if (type) {
+    return <GymsListingPage searchParams={query} fixedType={type} />;
+  }
+
   if (isListingSlug(slug)) notFound();
 
   const exists = await prisma.gym.findUnique({
