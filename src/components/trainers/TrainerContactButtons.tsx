@@ -1,7 +1,7 @@
 "use client";
 
 import { MessageCircle, Phone } from "lucide-react";
-import { buildTrainerWhatsAppUrl } from "@/lib/trainer-constants";
+import { trainerAnalyticsRedirectUrl } from "@/lib/trainer-analytics-urls";
 import { cn } from "@/lib/utils";
 
 interface TrainerContactButtonsProps {
@@ -21,8 +21,11 @@ export function TrainerContactButtons({
   size = "md",
   className,
 }: TrainerContactButtonsProps) {
-  const whatsappUrl = buildTrainerWhatsAppUrl(whatsappNumber, trainerName);
-  const phoneHref = `tel:${whatsappNumber.replace(/\s/g, "")}`;
+  const whatsappUrl = trainerAnalyticsRedirectUrl(trainerId, "WHATSAPP_CLICK");
+  const phoneHref = trainerAnalyticsRedirectUrl(trainerId, "PHONE_CLICK");
+  const emailHref = email
+    ? trainerAnalyticsRedirectUrl(trainerId, "CONTACT_CLICK")
+    : null;
 
   const sizes = {
     sm: "h-9 px-3 text-xs gap-1.5 rounded-xl",
@@ -36,8 +39,6 @@ export function TrainerContactButtons({
         href={whatsappUrl}
         target="_blank"
         rel="noopener noreferrer"
-        data-trainer-id={trainerId}
-        data-lead-event="WHATSAPP_CLICK"
         className={cn(
           "inline-flex items-center justify-center font-semibold bg-[#25D366] text-white hover:bg-[#1da851] transition-all",
           sizes[size],
@@ -49,8 +50,6 @@ export function TrainerContactButtons({
       </a>
       <a
         href={phoneHref}
-        data-trainer-id={trainerId}
-        data-lead-event="PHONE_CLICK"
         className={cn(
           "inline-flex items-center justify-center font-semibold bg-[#0B2545] text-white hover:bg-[#071832] transition-all",
           sizes[size],
@@ -60,11 +59,9 @@ export function TrainerContactButtons({
         <Phone className="w-4 h-4 shrink-0" />
         Call
       </a>
-      {email && (
+      {email && emailHref && (
         <a
-          href={`mailto:${email}?subject=${encodeURIComponent(`Training inquiry — ${trainerName}`)}`}
-          data-trainer-id={trainerId}
-          data-lead-event="CONTACT_CLICK"
+          href={emailHref}
           className={cn(
             "inline-flex items-center justify-center font-semibold bg-[var(--bg)] text-[#0B2545] border border-[var(--border)] hover:border-[#0B2545] transition-all",
             sizes[size],

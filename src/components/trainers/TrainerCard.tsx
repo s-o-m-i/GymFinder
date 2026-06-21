@@ -4,8 +4,8 @@ import { MapPin, Star, ChevronRight, BadgeCheck, Sparkles, MessageCircle } from 
 import {
   specializationLabel,
   formatHourlyRate,
-  buildTrainerWhatsAppUrl,
 } from "@/lib/trainer-constants";
+import { trainerAnalyticsRedirectUrl } from "@/lib/trainer-analytics-urls";
 import { optimizedImageUrl } from "@/lib/images";
 import type { TrainerCardData } from "@/services/trainer/trainer.service";
 
@@ -19,7 +19,7 @@ export function TrainerCard({ trainer }: TrainerCardProps) {
     : null;
 
   const whatsappUrl = trainer.whatsappNumber
-    ? buildTrainerWhatsAppUrl(trainer.whatsappNumber, trainer.fullName)
+    ? trainerAnalyticsRedirectUrl(trainer.id, "WHATSAPP_CLICK")
     : null;
 
   return (
@@ -144,8 +144,6 @@ export function TrainerCard({ trainer }: TrainerCardProps) {
               href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
-              data-trainer-id={trainer.id}
-              data-lead-event="WHATSAPP_CLICK"
               className="inline-flex items-center justify-center gap-1.5 h-9 px-3 text-xs font-semibold bg-[#25D366] text-white rounded-xl hover:bg-[#1da851] active:scale-[0.97] transition-all duration-150 w-full"
             >
               <MessageCircle className="w-3.5 h-3.5 shrink-0" />

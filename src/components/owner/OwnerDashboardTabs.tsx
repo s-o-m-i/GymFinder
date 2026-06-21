@@ -14,6 +14,7 @@ const TABS: { id: DashboardTab; label: string; icon: typeof LayoutDashboard }[] 
 interface OwnerDashboardTabsProps {
   activeTab: DashboardTab;
   showAnalytics: boolean;
+  basePath?: string;
   overview: React.ReactNode;
   analytics: React.ReactNode | null;
 }
@@ -21,6 +22,7 @@ interface OwnerDashboardTabsProps {
 export function OwnerDashboardTabs({
   activeTab,
   showAnalytics,
+  basePath = "/owner/dashboard",
   overview,
   analytics,
 }: OwnerDashboardTabsProps) {
@@ -33,7 +35,7 @@ export function OwnerDashboardTabs({
     if (tab === "overview") {
       params.delete("period");
     }
-    router.push(`/owner/dashboard?${params.toString()}`);
+    router.push(`${basePath}?${params.toString()}`);
   }
 
   const tabs = showAnalytics ? TABS : TABS.filter((t) => t.id === "overview");

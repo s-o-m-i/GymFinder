@@ -365,17 +365,36 @@ model Trainer {
 }
 
 model TrainerLeadEvent {
-  id        String               @id @default(cuid())
-  trainerId String
-  eventType TrainerLeadEventType
-  sessionId String?
-  createdAt DateTime             @default(now())
-  trainer   Trainer              @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+  id          String               @id @default(cuid())
+  trainerId   String
+  eventType   TrainerLeadEventType
+  sessionId   String?
+  visitorHash String?
+  ipHash      String?
+  userAgent   String?
+  createdAt   DateTime             @default(now())
+  trainer     Trainer              @relation(fields: [trainerId], references: [id], onDelete: Cascade)
 
   @@index([trainerId])
   @@index([eventType])
   @@index([createdAt])
   @@index([trainerId, eventType, createdAt])
+  @@index([trainerId, eventType, visitorHash, createdAt])
+}
+
+model EventAnalyticsEvent {
+  id          String   @id @default(cuid())
+  eventId     String
+  sessionId   String?
+  visitorHash String?
+  ipHash      String?
+  userAgent   String?
+  createdAt   DateTime @default(now())
+  event       Event    @relation("EventAnalyticsEvents", fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@index([eventId])
+  @@index([createdAt])
+  @@index([eventId, visitorHash, createdAt])
 }
 
 model TrainerReview {
@@ -410,8 +429,9 @@ model Event {
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
 
-  gym            Gym?      @relation(fields: [gymId], references: [id], onDelete: SetNull)
-  createdByOwner GymOwner? @relation(fields: [createdByOwnerId], references: [id], onDelete: SetNull)
+  gym             Gym?                  @relation(fields: [gymId], references: [id], onDelete: SetNull)
+  createdByOwner  GymOwner?             @relation(fields: [createdByOwnerId], references: [id], onDelete: SetNull)
+  analyticsEvents EventAnalyticsEvent[] @relation("EventAnalyticsEvents")
 
   @@index([city])
   @@index([type])

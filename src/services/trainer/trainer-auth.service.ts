@@ -86,11 +86,23 @@ export async function verifyTrainerLoginOtp(email: string, code: string) {
   };
 }
 
-/** Future: wire to shared analytics pipeline */
-export async function trackTrainerLead(_input: {
+/** @deprecated Use trainer-analytics.service instead */
+export async function trackTrainerLead(input: {
   trainerId: string;
   eventType: "WHATSAPP_CLICK" | "PHONE_CLICK" | "CONTACT_CLICK" | "PROFILE_VIEW";
   sessionId?: string;
 }) {
-  // Intentionally no-op until lead analytics is enabled platform-wide.
+  const { trackTrainerProfileView, trackTrainerWhatsAppClick, trackTrainerPhoneClick, trackTrainerContactClick } =
+    await import("@/services/trainer-analytics.service");
+
+  switch (input.eventType) {
+    case "PROFILE_VIEW":
+      return trackTrainerProfileView(input.trainerId);
+    case "WHATSAPP_CLICK":
+      return trackTrainerWhatsAppClick(input.trainerId);
+    case "PHONE_CLICK":
+      return trackTrainerPhoneClick(input.trainerId);
+    case "CONTACT_CLICK":
+      return trackTrainerContactClick(input.trainerId);
+  }
 }

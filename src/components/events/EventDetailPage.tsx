@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { JsonLd } from "@/components/seo/JsonLd";
+import { TrackEventView } from "@/components/events/TrackEventView";
 import { getEventBySlug } from "@/services/events/event.service";
 import { getEventStatus } from "@/lib/event-status";
 import {
@@ -88,6 +89,7 @@ export async function EventDetailPage({ slug }: EventDetailPageProps) {
   return (
     <>
       <JsonLd data={structuredData} />
+      <TrackEventView eventId={event.id} />
       <Navbar />
       <main className="min-h-screen bg-[var(--bg)]">
         <div className="bg-[var(--card)] border-b border-[var(--border)]">

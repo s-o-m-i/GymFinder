@@ -20,6 +20,7 @@ import {
   parseTrainerAvailability,
 } from "@/lib/trainer-availability";
 import { JsonLd } from "@/components/seo/JsonLd";
+import { TrackTrainerProfileView } from "@/components/trainers/TrackTrainerProfileView";
 import { SITE_NAME } from "@/lib/constants";
 import { getTrainersBasePath } from "@/lib/trainers-routes";
 import {
@@ -83,6 +84,7 @@ export async function TrainerProfilePage({ slug }: TrainerProfilePageProps) {
   return (
     <>
       <JsonLd data={personSchema} />
+      <TrackTrainerProfileView trainerId={trainer.id} />
       <Navbar />
       <main className="min-h-screen bg-[var(--bg)]">
         {/* Breadcrumb */}

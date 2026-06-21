@@ -2,9 +2,10 @@ export const dynamic = "force-dynamic";
 
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { CalendarDays, PlusCircle } from "lucide-react";
+import { CalendarDays, PlusCircle, Eye } from "lucide-react";
 import { getOwnerSession } from "@/lib/owner-auth";
 import { getOwnerEvents } from "@/services/events/event.service";
+import { getEventViewCountsByEventIds } from "@/services/event-analytics-query.service";
 import { getEventStatus } from "@/lib/event-status";
 import { eventTypeLabel, EVENT_STATUS_LABELS } from "@/lib/event-constants";
 import { getEventDetailPath } from "@/lib/events-routes";
@@ -15,6 +16,8 @@ export default async function OwnerEventsPage() {
   if (!session) redirect("/owner/login");
 
   const events = await getOwnerEvents(session.ownerId);
+  const viewCounts = await getEventViewCountsByEventIds(events.map((e) => e.id));
+  const totalViews = [...viewCounts.values()].reduce((sum, n) => sum + n, 0);
 
   return (
     <div className="p-8 max-w-4xl mx-auto w-full">
@@ -26,6 +29,15 @@ export default async function OwnerEventsPage() {
           </div>
           <p className="text-[var(--text-muted)] text-sm">
             Create and manage events linked to your gym. Past events stay visible for SEO.
+            {events.length > 0 && (
+              <>
+                {" "}
+                <span className="inline-flex items-center gap-1 font-semibold text-[var(--text)]">
+                  <Eye className="w-3.5 h-3.5" />
+                  {totalViews.toLocaleString()} total page views
+                </span>
+              </>
+            )}
           </p>
         </div>
         <Link
@@ -56,6 +68,7 @@ export default async function OwnerEventsPage() {
         <div className="space-y-3">
           {events.map((event) => {
             const status = getEventStatus(event.startDate, event.endDate);
+            const views = viewCounts.get(event.id) ?? 0;
             return (
               <Link
                 key={event.id}
@@ -68,6 +81,10 @@ export default async function OwnerEventsPage() {
                     <h3 className="font-heading font-bold text-[var(--text)]">{event.title}</h3>
                     <p className="text-sm text-[var(--text-muted)] mt-1">
                       {eventTypeLabel(event.type)} · {formatEventDateRange(event.startDate, event.endDate)}
+                    </p>
+                    <p className="inline-flex items-center gap-1 text-xs text-[var(--text-muted)] mt-2">
+                      <Eye className="w-3.5 h-3.5" />
+                      {views.toLocaleString()} {views === 1 ? "view" : "views"}
                     </p>
                   </div>
                   <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-[var(--bg)] border border-[var(--border)]">
