@@ -17,7 +17,7 @@ interface ImageUploaderProps {
   onChange:     (images: UploadedImage[]) => void;
   multiple?:    boolean;
   maxImages?:   number;
-  uploadType:   "cover" | "gallery" | "coach" | "coach_cert";
+  uploadType:   "cover" | "gallery" | "coach" | "coach_cert" | "event_cover";
   className?:   string;
   authMode?:    "admin-secret" | "cookie";
   /** Square/portrait preview for profile photos (single upload) */
@@ -28,7 +28,7 @@ interface ImageUploaderProps {
 
 function uploadWithProgress(
   file: File,
-  type: "cover" | "gallery" | "coach" | "coach_cert",
+  type: "cover" | "gallery" | "coach" | "coach_cert" | "event_cover",
   onProgress: (pct: number) => void,
   authMode: "admin-secret" | "cookie" = "admin-secret"
 ): Promise<{ secure_url: string; public_id: string }> {

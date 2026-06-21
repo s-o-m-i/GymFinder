@@ -71,6 +71,18 @@ enum TrainerLeadEventType {
   PROFILE_VIEW
 }
 
+enum EventType {
+  boxing
+  mma
+  muay_thai
+  fitness
+  crossfit
+  sparring
+  competition
+  seminar
+  other
+}
+
 model GymOwner {
   id               String           @id @default(cuid())
   email            String           @unique
@@ -85,6 +97,7 @@ model GymOwner {
   updatedAt        DateTime         @updatedAt
   gym              Gym?
   authTokens       OwnerAuthToken[]
+  events           Event[]
 
   @@index([businessCategory])
   @@index([emailVerified])
@@ -143,6 +156,7 @@ model Gym {
   staffMembers     StaffMember[]
   analyticsEvents  GymAnalyticsEvent[]
   trainers         Trainer[]
+  events           Event[]
 
   @@index([city])
   @@index([area])
@@ -361,4 +375,35 @@ model TrainerLeadEvent {
   @@index([eventType])
   @@index([createdAt])
   @@index([trainerId, eventType, createdAt])
+}
+
+model Event {
+  id               String    @id @default(cuid())
+  title            String
+  slug             String    @unique
+  description      String?   @db.Text
+  type             EventType
+  city             String
+  area             String?
+  address          String?
+  startDate        DateTime
+  endDate          DateTime?
+  image            String?
+  cloudinaryId     String?
+  price            Int?
+  isFeatured       Boolean   @default(false)
+  gymId            String?
+  createdByOwnerId String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  gym            Gym?      @relation(fields: [gymId], references: [id], onDelete: SetNull)
+  createdByOwner GymOwner? @relation(fields: [createdByOwnerId], references: [id], onDelete: SetNull)
+
+  @@index([city])
+  @@index([type])
+  @@index([gymId])
+  @@index([startDate])
+  @@index([slug])
+  @@index([isFeatured])
 }

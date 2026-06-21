@@ -11,6 +11,7 @@ const FOLDER_MAP: Record<string, string> = {
   gym:     CLOUDINARY_FOLDERS.root,
   coach:       CLOUDINARY_FOLDERS.coaches,
   coach_cert:  CLOUDINARY_FOLDERS.coachCerts,
+  event_cover: CLOUDINARY_FOLDERS.events,
 };
 
 export async function POST(req: NextRequest) {

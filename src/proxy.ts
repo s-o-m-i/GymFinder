@@ -184,6 +184,8 @@ export async function proxy(req: NextRequest) {
   if (
     pathname.startsWith("/gyms") ||
     pathname.startsWith("/trainers") ||
+    pathname.startsWith("/events") ||
+    pathname.startsWith("/event/") ||
     pathname.startsWith("/api/analytics")
   ) {
     return nextWithAnalyticsSession(req);
@@ -199,6 +201,8 @@ export const config = {
     "/trainer/:path*",
     "/gyms/:path*",
     "/trainers/:path*",
+    "/events/:path*",
+    "/event/:path*",
     "/api/analytics/:path*",
     "/api/trainer/:path*",
   ],

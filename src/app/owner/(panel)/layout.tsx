@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Dumbbell, LayoutDashboard, Building2, User, Swords, CreditCard, Users } from "lucide-react";
+import { Dumbbell, LayoutDashboard, Building2, User, Swords, CreditCard, Users, CalendarDays } from "lucide-react";
 import { OwnerLogoutButton } from "@/components/owner/OwnerLogoutButton";
 import { getOwnerSession } from "@/lib/owner-auth";
 import { businessCategoryLabel } from "@/lib/owner-constants";
@@ -62,6 +62,10 @@ export default async function OwnerLayout({ children }: { children: React.ReactN
           <Link href="/owner/equipment" className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 transition-colors">
             <Dumbbell className="w-4 h-4" />
             Equipment
+          </Link>
+          <Link href="/owner/events" className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 transition-colors">
+            <CalendarDays className="w-4 h-4" />
+            Events
           </Link>
           <Link href="/owner/profile" className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 transition-colors">
             <User className="w-4 h-4" />

@@ -15,6 +15,8 @@ import { ReviewForm } from "@/components/gym/ReviewForm";
 import { MembershipPlansSection } from "@/components/gym/MembershipPlansSection";
 import { MeetOurTeamSection } from "@/components/gym/MeetOurTeamSection";
 import { GymEquipmentSection } from "@/components/gym/GymEquipmentSection";
+import { GymEventsSection } from "@/components/events/GymEventsSection";
+import { getGymEvents } from "@/services/events/event.service";
 import { prisma } from "@/lib/prisma";
 import {
   gymTypeLabel,
@@ -58,6 +60,8 @@ export async function GymProfilePage({ slug }: GymProfilePageProps) {
   const gym = await getGym(slug);
   if (!gym) notFound();
   if (gym.listingStatus !== "approved") notFound();
+
+  const { upcoming: upcomingEvents, past: pastEvents } = await getGymEvents(gym.id);
 
   const disciplineNames = gym.disciplines.map((d) => d.discipline.name);
   const amenityNames = gym.amenities.map((a) => a.amenity.name);
@@ -231,6 +235,12 @@ export async function GymProfilePage({ slug }: GymProfilePageProps) {
               )}
 
               <MeetOurTeamSection members={gym.staffMembers} />
+
+              <GymEventsSection
+                upcoming={upcomingEvents}
+                past={pastEvents}
+                gymName={gym.name}
+              />
 
               {gym.membershipPlans.length > 0 && (
                 <div className="lg:hidden">

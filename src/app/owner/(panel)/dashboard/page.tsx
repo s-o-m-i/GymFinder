@@ -162,7 +162,7 @@ export default async function OwnerDashboardPage({ searchParams }: PageProps) {
   ) : null;
 
   return (
-    <div className="p-8 max-w-6xl">
+    <div className="flex flex-col min-h-screen p-8 max-w-6xl mx-auto w-full">
       <div className="mb-8">
         <h1 className="font-heading font-bold text-2xl text-[var(--text)]">
           Welcome, {owner.name}
@@ -180,24 +180,26 @@ export default async function OwnerDashboardPage({ searchParams }: PageProps) {
       </div>
 
       {!owner.gym ? (
-        <Link
-          href="/owner/gym"
-          className="group block bg-[var(--card)] border border-[var(--border)] rounded-2xl p-8 text-center transition-all hover:border-[#FF6A3D]/40 hover:shadow-md hover:shadow-[#FF6A3D]/10 cursor-pointer"
-        >
-          <div className="w-16 h-16 bg-[#FF6A3D]/10 rounded-2xl flex items-center justify-center mx-auto mb-4 transition-colors group-hover:bg-[#FF6A3D]/15">
-            <PlusCircle className="w-8 h-8 text-[#FF6A3D]" />
-          </div>
-          <h2 className="font-heading font-bold text-lg text-[var(--text)] mb-2">
-            Add Your {owner.businessCategory === "fighting_club" ? "Fighting Club" : "Gym"}
-          </h2>
-          <p className="text-[var(--text-muted)] text-sm mb-6 max-w-sm mx-auto">
-            You haven&apos;t added a listing yet. Each account can manage one gym or fighting club.
-          </p>
-          <span className="inline-flex items-center gap-2 px-6 py-3 bg-[#FF6A3D] text-white font-semibold text-sm rounded-xl group-hover:bg-[#e85528] transition-colors">
-            <PlusCircle className="w-4 h-4" />
-            Create Listing
-          </span>
-        </Link>
+        <div className="flex flex-1 items-center justify-center pb-12 min-h-[calc(100vh-14rem)]">
+          <Link
+            href="/owner/gym"
+            className="group block w-full max-w-lg mx-auto bg-[var(--card)] border border-[var(--border)] rounded-2xl p-8 text-center transition-all hover:border-[#FF6A3D]/40 hover:shadow-md hover:shadow-[#FF6A3D]/10 cursor-pointer"
+          >
+            <div className="w-16 h-16 bg-[#FF6A3D]/10 rounded-2xl flex items-center justify-center mx-auto mb-4 transition-colors group-hover:bg-[#FF6A3D]/15">
+              <PlusCircle className="w-8 h-8 text-[#FF6A3D]" />
+            </div>
+            <h2 className="font-heading font-bold text-lg text-[var(--text)] mb-2">
+              Add Your {owner.businessCategory === "fighting_club" ? "Fighting Club" : "Gym"}
+            </h2>
+            <p className="text-[var(--text-muted)] text-sm mb-6 max-w-sm mx-auto">
+              You haven&apos;t added a listing yet. Each account can manage one gym or fighting club.
+            </p>
+            <span className="inline-flex items-center gap-2 px-6 py-3 bg-[#FF6A3D] text-white font-semibold text-sm rounded-xl group-hover:bg-[#e85528] transition-colors">
+              <PlusCircle className="w-4 h-4" />
+              Create Listing
+            </span>
+          </Link>
+        </div>
       ) : (
         <Suspense fallback={<div className="text-sm text-[var(--text-muted)]">Loading…</div>}>
           <OwnerDashboardTabs

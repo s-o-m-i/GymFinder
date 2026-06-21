@@ -2,7 +2,9 @@ import type { MetadataRoute } from "next";
 import { prisma } from "@/lib/prisma";
 import { ALL_LISTING_SLUGS } from "@/lib/gyms-routes";
 import { TRAINER_CITY_SLUG_MAP } from "@/lib/trainers-routes";
+import { EVENT_CITY_SLUGS } from "@/lib/events-routes";
 import { getPublishedTrainerSlugs } from "@/services/trainer/trainer.service";
+import { getEventSlugsForSitemap } from "@/services/events/event.service";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
@@ -13,6 +15,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   });
 
   const trainers = await getPublishedTrainerSlugs().catch(() => []);
+  const events = await getEventSlugsForSitemap().catch(() => []);
 
   const staticPages: MetadataRoute.Sitemap = [
     {
@@ -46,6 +49,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority:        0.85,
     })),
     {
+      url:             `${base}/events`,
+      lastModified:    new Date(),
+      changeFrequency: "daily",
+      priority:        0.9,
+    },
+    ...EVENT_CITY_SLUGS.map((slug) => ({
+      url:             `${base}/events/${slug}`,
+      lastModified:    new Date(),
+      changeFrequency: "daily" as const,
+      priority:        0.85,
+    })),
+    {
       url:             `${base}/trainer/auth`,
       lastModified:    new Date(),
       changeFrequency: "monthly",
@@ -67,5 +82,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority:        0.8,
   }));
 
-  return [...staticPages, ...gymPages, ...trainerPages];
+  const eventPages: MetadataRoute.Sitemap = events.map((event) => ({
+    url:             `${base}/event/${event.slug}`,
+    lastModified:    event.updatedAt,
+    changeFrequency: "weekly",
+    priority:        0.75,
+  }));
+
+  return [...staticPages, ...gymPages, ...trainerPages, ...eventPages];
 }

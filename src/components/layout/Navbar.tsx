@@ -15,6 +15,7 @@ function isNavActive(pathname: string, href: string, searchParams: URLSearchPara
   // Path-only links
   if (!queryString) {
     if (href === "/gyms") return !searchParams.get("type") && !searchParams.get("city");
+    if (href === "/events") return pathname === "/events" || pathname.startsWith("/events/");
     return true;
   }
 
@@ -29,6 +30,7 @@ const navLinks = [
   { href: "/gyms", label: "Find Gyms" },
   { href: "/gyms/fighting-clubs", label: "Fighting Clubs" },
   { href: "/trainers", label: "Trainers" },
+  { href: "/events", label: "Events" },
 ];
 
 export function Navbar({ variant }: { variant?: "default" | "hero" }) {
