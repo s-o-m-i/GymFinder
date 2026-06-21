@@ -80,6 +80,7 @@ export const WHATSAPP_DEFAULT_MESSAGE =
   "Hi, I found your gym on GymFinder PK. I want more details about membership.";
 
 export const SITE_NAME = "GymFinder PK";
+export const SITE_TAGLINE = "Find Gyms • Trainers • Fighting Clubs";
 export const SITE_DESCRIPTION =
   "Discover the best gyms and fighting clubs in Rawalpindi & Islamabad. Compare prices, facilities, and contact directly on WhatsApp.";
 

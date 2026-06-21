@@ -1,15 +1,15 @@
 export const dynamic = "force-dynamic";
 
 import type { Metadata } from "next";
-import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Dumbbell } from "lucide-react";
 import { OwnerVerifyEmailPanel } from "@/components/owner/OwnerVerifyEmailPanel";
+import { AuthPageLayout } from "@/components/auth/AuthPageLayout";
 import { getOwnerSession } from "@/lib/owner-auth";
 import { prisma } from "@/lib/prisma";
+import { SITE_NAME } from "@/lib/constants";
 
 export const metadata: Metadata = {
-  title: "Verify Email | GymFinder PK",
+  title: `Verify Email | ${SITE_NAME}`,
   robots: { index: false, follow: false },
 };
 
@@ -26,14 +26,8 @@ export default async function OwnerVerifyEmailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0B2545] via-[#0f3060] to-[#1a4080] flex flex-col items-center justify-center p-4">
-      <Link href="/" className="flex items-center gap-2 mb-8 text-white">
-        <div className="w-9 h-9 bg-[#FF6A3D] rounded-lg flex items-center justify-center">
-          <Dumbbell className="w-5 h-5" />
-        </div>
-        <span className="font-heading font-bold">GymFinder PK</span>
-      </Link>
+    <AuthPageLayout>
       <OwnerVerifyEmailPanel />
-    </div>
+    </AuthPageLayout>
   );
 }

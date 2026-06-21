@@ -1,5 +1,6 @@
 import { Dumbbell } from "lucide-react";
 import { LoginForm } from "./LoginForm";
+import { SITE_NAME, SITE_TAGLINE } from "@/lib/constants";
 
 export default function AdminLoginPage() {
   return (
@@ -16,7 +17,10 @@ export default function AdminLoginPage() {
           <div className="w-16 h-16 bg-[#0B2545] border-2 border-white/20 rounded-2xl flex items-center justify-center shadow-xl mb-3">
             <Dumbbell className="w-8 h-8 text-[#FF6A3D]" />
           </div>
-          <h1 className="font-heading font-bold text-2xl text-white">GymFinder PK</h1>
+          <h1 className="font-heading font-bold text-2xl text-white">{SITE_NAME}</h1>
+          <p className="text-xs sm:text-sm text-white/60 font-medium tracking-wide mt-1.5">
+            {SITE_TAGLINE}
+          </p>
           <p className="text-sm text-white/50 mt-1">Admin Panel</p>
         </div>
 

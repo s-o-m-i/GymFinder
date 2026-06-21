@@ -51,8 +51,8 @@ export default async function TrainerPanelLayout({
     : "Trainer Account";
 
   return (
-    <div className="min-h-screen bg-[var(--bg)] flex">
-      <aside className="w-60 shrink-0 bg-[#0B2545] text-white flex flex-col">
+    <div className="min-h-screen bg-[var(--bg)]">
+      <aside className="fixed inset-y-0 left-0 z-30 flex w-60 flex-col bg-[#0B2545] text-white">
         <div className="p-5 border-b border-white/10">
           <Link href="/trainer/dashboard" className="flex items-center gap-2">
             <div className="w-8 h-8 bg-[#FF6A3D] rounded-lg flex items-center justify-center">
@@ -72,7 +72,7 @@ export default async function TrainerPanelLayout({
           </div>
         </div>
 
-        <nav className="flex-1 p-4 space-y-1">
+        <nav className="flex-1 overflow-y-auto p-4 space-y-1">
           <TrainerNavLink
             href="/trainer/dashboard"
             exact
@@ -113,7 +113,7 @@ export default async function TrainerPanelLayout({
         </div>
       </aside>
 
-      <main className="flex-1 overflow-auto">{children}</main>
+      <main className="ml-60 min-h-screen">{children}</main>
     </div>
   );
 }

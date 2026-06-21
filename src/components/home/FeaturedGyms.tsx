@@ -11,7 +11,7 @@ export function FeaturedGyms({ gyms }: FeaturedGymsProps) {
   if (gyms.length === 0) return null;
 
   return (
-    <section className="bg-[var(--bg)] py-16">
+    <section id="featured-gyms" className="bg-[var(--bg)] py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-end justify-between mb-10">
           <div>

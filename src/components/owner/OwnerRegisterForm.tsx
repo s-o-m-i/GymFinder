@@ -23,7 +23,10 @@ export function OwnerRegisterForm() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const inputClass =
-    "w-full h-11 px-4 rounded-xl border border-gray-200 bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-[#0B2545]";
+    "w-full h-11 px-4 rounded-xl border border-white/25 bg-white/10 backdrop-blur-sm text-sm text-white placeholder:text-white/45 focus:outline-none focus:ring-2 focus:ring-[#FF6A3D]/60 focus:border-[#FF6A3D]/50";
+
+  const labelClass = "block text-sm font-semibold text-white/90 mb-1.5";
+  const iconClass = "absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/45";
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -91,66 +94,66 @@ export function OwnerRegisterForm() {
   }
 
   return (
-    <div className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl overflow-hidden">
-      <div className="h-1.5 bg-gradient-to-r from-[#FF6A3D] via-[#ff8a65] to-[#0B2545]" />
+    <div className="relative w-full max-w-lg rounded-3xl overflow-hidden border border-white/20 bg-white/10 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.35)]">
+      <div className="h-1.5 bg-gradient-to-r from-[#FF6A3D] via-[#ff8a65] to-white/40" />
       <div className="p-8">
-        <h1 className="font-heading font-bold text-xl text-gray-900 mb-1">Create Owner Account</h1>
-        <p className="text-sm text-gray-500 mb-6">Register to list your gym or fighting club</p>
+        <h1 className="font-heading font-bold text-xl text-white mb-1">Create Owner Account</h1>
+        <p className="text-sm text-white/70 mb-6">Register to list your gym or fighting club</p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Business type */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">I am a… *</label>
+            <label className="block text-sm font-semibold text-white/90 mb-2">I am a… *</label>
             <div className="grid grid-cols-2 gap-3">
               <button
                 type="button"
                 onClick={() => setForm((f) => ({ ...f, businessCategory: "gym" }))}
-                className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all ${
+                className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all backdrop-blur-sm ${
                   form.businessCategory === "gym"
-                    ? "border-[#0B2545] bg-[#0B2545]/5"
-                    : "border-gray-200 hover:border-gray-300"
+                    ? "border-[#FF6A3D] bg-[#FF6A3D]/25 shadow-[0_0_20px_rgba(255,106,61,0.15)]"
+                    : "border-white/20 bg-white/5 hover:bg-white/10 hover:border-white/30"
                 }`}
               >
-                <Dumbbell className={`w-6 h-6 ${form.businessCategory === "gym" ? "text-[#0B2545]" : "text-gray-400"}`} />
-                <span className="text-sm font-semibold text-gray-800">Gym Owner</span>
-                <span className="text-[10px] text-gray-500">Fitness centers</span>
+                <Dumbbell className={`w-6 h-6 ${form.businessCategory === "gym" ? "text-[#FF6A3D]" : "text-white/50"}`} />
+                <span className="text-sm font-semibold text-white">Gym Owner</span>
+                <span className="text-[10px] text-white/60">Fitness centers</span>
               </button>
               <button
                 type="button"
                 onClick={() => setForm((f) => ({ ...f, businessCategory: "fighting_club" }))}
-                className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all ${
+                className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all backdrop-blur-sm ${
                   form.businessCategory === "fighting_club"
-                    ? "border-[#FF6A3D] bg-[#FF6A3D]/5"
-                    : "border-gray-200 hover:border-gray-300"
+                    ? "border-[#FF6A3D] bg-[#FF6A3D]/25 shadow-[0_0_20px_rgba(255,106,61,0.15)]"
+                    : "border-white/20 bg-white/5 hover:bg-white/10 hover:border-white/30"
                 }`}
               >
-                <Swords className={`w-6 h-6 ${form.businessCategory === "fighting_club" ? "text-[#FF6A3D]" : "text-gray-400"}`} />
-                <span className="text-sm font-semibold text-gray-800">Fighting Club Owner</span>
-                <span className="text-[10px] text-gray-500">Boxing, MMA, martial arts</span>
+                <Swords className={`w-6 h-6 ${form.businessCategory === "fighting_club" ? "text-[#FF6A3D]" : "text-white/50"}`} />
+                <span className="text-sm font-semibold text-white">Fighting Club Owner</span>
+                <span className="text-[10px] text-white/60">Boxing, MMA, martial arts</span>
               </button>
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">Full Name *</label>
+            <label className={labelClass}>Full Name *</label>
             <div className="relative">
-              <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <User className={iconClass} />
               <input required type="text" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="Your full name" className={`${inputClass} pl-10`} />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">Email *</label>
+            <label className={labelClass}>Email *</label>
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Mail className={iconClass} />
               <input required type="email" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} placeholder="you@example.com" className={`${inputClass} pl-10`} />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">Confirm email *</label>
+            <label className={labelClass}>Confirm email *</label>
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Mail className={iconClass} />
               <input
                 required
                 type="email"
@@ -164,14 +167,14 @@ export function OwnerRegisterForm() {
 
           <div>
             <div className="relative">
-              <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Phone className={iconClass} />
               <input required type="tel" value={form.phone} onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))} placeholder="03001234567" className={`${inputClass} pl-10`} />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1.5">Password *</label>
+              <label className={labelClass}>Password *</label>
               <div className="relative">
                 <input
                   required
@@ -184,7 +187,7 @@ export function OwnerRegisterForm() {
                 <button
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors p-0.5"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white/45 hover:text-white/80 transition-colors p-0.5"
                   aria-label={showPassword ? "Hide password" : "Show password"}
                   tabIndex={-1}
                 >
@@ -193,7 +196,7 @@ export function OwnerRegisterForm() {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1.5">Confirm *</label>
+              <label className={labelClass}>Confirm *</label>
               <div className="relative">
                 <input
                   required
@@ -206,7 +209,7 @@ export function OwnerRegisterForm() {
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors p-0.5"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white/45 hover:text-white/80 transition-colors p-0.5"
                   aria-label={showConfirmPassword ? "Hide confirm password" : "Show confirm password"}
                   tabIndex={-1}
                 >
@@ -217,20 +220,20 @@ export function OwnerRegisterForm() {
           </div>
 
           {error && (
-            <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700">
+            <div className="flex items-center gap-2 p-3 bg-red-500/15 backdrop-blur-sm border border-red-400/30 rounded-xl text-sm text-red-100">
               <AlertCircle className="w-4 h-4 shrink-0" />
               {error}
             </div>
           )}
 
-          <button type="submit" disabled={loading} className="w-full h-11 bg-[#FF6A3D] text-white font-semibold text-sm rounded-xl hover:bg-[#e85528] disabled:opacity-70 flex items-center justify-center gap-2">
+          <button type="submit" disabled={loading} className="w-full h-11 bg-[#FF6A3D] text-white font-semibold text-sm rounded-xl hover:bg-[#e85528] disabled:opacity-70 flex items-center justify-center gap-2 shadow-lg shadow-[#FF6A3D]/25">
             {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Creating account…</> : "Create Account"}
           </button>
         </form>
 
-        <p className="text-center text-sm text-gray-500 mt-6">
+        <p className="text-center text-sm text-white/70 mt-6">
           Already registered?{" "}
-          <Link href="/owner/login" className="text-[#0B2545] font-semibold hover:underline">Sign in</Link>
+          <Link href="/owner/login" className="text-[#FF6A3D] font-semibold hover:underline">Sign in</Link>
         </p>
       </div>
     </div>

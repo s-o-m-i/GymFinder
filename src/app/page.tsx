@@ -4,9 +4,10 @@ import Link from "next/link";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { HeroSection } from "@/components/home/HeroSection";
-import { CategoryGrid } from "@/components/home/CategoryGrid";
+import { DisciplinesSection } from "@/components/home/DisciplinesSection";
 import { FeaturedGyms } from "@/components/home/FeaturedGyms";
 import { prisma } from "@/lib/prisma";
+import { HERO_DISCIPLINES } from "@/lib/hero-data";
 import { MapPin, Shield, MessageCircle, Users } from "lucide-react";
 
 async function getFeaturedGyms() {
@@ -25,16 +26,65 @@ async function getFeaturedGyms() {
   }
 }
 
+async function getHeroStats() {
+  try {
+    const approved = { listingStatus: "approved" as const };
+
+    const [gyms, trainers, clubs] = await Promise.all([
+      prisma.gym.count({ where: approved }),
+      prisma.trainer.count({ where: { isPublished: true } }),
+      prisma.gym.count({
+        where: {
+          ...approved,
+          type: { in: ["boxing", "mma", "muay_thai", "kickboxing", "martial_arts"] },
+        },
+      }),
+    ]);
+
+    return { gyms, trainers, clubs, cities: 2 };
+  } catch {
+    return { gyms: 50, trainers: 25, clubs: 20, cities: 2 };
+  }
+}
+
+async function getDisciplines() {
+  try {
+    const approved = { listingStatus: "approved" as const };
+
+    const typeCounts = await Promise.all(
+      HERO_DISCIPLINES.map((d) =>
+        prisma.gym.count({
+          where: {
+            ...approved,
+            type: d.type as "gym" | "boxing" | "mma" | "martial_arts",
+          },
+        })
+      )
+    );
+
+    return HERO_DISCIPLINES.map((d, i) => ({
+      ...d,
+      listings: typeCounts[i],
+    }));
+  } catch {
+    return HERO_DISCIPLINES.map((d) => ({ ...d, listings: 25 }));
+  }
+}
+
 export default async function HomePage() {
-  const featuredGyms = await getFeaturedGyms();
+  const [featuredGyms, stats, disciplines] = await Promise.all([
+    getFeaturedGyms(),
+    getHeroStats(),
+    getDisciplines(),
+  ]);
 
   return (
     <>
-      <Navbar />
+      <Navbar variant="hero" />
       <main>
-        <HeroSection />
+        <HeroSection stats={stats} />
 
-        <CategoryGrid />
+        <DisciplinesSection disciplines={disciplines} />
 
         <FeaturedGyms gyms={featuredGyms} />
 
