@@ -32,6 +32,8 @@ interface AmenityOption {
 const selectClass =
   "w-full appearance-none pl-3 pr-8 py-2.5 text-sm bg-[var(--bg)] border border-[var(--border)] rounded-xl text-[var(--text)] focus:outline-none focus:ring-2 focus:ring-[#FF6A3D]/30 focus:border-[#FF6A3D]";
 
+const SEARCH_DEBOUNCE_MS = 350;
+
 export function GymFilters({
   fixedCity,
   fixedType,
@@ -46,6 +48,11 @@ export function GymFilters({
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
   const [showMobileFilters, setShowMobileFilters] = useState(false);
+  const [searchDraft, setSearchDraft] = useState(() => searchParams.get("search") ?? "");
+  const [areaDraft, setAreaDraft] = useState(() => searchParams.get("area") ?? "");
+
+  const urlSearch = searchParams.get("search") ?? "";
+  const urlArea = searchParams.get("area") ?? "";
 
   const pathCity = parseCityFromPath(pathname) ?? "";
   const pathType = parseTypeFromPath(pathname) ?? "";
@@ -79,7 +86,40 @@ export function GymFilters({
       rating: searchParams.get("rating") ?? "",
       sort: searchParams.get("sort") ?? "featured",
     });
+    setSearchDraft(searchParams.get("search") ?? "");
+    setAreaDraft(searchParams.get("area") ?? "");
   }, [searchParams, pathname, fixedCity, fixedType]);
+
+  const pushQueryParams = useCallback(
+    (mutate: (params: URLSearchParams) => void) => {
+      const params = new URLSearchParams(searchParams.toString());
+      mutate(params);
+      params.delete("page");
+      const qs = params.toString();
+      const url = qs ? `${pathname}?${qs}` : pathname;
+      startTransition(() => {
+        router.replace(url, { scroll: false });
+        router.refresh();
+      });
+    },
+    [pathname, router, searchParams]
+  );
+
+  // Debounced search — sync URL from current path + query (preserves other filters)
+  useEffect(() => {
+    if (searchDraft === urlSearch) return;
+
+    const timer = window.setTimeout(() => {
+      pushQueryParams((params) => {
+        const trimmed = searchDraft.trim();
+        if (trimmed) params.set("search", trimmed);
+        else params.delete("search");
+      });
+      setFilters((prev) => ({ ...prev, search: searchDraft }));
+    }, SEARCH_DEBOUNCE_MS);
+
+    return () => window.clearTimeout(timer);
+  }, [searchDraft, urlSearch, pushQueryParams]);
 
   const buildFilterUrl = useCallback((next: FilterState) => {
     const params = new URLSearchParams();
@@ -108,14 +148,16 @@ export function GymFilters({
 
   const applyFilters = useCallback(
     (updated: Partial<FilterState>) => {
-      const next = { ...filters, ...updated };
-      setFilters(next);
-
-      startTransition(() => {
-        router.push(buildFilterUrl(next), { scroll: false });
+      setFilters((prev) => {
+        const next = { ...prev, ...updated };
+        startTransition(() => {
+          router.replace(buildFilterUrl(next), { scroll: false });
+          router.refresh();
+        });
+        return next;
       });
     },
-    [filters, router, buildFilterUrl]
+    [router, buildFilterUrl]
   );
 
   // Build grouped area options to avoid duplicate keys when areas share names across cities
@@ -128,6 +170,23 @@ export function GymFilters({
         }));
 
   const cityAreas = filters.city ? getAreasForCity(filters.city) : [];
+
+  // Debounced free-text area when city has no predefined areas
+  useEffect(() => {
+    if (cityAreas.length > 0) return;
+    if (areaDraft === urlArea) return;
+
+    const timer = window.setTimeout(() => {
+      pushQueryParams((params) => {
+        const trimmed = areaDraft.trim();
+        if (trimmed) params.set("area", trimmed);
+        else params.delete("area");
+      });
+      setFilters((prev) => ({ ...prev, area: areaDraft }));
+    }, SEARCH_DEBOUNCE_MS);
+
+    return () => window.clearTimeout(timer);
+  }, [areaDraft, urlArea, cityAreas.length, pushQueryParams]);
 
   const clearFilters = () => {
     const reset: FilterState = {
@@ -144,18 +203,23 @@ export function GymFilters({
       sort: "featured",
     };
     setFilters(reset);
+    setSearchDraft("");
+    setAreaDraft("");
     const base = fixedCity
       ? getGymsBasePath({ city: fixedCity })
       : fixedType
       ? getGymsBasePath({ type: fixedType })
       : "/gyms";
-    startTransition(() => router.push(base, { scroll: false }));
+    startTransition(() => {
+      router.replace(base, { scroll: false });
+      router.refresh();
+    });
   };
 
   const hasActiveFilters =
-    filters.search ||
+    searchDraft ||
     filters.city ||
-    filters.area ||
+    areaDraft ||
     filters.type ||
     filters.priceMin > PRICE_RANGE.min ||
     filters.priceMax < PRICE_RANGE.max ||
@@ -164,7 +228,7 @@ export function GymFilters({
     filters.amenity ||
     filters.rating;
 
-  const FilterContent = () => (
+  const filterContent = (
     <div className="space-y-5">
       {/* Search */}
       <div>
@@ -176,8 +240,8 @@ export function GymFilters({
           <input
             type="text"
             placeholder="Gym name or area…"
-            value={filters.search}
-            onChange={(e) => applyFilters({ search: e.target.value })}
+            value={searchDraft}
+            onChange={(e) => setSearchDraft(e.target.value)}
             className="w-full pl-9 pr-3 py-2.5 text-sm bg-[var(--bg)] border border-[var(--border)] rounded-xl text-[var(--text)] placeholder:text-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[#FF6A3D]/30 focus:border-[#FF6A3D]"
           />
         </div>
@@ -191,7 +255,10 @@ export function GymFilters({
         <div className="relative">
           <select
             value={filters.city}
-            onChange={(e) => applyFilters({ city: e.target.value, area: "" })}
+            onChange={(e) => {
+              setAreaDraft("");
+              applyFilters({ city: e.target.value, area: "" });
+            }}
             className="w-full appearance-none pl-3 pr-8 py-2.5 text-sm bg-[var(--bg)] border border-[var(--border)] rounded-xl text-[var(--text)] focus:outline-none focus:ring-2 focus:ring-[#FF6A3D]/30 focus:border-[#FF6A3D]"
           >
             <option value="">All cities</option>
@@ -214,7 +281,10 @@ export function GymFilters({
           <div className="relative">
             <select
               value={filters.area}
-              onChange={(e) => applyFilters({ area: e.target.value })}
+              onChange={(e) => {
+                setAreaDraft(e.target.value);
+                applyFilters({ area: e.target.value });
+              }}
               className="w-full appearance-none pl-3 pr-8 py-2.5 text-sm bg-[var(--bg)] border border-[var(--border)] rounded-xl text-[var(--text)] focus:outline-none focus:ring-2 focus:ring-[#FF6A3D]/30 focus:border-[#FF6A3D]"
             >
               <option value="">All Areas</option>
@@ -242,8 +312,8 @@ export function GymFilters({
           <input
             type="text"
             placeholder={filters.city ? "Type area or neighbourhood…" : "Select a city first"}
-            value={filters.area}
-            onChange={(e) => applyFilters({ area: e.target.value })}
+            value={areaDraft}
+            onChange={(e) => setAreaDraft(e.target.value)}
             disabled={!filters.city}
             className="w-full px-3 py-2.5 text-sm bg-[var(--bg)] border border-[var(--border)] rounded-xl text-[var(--text)] placeholder:text-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[#FF6A3D]/30 focus:border-[#FF6A3D] disabled:opacity-60"
           />
@@ -431,7 +501,7 @@ export function GymFilters({
           </div>
           {/* Scrollable filter body */}
           <div className="overflow-y-auto p-5" style={{ maxHeight: "calc(100vh - 9rem)" }}>
-            <FilterContent />
+            {filterContent}
           </div>
         </div>
       </aside>
@@ -470,7 +540,7 @@ export function GymFilters({
                   <X className="w-5 h-5" />
                 </button>
               </div>
-              <FilterContent />
+              {filterContent}
               <div className="mt-5">
                 <Button
                   variant="primary"

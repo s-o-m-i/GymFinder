@@ -143,6 +143,7 @@ model Gym {
   coverImage         String?
   coverImagePublicId String?
   listingStatus      ListingStatus @default(approved)
+  faqsEnabled        Boolean       @default(false)
   ownerId            String?       @unique
   createdAt          DateTime     @default(now())
   updatedAt          DateTime     @updatedAt
@@ -157,6 +158,7 @@ model Gym {
   analyticsEvents  GymAnalyticsEvent[]
   trainers         Trainer[]
   events           Event[]
+  faqs             GymFAQ[]
 
   @@index([city])
   @@index([area])
@@ -265,6 +267,38 @@ model StaffMember {
   @@index([gymId, isActive])
 }
 
+model GymFAQ {
+  id           String   @id @default(cuid())
+  gymId        String
+  question     String
+  answer       String   @db.Text
+  displayOrder Int      @default(0)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  gym          Gym      @relation(fields: [gymId], references: [id], onDelete: Cascade)
+
+  @@index([gymId])
+  @@index([gymId, displayOrder])
+  @@index([gymId, isActive])
+}
+
+model TrainerFAQ {
+  id           String   @id @default(cuid())
+  trainerId    String
+  question     String
+  answer       String   @db.Text
+  displayOrder Int      @default(0)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  trainer      Trainer  @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+
+  @@index([trainerId])
+  @@index([trainerId, displayOrder])
+  @@index([trainerId, isActive])
+}
+
 model GymAnalyticsEvent {
   id          String             @id @default(cuid())
   gymId       String
@@ -340,6 +374,7 @@ model Trainer {
   isVerified      Boolean  @default(false)
   isFeatured      Boolean  @default(false)
   isPublished     Boolean  @default(false)
+  faqsEnabled     Boolean  @default(false)
 
   rating          Float?
   totalReviews    Int      @default(0)
@@ -352,6 +387,7 @@ model Trainer {
   account         TrainerAccount? @relation(fields: [accountId], references: [id], onDelete: SetNull)
   leadEvents      TrainerLeadEvent[]
   reviews         TrainerReview[]
+  faqs            TrainerFAQ[]
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt

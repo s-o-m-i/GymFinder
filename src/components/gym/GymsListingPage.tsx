@@ -200,6 +200,7 @@ export async function GymsListingPage({
               }
             >
               <GymsResultsSection
+                key={`${filters.search ?? ""}-${filters.area ?? ""}-${filters.type ?? ""}-${filters.amenity ?? ""}-${filters.rating ?? ""}-${filters.ladiesStatus ?? ""}-${filters.sort ?? "featured"}-${page}`}
                 initialGyms={gyms}
                 total={total}
                 page={page}

@@ -9,6 +9,7 @@ import {
   User,
   UserCircle,
   ExternalLink,
+  HelpCircle,
 } from "lucide-react";
 import { getTrainerSession } from "@/lib/trainer-auth";
 import { prisma } from "@/lib/prisma";
@@ -83,6 +84,11 @@ export default async function TrainerPanelLayout({
             href="/trainer/dashboard/profile"
             icon={<User className="w-4 h-4" />}
             label="My Profile"
+          />
+          <TrainerNavLink
+            href="/trainer/dashboard/faqs"
+            icon={<HelpCircle className="w-4 h-4" />}
+            label="FAQs"
           />
           {trainer?.isPublished && (
             <Link

@@ -14,6 +14,7 @@ import { LadiesStatusBadge } from "@/components/ui/LadiesStatusBadge";
 import { ReviewForm } from "@/components/gym/ReviewForm";
 import { MembershipPlansSection } from "@/components/gym/MembershipPlansSection";
 import { MeetOurTeamSection } from "@/components/gym/MeetOurTeamSection";
+import { FaqAccordionSection } from "@/components/faq/FaqAccordionSection";
 import { GymEquipmentSection } from "@/components/gym/GymEquipmentSection";
 import { GymEventsSection } from "@/components/events/GymEventsSection";
 import { getGymEvents } from "@/services/events/event.service";
@@ -49,6 +50,10 @@ async function getGym(slug: string) {
       reviews: { orderBy: { createdAt: "desc" }, take: 20 },
       membershipPlans: { orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }] },
       staffMembers: {
+        where: { isActive: true },
+        orderBy: [{ displayOrder: "asc" }, { createdAt: "asc" }],
+      },
+      faqs: {
         where: { isActive: true },
         orderBy: [{ displayOrder: "asc" }, { createdAt: "asc" }],
       },
@@ -241,6 +246,10 @@ export async function GymProfilePage({ slug }: GymProfilePageProps) {
                 past={pastEvents}
                 gymName={gym.name}
               />
+
+              {gym.faqsEnabled && gym.faqs.length > 0 && (
+                <FaqAccordionSection faqs={gym.faqs} />
+              )}
 
               {gym.membershipPlans.length > 0 && (
                 <div className="lg:hidden">

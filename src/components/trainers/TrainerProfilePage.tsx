@@ -8,6 +8,7 @@ import { TrainerQuickStats } from "@/components/trainers/TrainerQuickStats";
 import { TrainerCertificationsSection } from "@/components/trainers/TrainerCertificationsSection";
 import { TrainerAchievementsSection } from "@/components/trainers/TrainerAchievementsSection";
 import { TrainerReviewsSection } from "@/components/trainers/TrainerReviewsSection";
+import { FaqAccordionSection } from "@/components/faq/FaqAccordionSection";
 import { Badge } from "@/components/ui/Badge";
 import { getTrainerBySlug } from "@/services/trainer/trainer.service";
 import { specializationLabel } from "@/lib/trainer-constants";
@@ -205,6 +206,10 @@ export async function TrainerProfilePage({ slug }: TrainerProfilePageProps) {
 
               <TrainerCertificationsSection certifications={certifications} />
               <TrainerAchievementsSection achievements={achievements} />
+
+              {trainer.faqsEnabled && trainer.faqs.length > 0 && (
+                <FaqAccordionSection faqs={trainer.faqs} />
+              )}
 
               <TrainerReviewsSection
                 trainerId={trainer.id}

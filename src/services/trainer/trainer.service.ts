@@ -187,6 +187,10 @@ export async function getTrainerBySlug(slug: string) {
     where: { slug },
     include: {
       reviews: { orderBy: { createdAt: "desc" }, take: 20 },
+      faqs: {
+        where: { isActive: true },
+        orderBy: [{ displayOrder: "asc" }, { createdAt: "asc" }],
+      },
       gym: {
         select: {
           id: true,
