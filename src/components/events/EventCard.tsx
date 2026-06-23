@@ -81,7 +81,7 @@ export function EventCard({ event, className }: EventCardProps) {
           {EVENT_STATUS_LABELS[status]}
         </span>
       </div>
-
+{/* somi */}
       <div className="flex flex-1 flex-col p-5">
         <h3 className="font-heading font-bold text-[var(--text)] mb-2 line-clamp-2 group-hover:text-[#FF6A3D] transition-colors">
           {event.title}
