@@ -12,16 +12,25 @@ import {
   Flower2,
   Users,
   Target,
+  Sparkles,
+  CalendarDays,
+  Trophy,
 } from "lucide-react";
 import { CITIES, cityNameToSlug } from "@/lib/constants";
 import { formatHeroStatCount, type HeroStats } from "@/lib/hero-data";
 import { cn } from "@/lib/utils";
 
-const FILTER_PILLS = [
+const QUICK_LINKS = [
+  { label: "AI Gym Search", icon: Sparkles, href: "/ai-gym-finder" },
+  { label: "Events", icon: CalendarDays, href: "/events" },
+  { label: "Fighting Clubs", icon: Trophy, href: "/gyms/fighting-clubs" },
+] as const;
+
+const CATEGORY_PILLS = [
   { label: "Weightlifting", icon: Dumbbell, href: "/gyms?type=gym" },
   { label: "MMA", icon: Swords, href: "/gyms/mma" },
   { label: "Yoga", icon: Flower2, href: "/gyms?search=yoga" },
-  { label: "Personal Training", icon: Users, href: "/trainers" },
+  { label: "Personal Training", icon: Users, href: "/gyms?search=personal+training" },
   { label: "Boxing", icon: Target, href: "/gyms/boxing" },
 ] as const;
 
@@ -94,7 +103,7 @@ export function HeroSection({ stats }: HeroSectionProps) {
                   type="text"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Search gyms, trainers, or disciplines"
+                  placeholder="Search gyms by name, area, or city"
                   className="w-full h-12 pl-11 pr-4 rounded-xl border border-white/10 bg-white/[0.06] text-sm text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-[#FF6A3D]/50 focus:border-[#FF6A3D]/40"
                 />
               </div>
@@ -159,7 +168,17 @@ export function HeroSection({ stats }: HeroSectionProps) {
             </div>
 
             <div className="flex flex-wrap gap-2">
-              {FILTER_PILLS.map(({ label, icon: Icon, href }) => (
+              {QUICK_LINKS.map(({ label, icon: Icon, href }) => (
+                <Link
+                  key={href}
+                  href={href}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[#FF6A3D]/40 bg-[#FF6A3D]/10 text-xs sm:text-sm text-white hover:bg-[#FF6A3D]/20 hover:border-[#FF6A3D]/60 transition-all"
+                >
+                  <Icon className="w-3.5 h-3.5 text-[#FF6A3D]" />
+                  {label}
+                </Link>
+              ))}
+              {CATEGORY_PILLS.map(({ label, icon: Icon, href }) => (
                 <Link
                   key={href}
                   href={href}
@@ -191,7 +210,7 @@ export function HeroSection({ stats }: HeroSectionProps) {
         {/* Scroll hint */}
         <div className="flex justify-center mt-12 sm:mt-14">
           <a
-            href="#disciplines"
+            href="#explore-categories"
             className="inline-flex flex-col items-center gap-1 text-xs text-white/35 hover:text-white/60 transition-colors"
           >
             Scroll Down

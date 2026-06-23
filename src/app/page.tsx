@@ -1,31 +1,27 @@
 export const dynamic = "force-dynamic";
 
-import Link from "next/link";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { HeroSection } from "@/components/home/HeroSection";
-import { DisciplinesSection } from "@/components/home/DisciplinesSection";
-import { FeaturedGyms } from "@/components/home/FeaturedGyms";
+import { CategoryDiscoverySection } from "@/components/home/CategoryDiscoverySection";
+import { FeatureHighlightsSection } from "@/components/home/FeatureHighlightsSection";
+import { MapPreviewSection } from "@/components/home/MapPreviewSection";
+import { TrendingListingsSection } from "@/components/home/TrendingListingsSection";
+import { EventsPreviewSection } from "@/components/home/EventsPreviewSection";
+import { OwnerMonetizationSection } from "@/components/home/OwnerMonetizationSection";
+import { SocialProofSection } from "@/components/home/SocialProofSection";
+import { SeoFooterLinksSection } from "@/components/home/SeoFooterLinksSection";
 import { prisma } from "@/lib/prisma";
 import { CITIES } from "@/lib/constants";
-import { HERO_DISCIPLINES } from "@/lib/hero-data";
-import { MapPin, Shield, MessageCircle, Users } from "lucide-react";
-
-async function getFeaturedGyms() {
-  try {
-    return await prisma.gym.findMany({
-      where: { featured: true, listingStatus: "approved" },
-      include: {
-        galleryImages: { select: { imageUrl: true, alt: true }, take: 1 },
-        disciplines: { include: { discipline: { select: { name: true } } } },
-      },
-      orderBy: { createdAt: "desc" },
-      take: 6,
-    });
-  } catch {
-    return [];
-  }
-}
+import {
+  MOCK_HOME_EVENTS,
+  MOCK_HOME_LISTINGS,
+  type HomeEventPreview,
+  type HomeListingItem,
+} from "@/lib/home-data";
+import { getGymCoverUrl } from "@/lib/images";
+import { eventTypeLabel } from "@/lib/event-constants";
+import { eventCardSelect } from "@/services/events/event.service";
 
 async function getHeroStats() {
   try {
@@ -60,35 +56,149 @@ async function getHeroStats() {
   }
 }
 
-async function getDisciplines() {
+function toHomeGymListing(gym: {
+  id: string;
+  name: string;
+  slug: string;
+  city: string;
+  rating: number | null;
+  coverImage: string | null;
+  galleryImages: { imageUrl: string }[];
+}): HomeListingItem {
+  return {
+    id: gym.id,
+    name: gym.name,
+    city: gym.city,
+    image: getGymCoverUrl(gym) ?? null,
+    type: "gym",
+    slug: gym.slug,
+    rating: gym.rating,
+  };
+}
+
+async function getFeaturedGymListings(): Promise<HomeListingItem[]> {
   try {
-    const approved = { listingStatus: "approved" as const };
+    const gyms = await prisma.gym.findMany({
+      where: { featured: true, listingStatus: "approved" },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        city: true,
+        rating: true,
+        coverImage: true,
+        galleryImages: { select: { imageUrl: true }, take: 1 },
+      },
+      orderBy: { createdAt: "desc" },
+      take: 6,
+    });
 
-    const typeCounts = await Promise.all(
-      HERO_DISCIPLINES.map((d) =>
-        prisma.gym.count({
-          where: {
-            ...approved,
-            type: d.type as "gym" | "boxing" | "mma" | "martial_arts",
-          },
-        })
-      )
-    );
+    if (gyms.length === 0) {
+      return MOCK_HOME_LISTINGS.filter((item) => item.type === "gym");
+    }
 
-    return HERO_DISCIPLINES.map((d, i) => ({
-      ...d,
-      listings: typeCounts[i],
+    return gyms.map(toHomeGymListing);
+  } catch {
+    return MOCK_HOME_LISTINGS.filter((item) => item.type === "gym");
+  }
+}
+
+async function getFeaturedTrainerListings(): Promise<HomeListingItem[]> {
+  try {
+    const trainers = await prisma.trainer.findMany({
+      where: { isPublished: true, isFeatured: true },
+      select: {
+        id: true,
+        fullName: true,
+        slug: true,
+        city: true,
+        rating: true,
+        profileImage: true,
+      },
+      orderBy: { createdAt: "desc" },
+      take: 6,
+    });
+
+    if (trainers.length === 0) {
+      const fallback = await prisma.trainer.findMany({
+        where: { isPublished: true },
+        select: {
+          id: true,
+          fullName: true,
+          slug: true,
+          city: true,
+          rating: true,
+          profileImage: true,
+        },
+        orderBy: [{ isFeatured: "desc" }, { rating: { sort: "desc", nulls: "last" } }],
+        take: 6,
+      });
+
+      if (fallback.length === 0) {
+        return MOCK_HOME_LISTINGS.filter((item) => item.type === "trainer");
+      }
+
+      return fallback.map((trainer) => ({
+        id: trainer.id,
+        name: trainer.fullName,
+        city: trainer.city,
+        image: trainer.profileImage,
+        type: "trainer" as const,
+        slug: trainer.slug,
+        rating: trainer.rating,
+      }));
+    }
+
+    return trainers.map((trainer) => ({
+      id: trainer.id,
+      name: trainer.fullName,
+      city: trainer.city,
+      image: trainer.profileImage,
+      type: "trainer" as const,
+      slug: trainer.slug,
+      rating: trainer.rating,
     }));
   } catch {
-    return HERO_DISCIPLINES.map((d) => ({ ...d, listings: 25 }));
+    return MOCK_HOME_LISTINGS.filter((item) => item.type === "trainer");
+  }
+}
+
+async function getUpcomingEventPreviews(): Promise<HomeEventPreview[]> {
+  try {
+    const events = await prisma.event.findMany({
+      where: { startDate: { gt: new Date() } },
+      select: eventCardSelect,
+      orderBy: [{ isFeatured: "desc" }, { startDate: "asc" }],
+      take: 4,
+    });
+
+    if (events.length === 0) return MOCK_HOME_EVENTS;
+
+    return events.map((event) => ({
+      id: event.id,
+      name: event.title,
+      city: event.city,
+      date: new Date(event.startDate).toLocaleDateString("en-PK", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      }),
+      type: eventTypeLabel(event.type),
+      slug: event.slug,
+      featured: event.isFeatured,
+      image: event.image,
+    }));
+  } catch {
+    return MOCK_HOME_EVENTS;
   }
 }
 
 export default async function HomePage() {
-  const [featuredGyms, stats, disciplines] = await Promise.all([
-    getFeaturedGyms(),
+  const [stats, featuredGyms, featuredTrainers, upcomingEvents] = await Promise.all([
     getHeroStats(),
-    getDisciplines(),
+    getFeaturedGymListings(),
+    getFeaturedTrainerListings(),
+    getUpcomingEventPreviews(),
   ]);
 
   return (
@@ -97,80 +207,14 @@ export default async function HomePage() {
       <main>
         <HeroSection stats={stats} />
 
-        <DisciplinesSection disciplines={disciplines} />
-
-        <FeaturedGyms gyms={featuredGyms} />
-
-        {/* Why use us section */}
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <div className="text-center mb-12">
-            <h2 className="font-heading font-bold text-2xl sm:text-3xl text-[var(--text)] mb-3">
-              Why Use GymFinder PK?
-            </h2>
-            <p className="text-[var(--text-muted)] max-w-lg mx-auto">
-              We make it easy to find, compare, and contact the best gyms in your area.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              {
-                icon: <MapPin className="w-6 h-6 text-[#FF6A3D]" />,
-                title: "Hyper-Local Listings",
-                desc: "Every gym is manually verified and curated. Real data, real addresses, real information.",
-              },
-              {
-                icon: <Shield className="w-6 h-6 text-[#FF6A3D]" />,
-                title: "Compare Everything",
-                desc: "Price, timings, facilities, and ladies status — all in one place. Make informed decisions.",
-              },
-              {
-                icon: <MessageCircle className="w-6 h-6 text-[#FF6A3D]" />,
-                title: "Direct WhatsApp Contact",
-                desc: "No middlemen. Tap a button and get in touch with the gym directly on WhatsApp.",
-              },
-            ].map((item) => (
-              <div
-                key={item.title}
-                className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6 card-shadow"
-              >
-                <div className="w-12 h-12 bg-[#FF6A3D]/10 rounded-2xl flex items-center justify-center mb-4">
-                  {item.icon}
-                </div>
-                <h3 className="font-heading font-bold text-[var(--text)] mb-2">{item.title}</h3>
-                <p className="text-[var(--text-muted)] text-sm leading-relaxed">{item.desc}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* CTA banner */}
-        <section className="bg-[#0B2545] py-16">
-          <div className="max-w-2xl mx-auto px-4 text-center">
-            <h2 className="font-heading font-bold text-3xl text-white mb-4">
-              Ready to Start Training?
-            </h2>
-            <p className="text-[#8ba0b8] mb-8">
-              Browse gyms and fighting clubs, or find a personal trainer anywhere in Pakistan.
-            </p>
-            <div className="flex flex-wrap justify-center gap-4">
-              <Link
-                href="/gyms"
-                className="inline-flex items-center gap-2 px-8 py-4 bg-[#FF6A3D] text-white font-bold text-base rounded-2xl hover:bg-[#e85528] transition-colors shadow-lg"
-              >
-                Browse All Gyms
-                <MapPin className="w-5 h-5" />
-              </Link>
-              <Link
-                href="/trainers"
-                className="inline-flex items-center gap-2 px-8 py-4 bg-transparent border-2 border-white/30 text-white font-bold text-base rounded-2xl hover:bg-white/10 transition-colors"
-              >
-                Find Trainers
-                <Users className="w-5 h-5" />
-              </Link>
-            </div>
-          </div>
-        </section>
+        <CategoryDiscoverySection />
+        <FeatureHighlightsSection />
+        <MapPreviewSection />
+        <TrendingListingsSection gyms={featuredGyms} trainers={featuredTrainers} />
+        <EventsPreviewSection events={upcomingEvents} />
+        <OwnerMonetizationSection />
+        <SocialProofSection />
+        <SeoFooterLinksSection />
       </main>
       <Footer />
     </>
