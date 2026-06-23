@@ -39,13 +39,20 @@ export function Navbar({ variant }: { variant?: "default" | "hero" }) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const isHero = variant === "hero" || pathname === "/";
+  const heroMenuOpen = isHero && mobileOpen;
 
   return (
+    <>
     <header
       className={cn(
         "z-50",
         isHero
-          ? "absolute top-0 left-0 right-0 border-b border-white/10 bg-transparent"
+          ? cn(
+              "absolute top-0 left-0 right-0 border-b",
+              heroMenuOpen
+                ? "border-white/15 bg-[#0B2545]/75 backdrop-blur-xl backdrop-saturate-150 shadow-[0_8px_32px_rgba(0,0,0,0.35)]"
+                : "border-white/10 bg-transparent"
+            )
           : "sticky top-0 border-b border-[var(--border)] bg-[var(--card)]/95 backdrop-blur-md"
       )}
     >
@@ -127,15 +134,30 @@ export function Navbar({ variant }: { variant?: "default" | "hero" }) {
           </div>
         </div>
 
-        {/* Mobile menu */}
+        {/* Mobile menu — hero: fixed glass panel; default: inline dropdown */}
+        {mobileOpen && isHero && (
+          <div
+            className="fixed inset-0 top-16 z-40 md:hidden bg-[#050d18]/50 backdrop-blur-sm"
+            onClick={() => setMobileOpen(false)}
+            aria-hidden
+          />
+        )}
+
         {mobileOpen && (
           <div
             className={cn(
-              "md:hidden pb-4 border-t mt-0 pt-3",
-              isHero ? "border-white/10" : "border-[var(--border)]"
+              "md:hidden pb-4 pt-3",
+              isHero
+                ? "fixed left-0 right-0 top-16 z-50 border-b border-white/10 bg-[#0B2545]/80 px-4 backdrop-blur-2xl backdrop-saturate-150 shadow-[0_12px_40px_rgba(0,0,0,0.45)] sm:px-6"
+                : cn("border-t mt-0", "border-[var(--border)]")
             )}
           >
-            <div className="flex flex-col gap-1">
+            <div
+              className={cn(
+                "flex flex-col gap-1",
+                isHero && "rounded-2xl border border-white/10 bg-white/[0.06] p-3 backdrop-blur-md"
+              )}
+            >
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
@@ -180,6 +202,7 @@ export function Navbar({ variant }: { variant?: "default" | "hero" }) {
         )}
       </nav>
     </header>
+    </>
   );
 }
 
