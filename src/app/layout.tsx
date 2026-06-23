@@ -73,7 +73,7 @@ export default function RootLayout({
       data-scroll-behavior="smooth"
       className={`${manrope.variable} ${inter.variable} ${ibmPlexMono.variable}`}
     >
-      <body>{children}</body>
+      <body suppressHydrationWarning>{children}</body>
     </html>
   );
 }

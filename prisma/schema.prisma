@@ -476,3 +476,38 @@ model Event {
   @@index([slug])
   @@index([isFeatured])
 }
+
+model AiGymSearch {
+  id            String   @id @default(cuid())
+
+  // raw user input
+  query         String
+
+  // extracted structured filters from Gemini
+  filtersJson   Json
+
+  // number of gyms returned from Prisma
+  resultsCount  Int
+
+  // optional grouping for anonymous session tracking
+  sessionId     String?
+
+  // extracted or inferred city (important for analytics + SEO)
+  city          String?
+
+  // optional: helps detect repeated users (no auth needed)
+  visitorHash   String?
+
+  // optional: device + context (useful for optimization later)
+  userAgent     String?
+
+  // optional: track whether search returned useful results
+  hadResults    Boolean  @default(true)
+
+  createdAt     DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([city])
+  @@index([sessionId])
+  @@index([visitorHash])
+}

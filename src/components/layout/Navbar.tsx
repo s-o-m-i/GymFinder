@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { Menu, X, Dumbbell, PlusCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SITE_NAME } from "@/lib/constants";
@@ -180,5 +180,34 @@ export function Navbar({ variant }: { variant?: "default" | "hero" }) {
         )}
       </nav>
     </header>
+  );
+}
+
+function NavbarFallback({ variant }: { variant?: "default" | "hero" }) {
+  const isHero = variant === "hero";
+
+  return (
+    <header
+      className={cn(
+        "z-50",
+        isHero
+          ? "absolute top-0 left-0 right-0 border-b border-white/10 bg-transparent"
+          : "sticky top-0 border-b border-[var(--border)] bg-[var(--card)]/95 backdrop-blur-md"
+      )}
+      aria-hidden
+    >
+      <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="h-16" />
+      </nav>
+    </header>
+  );
+}
+
+/** Use on statically prerendered pages — Navbar reads search params for active links. */
+export function NavbarWithSuspense(props: { variant?: "default" | "hero" }) {
+  return (
+    <Suspense fallback={<NavbarFallback variant={props.variant} />}>
+      <Navbar {...props} />
+    </Suspense>
   );
 }

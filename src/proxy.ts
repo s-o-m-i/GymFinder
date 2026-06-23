@@ -186,7 +186,9 @@ export async function proxy(req: NextRequest) {
     pathname.startsWith("/trainers") ||
     pathname.startsWith("/events") ||
     pathname.startsWith("/event/") ||
-    pathname.startsWith("/api/analytics")
+    pathname.startsWith("/ai-gym-finder") ||
+    pathname.startsWith("/api/analytics") ||
+    pathname.startsWith("/api/ai")
   ) {
     return nextWithAnalyticsSession(req);
   }
@@ -203,7 +205,9 @@ export const config = {
     "/trainers/:path*",
     "/events/:path*",
     "/event/:path*",
+    "/ai-gym-finder",
     "/api/analytics/:path*",
+    "/api/ai/:path*",
     "/api/trainer/:path*",
   ],
 };

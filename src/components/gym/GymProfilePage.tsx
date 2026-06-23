@@ -13,7 +13,7 @@ import { GymTypeIcon } from "@/components/ui/GymTypeIcon";
 import { LadiesStatusBadge } from "@/components/ui/LadiesStatusBadge";
 import { ReviewForm } from "@/components/gym/ReviewForm";
 import { MembershipPlansSection } from "@/components/gym/MembershipPlansSection";
-import { MeetOurTeamSection } from "@/components/gym/MeetOurTeamSection";
+import { MeetOurTeamSectionLazy } from "@/components/gym/MeetOurTeamSectionLazy";
 import { FaqAccordionSection } from "@/components/faq/FaqAccordionSection";
 import { GymEquipmentSection } from "@/components/gym/GymEquipmentSection";
 import { GymEventsSection } from "@/components/events/GymEventsSection";
@@ -239,7 +239,7 @@ export async function GymProfilePage({ slug }: GymProfilePageProps) {
                 </div>
               )}
 
-              <MeetOurTeamSection members={gym.staffMembers} />
+              <MeetOurTeamSectionLazy members={gym.staffMembers} />
 
               <GymEventsSection
                 upcoming={upcomingEvents}
