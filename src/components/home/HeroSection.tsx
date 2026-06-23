@@ -83,11 +83,16 @@ export function HeroSection({ stats }: HeroSectionProps) {
       <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-12 sm:pt-32 sm:pb-16">
         {/* Headline */}
         <div className="text-center mb-10 sm:mb-12">
-          <h1 className="font-heading font-bold text-4xl sm:text-5xl lg:text-[3.25rem] text-white leading-[1.15] tracking-tight">
+          <h1 className="font-heading font-bold text-3xl sm:text-5xl lg:text-[3.25rem] text-white leading-[1.15] tracking-tight max-w-4xl mx-auto">
             Find Your Perfect{" "}
-            <span className="text-[#FF6A3D]">Gym</span> or{" "}
+            <span className="text-[#FF6A3D]">Gym</span>,{" "}
+            <span className="text-[#FF6A3D]">Trainer</span>,{" "}
+            <span className="text-[#FF6A3D]">Event</span>, or{" "}
             <span className="text-[#FF6A3D]">Fighting Club</span>
           </h1>
+          <p className="mt-4 text-sm sm:text-base text-white/60 max-w-2xl mx-auto">
+            Discover fitness gyms, personal trainers, and upcoming events across Pakistan.
+          </p>
         </div>
 
         {/* Glass search card */}
