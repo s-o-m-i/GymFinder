@@ -22,6 +22,7 @@ import {
 import { getGymCoverUrl } from "@/lib/images";
 import { eventTypeLabel } from "@/lib/event-constants";
 import { eventCardSelect } from "@/services/events/event.service";
+import { checkExpiredFeaturedGyms } from "@/services/featured/featured-gym.service";
 
 async function getHeroStats() {
   try {
@@ -78,8 +79,14 @@ function toHomeGymListing(gym: {
 
 async function getFeaturedGymListings(): Promise<HomeListingItem[]> {
   try {
+    await checkExpiredFeaturedGyms();
+    const now = new Date();
     const gyms = await prisma.gym.findMany({
-      where: { featured: true, listingStatus: "approved" },
+      where: {
+        featured: true,
+        listingStatus: "approved",
+        OR: [{ featuredUntil: null }, { featuredUntil: { gt: now } }],
+      },
       select: {
         id: true,
         name: true,

@@ -322,7 +322,7 @@ export function OwnerProfileTabs({ initial, gym }: OwnerProfileTabsProps) {
                 Public Listing Link
               </h2>
               <p className="text-sm text-[var(--text-muted)] mt-1">
-                Copy your GymFinder PK profile URL and share it with clients on
+                Copy your FitnessAdda PK profile URL and share it with clients on
                 social media.
               </p>
             </div>

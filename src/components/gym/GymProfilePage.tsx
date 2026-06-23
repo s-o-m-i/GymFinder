@@ -23,6 +23,7 @@ import {
   gymTypeLabel,
   formatPrice,
 } from "@/lib/utils";
+import { isGymActivelyFeatured } from "@/lib/featured-gym";
 import { SITE_NAME } from "@/lib/constants";
 import { getGymsBasePath } from "@/lib/gyms-routes";
 import { getGymGalleryImages } from "@/lib/images";
@@ -149,7 +150,7 @@ export async function GymProfilePage({ slug }: GymProfilePageProps) {
                         <GymTypeIcon type={gym.type} className="w-3.5 h-3.5" />
                         {gymTypeLabel(gym.type, gym.customTypeLabel)}
                       </Badge>
-                      {gym.featured && (
+                      {isGymActivelyFeatured(gym) && (
                         <Badge variant="accent" className="inline-flex items-center gap-1">
                           <Star className="w-3 h-3 fill-white" />
                           Featured

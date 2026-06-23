@@ -54,7 +54,7 @@ export function formatHourlyRate(rate: number | null | undefined): string {
 }
 
 export function buildTrainerWhatsAppMessage(trainerName: string): string {
-  return `Hi ${trainerName}, I found your profile on GymFinder PK and would like to inquire about training sessions.`;
+  return `Hi ${trainerName}, I found your profile on FitnessAdda PK and would like to inquire about training sessions.`;
 }
 
 export function buildTrainerWhatsAppUrl(number: string, trainerName: string): string {

@@ -132,7 +132,7 @@ function LoginFormInner() {
         </form>
 
         <p className="text-center text-xs text-gray-400 mt-6">
-          Session expires after 8 hours &nbsp;·&nbsp; GymFinder PK &copy; 2024
+          Session expires after 8 hours &nbsp;·&nbsp; FitnessAdda PK &copy; 2024
         </p>
       </div>
 

@@ -25,6 +25,7 @@ export type GymCardData = Pick<
   | "whatsappNumber"
   | "rating"
   | "featured"
+  | "featuredUntil"
   | "openingHours"
   | "coverImage"
 > & {

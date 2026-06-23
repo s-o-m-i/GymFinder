@@ -8,6 +8,7 @@ import {
   type FilterExtractionSource,
 } from "@/lib/ai/gym-search";
 import { logAiGymSearch } from "@/lib/ai/log-ai-gym-search";
+import { checkExpiredFeaturedGyms } from "@/services/featured/featured-gym.service";
 import type { GymCardData } from "@/types";
 import type { GymSearchFilters } from "@/types/gym-search";
 
@@ -69,6 +70,7 @@ function toGymCardData(gym: GymRow): GymCardData {
     whatsappNumber: gym.whatsappNumber,
     rating: gym.rating,
     featured: gym.featured,
+    featuredUntil: gym.featuredUntil,
     openingHours: gym.openingHours,
     coverImage: gym.coverImage,
     galleryImages: gym.galleryImages,
@@ -101,6 +103,7 @@ export async function runAiGymSearch(
 ): Promise<AiGymSearchResponse> {
   const extraction = await extractGymFilters(query);
   const { filters } = extraction;
+  await checkExpiredFeaturedGyms();
   const where = buildGymQuery(filters);
   const orderBy = buildGymOrderBy(filters);
 

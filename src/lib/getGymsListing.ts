@@ -2,6 +2,7 @@ import { buildGymRatingWhere } from "@/lib/constants";
 import { prisma } from "@/lib/prisma";
 import type { Prisma } from "@prisma/client";
 import type { GymFilters } from "@/types";
+import { checkExpiredFeaturedGyms } from "@/services/featured/featured-gym.service";
 
 export function parseGymSearchParams(
   searchParams: Record<string, string | string[] | undefined>,
@@ -84,7 +85,7 @@ export function buildGymOrderBy(sort?: string): Prisma.GymOrderByWithRelationInp
   switch (sort) {
     case "price_asc":  return [{ priceMin: "asc"  }, { featured: "desc" }];
     case "price_desc": return [{ priceMax: "desc" }, { featured: "desc" }];
-    case "rating":     return [{ rating: { sort: "desc", nulls: "last" } }];
+    case "rating":     return [{ rating: { sort: "desc", nulls: "last" } }, { featured: "desc" }];
     default:           return [{ featured: "desc" }, { createdAt: "desc" }];
   }
 }
@@ -95,6 +96,8 @@ export async function getGymsListing(
   fixedType?: string,
   fixedTypes?: readonly string[]
 ) {
+  await checkExpiredFeaturedGyms();
+
   const filters = parseGymSearchParams(searchParams, fixedCity, fixedType);
   const where   = buildGymWhere(filters, true, fixedTypes);
   const orderBy = buildGymOrderBy(filters.sort);

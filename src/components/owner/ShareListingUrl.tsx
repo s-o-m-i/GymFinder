@@ -82,7 +82,7 @@ export function ShareListingUrl({
             <p className="text-xs text-[var(--text-muted)] mt-1 leading-relaxed">
               Share on Instagram, Facebook, or WhatsApp so clients open{" "}
               <span className="font-medium text-[var(--text)]">{listingName}</span>{" "}
-              on GymFinder PK.
+              on FitnessAdda PK.
             </p>
           </div>
         </div>

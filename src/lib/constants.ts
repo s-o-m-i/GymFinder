@@ -94,9 +94,9 @@ export function getAreasForCity(city: string): readonly string[] {
 }
 
 export const WHATSAPP_DEFAULT_MESSAGE =
-  "Hi, I found your gym on GymFinder PK. I want more details about membership.";
+  "Hi, I found your gym on FitnessAdda PK. I want more details about membership.";
 
-export const SITE_NAME = "GymFinder PK";
+export const SITE_NAME = "FitnessAdda PK";
 export const SITE_TAGLINE = "Find Gyms • Trainers • Fighting Clubs";
 export const SITE_DESCRIPTION =
   "Discover the best gyms, fighting clubs, and personal trainers across Pakistan. Compare prices, facilities, and contact directly on WhatsApp.";

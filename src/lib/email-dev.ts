@@ -35,7 +35,7 @@ export function formatOwnerEmailError(error: unknown): string {
   }
 
   if (raw.includes("domain is not verified")) {
-    return "Email sender domain is not verified. Set RESEND_FROM_EMAIL to GymFinder PK <onboarding@resend.dev> for local testing.";
+    return "Email sender domain is not verified. Set RESEND_FROM_EMAIL to FitnessAdda PK <onboarding@resend.dev> for local testing.";
   }
 
   return raw.replace(/^(Verification email failed|Password reset email failed):\s*/i, "");

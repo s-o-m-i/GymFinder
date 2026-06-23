@@ -71,6 +71,12 @@ enum TrainerLeadEventType {
   PROFILE_VIEW
 }
 
+enum FeatureRequestStatus {
+  pending
+  approved
+  rejected
+}
+
 enum EventType {
   boxing
   mma
@@ -138,6 +144,9 @@ model Gym {
   ladiesHours    String?
   rating         Float?
   featured       Boolean      @default(false)
+  featuredAt     DateTime?
+  featuredUntil  DateTime?
+  featuredPlan   String?
   coachInfo          String?      @db.Text
   equipment          String?      @db.Text
   coverImage         String?
@@ -159,12 +168,14 @@ model Gym {
   trainers         Trainer[]
   events           Event[]
   faqs             GymFAQ[]
+  featureRequests  FeatureRequest[]
 
   @@index([city])
   @@index([area])
   @@index([type])
   @@index([priceMin, priceMax])
   @@index([featured])
+  @@index([featuredUntil])
   @@index([slug])
   @@index([listingStatus])
   @@index([ownerId])
@@ -510,4 +521,46 @@ model AiGymSearch {
   @@index([city])
   @@index([sessionId])
   @@index([visitorHash])
+}
+
+model FeaturedPlan {
+  id           String   @id @default(cuid())
+  slug         String   @unique
+  name         String
+  durationDays Int
+  amount       Int
+  benefits     String[] @default([])
+  isActive     Boolean  @default(true)
+  sortOrder    Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  featureRequests FeatureRequest[]
+
+  @@index([isActive, sortOrder])
+}
+
+model FeatureRequest {
+  id                 String               @id @default(cuid())
+  gymId              String
+  planId             String?
+  plan               String
+  amount             Int
+  paymentMethod      String
+  transactionId      String?
+  screenshotUrl      String?
+  screenshotPublicId String?
+  notes              String?
+  status             FeatureRequestStatus @default(pending)
+  reviewedAt         DateTime?
+  reviewedBy         String?
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+
+  gym          Gym           @relation(fields: [gymId], references: [id], onDelete: Cascade)
+  featuredPlan FeaturedPlan? @relation(fields: [planId], references: [id], onDelete: SetNull)
+
+  @@index([gymId])
+  @@index([status])
+  @@index([createdAt])
 }

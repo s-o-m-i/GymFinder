@@ -18,7 +18,7 @@ import { TrainerLogoutButton } from "@/components/trainers/TrainerLogoutButton";
 import { specializationLabel } from "@/lib/trainer-constants";
 
 export const metadata: Metadata = {
-  title: "Trainer Portal | GymFinder PK",
+  title: "Trainer Portal | FitnessAdda PK",
   robots: { index: false, follow: false },
 };
 
@@ -60,7 +60,7 @@ export default async function TrainerPanelLayout({
               <Dumbbell className="w-4 h-4 text-white" />
             </div>
             <div>
-              <div className="font-heading font-bold text-sm leading-tight">GymFinder PK</div>
+              <div className="font-heading font-bold text-sm leading-tight">FitnessAdda PK</div>
               <div className="text-xs text-[#8ba0b8]">Trainer Portal</div>
             </div>
           </Link>

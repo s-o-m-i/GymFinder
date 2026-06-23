@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Dumbbell, LayoutDashboard, Building2, User, Swords, CreditCard, Users, CalendarDays, HelpCircle } from "lucide-react";
+import { Dumbbell, LayoutDashboard, Building2, User, Swords, CreditCard, Users, CalendarDays, HelpCircle, Sparkles } from "lucide-react";
 import { OwnerLogoutButton } from "@/components/owner/OwnerLogoutButton";
 import { getOwnerSession } from "@/lib/owner-auth";
 import { businessCategoryLabel } from "@/lib/owner-constants";
 import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
-  title: "Owner Portal | GymFinder PK",
+  title: "Owner Portal | FitnessAdda PK",
   robots: { index: false, follow: false },
 };
 
@@ -23,7 +23,7 @@ export default async function OwnerLayout({ children }: { children: React.ReactN
               <Dumbbell className="w-4 h-4 text-white" />
             </div>
             <div>
-              <div className="font-heading font-bold text-sm leading-tight">GymFinder PK</div>
+              <div className="font-heading font-bold text-sm leading-tight">FitnessAdda PK</div>
               <div className="text-xs text-[#8ba0b8]">Owner Portal</div>
             </div>
           </Link>
@@ -70,6 +70,10 @@ export default async function OwnerLayout({ children }: { children: React.ReactN
           <Link href="/owner/faqs" className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 transition-colors">
             <HelpCircle className="w-4 h-4" />
             FAQs
+          </Link>
+          <Link href="/owner/featured" className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 transition-colors">
+            <Sparkles className="w-4 h-4" />
+            Promote Listing
           </Link>
           <Link href="/owner/profile" className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 transition-colors">
             <User className="w-4 h-4" />

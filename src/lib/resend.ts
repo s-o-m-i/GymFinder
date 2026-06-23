@@ -16,7 +16,7 @@ export function getResendClient(): Resend {
 }
 
 export function getEmailFromAddress(): string {
-  return process.env.RESEND_FROM_EMAIL ?? "GymFinder PK <onboarding@resend.dev>";
+  return process.env.RESEND_FROM_EMAIL ?? "FitnessAdda PK <onboarding@resend.dev>";
 }
 
 export function getAppBaseUrl(): string {

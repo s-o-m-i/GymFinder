@@ -7,6 +7,7 @@ import { LadiesStatusBadge } from "@/components/ui/LadiesStatusBadge";
 import { getGymCoverUrl, optimizedImageUrl } from "@/lib/images";
 import { formatPriceShort, gymTypeLabel } from "@/lib/utils";
 import { formatDistance } from "@/lib/getDistance";
+import { isGymActivelyFeatured } from "@/lib/featured-gym";
 import type { GymCardData } from "@/types";
 
 interface GymCardProps {
@@ -49,7 +50,7 @@ export function GymCard({ gym, distanceKm }: GymCardProps) {
         <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent" />
 
         {/* TOP-LEFT: Featured badge */}
-        {gym.featured && (
+        {isGymActivelyFeatured(gym) && (
           <div className="absolute top-3 left-3">
             <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-[#FF6A3D] text-white text-[11px] font-bold uppercase tracking-wide shadow-md">
               <Star className="w-3 h-3 fill-white" />

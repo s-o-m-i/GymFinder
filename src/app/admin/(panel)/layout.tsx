@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Dumbbell, LayoutDashboard, PlusCircle, Users, BarChart3, UserRound } from "lucide-react";
+import { Dumbbell, LayoutDashboard, PlusCircle, Users, BarChart3, UserRound, Sparkles } from "lucide-react";
 import { LogoutButton } from "@/components/admin/LogoutButton";
 
 export const metadata: Metadata = {
-  title: "Admin Panel | GymFinder PK",
+  title: "Admin Panel | fitnessadda PK",
   robots: { index: false, follow: false },
 };
 
@@ -19,7 +19,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <Dumbbell className="w-4 h-4 text-white" />
             </div>
             <div>
-              <div className="font-heading font-bold text-sm leading-tight">GymFinder PK</div>
+              <div className="font-heading font-bold text-sm leading-tight">FitnessAdda PK</div>
               <div className="text-xs text-[#8ba0b8]">Admin Panel</div>
             </div>
           </Link>
@@ -53,6 +53,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           >
             <UserRound className="w-4 h-4" />
             Trainers
+          </Link>
+          <Link
+            href="/admin/featured-requests"
+            className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 transition-colors"
+          >
+            <Sparkles className="w-4 h-4" />
+            Featured Requests
           </Link>
           <Link
             href="/admin/analytics"

@@ -32,7 +32,7 @@ export function buildWhatsAppUrl(number: string, gymName?: string): string {
     ? `92${cleaned.slice(1)}`
     : `92${cleaned}`;
   const message = gymName
-    ? `Hi, I found ${gymName} on GymFinder PK. I want more details about membership.`
+    ? `Hi, I found ${gymName} on FitnessAdda PK. I want more details about membership.`
     : WHATSAPP_DEFAULT_MESSAGE;
   return `https://wa.me/${withCountry}?text=${encodeURIComponent(message)}`;
 }
