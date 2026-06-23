@@ -474,15 +474,12 @@ export function GymFilters({
   );
 
   return (
-    <>
-      {/* Desktop sidebar — self-start prevents flex-stretch, enabling sticky */}
-      <aside className="hidden lg:block w-72 shrink-0 self-start sticky top-20">
-        <div
-          className="bg-[var(--card)] border border-[var(--border)] rounded-2xl overflow-hidden"
-          style={{ maxHeight: "calc(100vh - 5.5rem)" }}
-        >
+    <div className="w-full">
+      {/* Desktop sidebar — grid row height matches listings; sticky keeps panel in view */}
+      <aside className="hidden lg:block w-full lg:sticky lg:top-16 lg:self-start">
+        <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl overflow-hidden flex flex-col h-[calc(100vh-4.5rem)]">
           {/* Fixed header */}
-          <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--border)]">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--border)] shrink-0">
             <h2 className="font-heading font-bold text-[var(--text)]">Filters</h2>
             <div className="flex items-center gap-3">
               {isPending && (
@@ -500,17 +497,17 @@ export function GymFilters({
             </div>
           </div>
           {/* Scrollable filter body */}
-          <div className="overflow-y-auto p-5" style={{ maxHeight: "calc(100vh - 9rem)" }}>
+          <div className="overflow-y-auto p-5 flex-1 min-h-0">
             {filterContent}
           </div>
         </div>
       </aside>
 
       {/* Mobile filter button */}
-      <div className="lg:hidden mb-4">
+      <div className="lg:hidden w-full">
         <button
           onClick={() => setShowMobileFilters(true)}
-          className="flex items-center gap-2 px-4 py-2.5 bg-[var(--card)] border border-[var(--border)] rounded-xl text-sm font-medium text-[var(--text)] shadow-sm"
+          className="flex w-full items-center justify-center gap-2 px-4 py-2.5 bg-[var(--card)] border border-[var(--border)] rounded-xl text-sm font-medium text-[var(--text)] shadow-sm"
         >
           <SlidersHorizontal className="w-4 h-4" />
           Filters
@@ -554,6 +551,6 @@ export function GymFilters({
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 }

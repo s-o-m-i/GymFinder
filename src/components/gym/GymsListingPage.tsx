@@ -129,10 +129,10 @@ export async function GymsListingPage({
       <JsonLd data={itemListSchema} />
       <JsonLd data={breadcrumbSchema} />
       <Navbar />
-      <main className="min-h-screen bg-[var(--bg)]">
+      <main className="min-h-screen bg-[var(--bg)] max-lg:overflow-x-hidden">
         <div className="bg-[var(--card)] border-b border-[var(--border)]">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs text-[var(--text-muted)] mb-3">
+            <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs text-[var(--text-muted)] mb-3">
               <Link href="/" className="hover:text-[var(--text)] transition-colors">Home</Link>
               <span>/</span>
               <Link href="/gyms" className="hover:text-[var(--text)] transition-colors">Gyms</Link>
@@ -156,13 +156,13 @@ export async function GymsListingPage({
               )}
             </nav>
 
-            <h1 className="font-heading font-bold text-xl sm:text-2xl text-[var(--text)]">
+            <h1 className="font-heading font-bold text-xl sm:text-2xl text-[var(--text)] break-words">
               {type && city && !listingLabel
                 ? `${gymTypeLabel(type)} in ${city}`
                 : h1}
             </h1>
 
-            <p className="text-[var(--text-muted)] text-sm mt-1">
+            <p className="text-[var(--text-muted)] text-sm mt-1 break-words">
               <span className="font-mono-nums font-semibold text-[var(--text)]">{total}</span>{" "}
               {total === 1 ? "gym" : "gyms"} found · Sorted by {sortLabel(filters.sort)}
             </p>
@@ -175,15 +175,17 @@ export async function GymsListingPage({
           </div>
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex gap-8 items-start">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+          <div className="grid grid-cols-1 lg:grid-cols-[18rem_minmax(0,1fr)] gap-4 lg:gap-8 w-full min-w-0">
             <Suspense fallback={null}>
-              <GymFilters fixedCity={city} fixedType={fixedType} amenities={amenities} />
+              <div className="w-full min-w-0">
+                <GymFilters fixedCity={city} fixedType={fixedType} amenities={amenities} />
+              </div>
             </Suspense>
 
             <Suspense
               fallback={
-                <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+                <div className="w-full min-w-0 flex-1 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
                   {Array.from({ length: 6 }).map((_, i) => (
                     <div
                       key={i}
@@ -199,13 +201,15 @@ export async function GymsListingPage({
                 </div>
               }
             >
-              <GymsResultsSection
-                key={`${filters.search ?? ""}-${filters.area ?? ""}-${filters.type ?? ""}-${filters.amenity ?? ""}-${filters.rating ?? ""}-${filters.ladiesStatus ?? ""}-${filters.sort ?? "featured"}-${page}`}
-                initialGyms={gyms}
-                total={total}
-                page={page}
-                totalPages={totalPages}
-              />
+              <div className="w-full min-w-0 flex-1">
+                <GymsResultsSection
+                  key={`${filters.search ?? ""}-${filters.area ?? ""}-${filters.type ?? ""}-${filters.amenity ?? ""}-${filters.rating ?? ""}-${filters.ladiesStatus ?? ""}-${filters.sort ?? "featured"}-${page}`}
+                  initialGyms={gyms}
+                  total={total}
+                  page={page}
+                  totalPages={totalPages}
+                />
+              </div>
             </Suspense>
           </div>
         </div>
