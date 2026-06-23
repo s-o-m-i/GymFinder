@@ -474,10 +474,13 @@ export function GymFilters({
   );
 
   return (
-    <div className="w-full">
-      {/* Desktop sidebar — grid row height matches listings; sticky keeps panel in view */}
-      <aside className="hidden lg:block w-full lg:sticky lg:top-16 lg:self-start">
-        <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl overflow-hidden flex flex-col h-[calc(100vh-4.5rem)]">
+    <>
+      {/* Desktop sidebar — w-72 on aside so flex row keeps it beside listings */}
+      <aside className="hidden lg:block w-72 shrink-0 self-start sticky top-20">
+        <div
+          className="bg-[var(--card)] border border-[var(--border)] rounded-2xl overflow-hidden flex flex-col"
+          style={{ maxHeight: "calc(100vh - 5.5rem)" }}
+        >
           {/* Fixed header */}
           <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--border)] shrink-0">
             <h2 className="font-heading font-bold text-[var(--text)]">Filters</h2>
@@ -497,7 +500,7 @@ export function GymFilters({
             </div>
           </div>
           {/* Scrollable filter body */}
-          <div className="overflow-y-auto p-5 flex-1 min-h-0">
+          <div className="overflow-y-auto p-5 flex-1 min-h-0" style={{ maxHeight: "calc(100vh - 9rem)" }}>
             {filterContent}
           </div>
         </div>
@@ -551,6 +554,6 @@ export function GymFilters({
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }

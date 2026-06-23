@@ -176,32 +176,34 @@ export async function GymsListingPage({
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-          <div className="grid grid-cols-1 lg:grid-cols-[18rem_minmax(0,1fr)] gap-4 lg:gap-8 w-full min-w-0">
-            <Suspense fallback={null}>
-              <div className="w-full min-w-0">
-                <GymFilters fixedCity={city} fixedType={fixedType} amenities={amenities} />
-              </div>
-            </Suspense>
-
+          <div className="flex flex-col lg:flex-row gap-4 lg:gap-8 items-start w-full min-w-0">
             <Suspense
               fallback={
-                <div className="w-full min-w-0 flex-1 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
-                  {Array.from({ length: 6 }).map((_, i) => (
-                    <div
-                      key={i}
-                      className="bg-[var(--card)] border border-[var(--border)] rounded-2xl overflow-hidden animate-pulse"
-                    >
-                      <div className="h-48 bg-[var(--bg)]" />
-                      <div className="p-4 space-y-3">
-                        <div className="h-4 bg-[var(--bg)] rounded-lg w-3/4" />
-                        <div className="h-3 bg-[var(--bg)] rounded-lg w-1/2" />
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                <div className="hidden lg:block w-72 h-48 rounded-2xl bg-[var(--card)] border border-[var(--border)] animate-pulse shrink-0" />
               }
             >
-              <div className="w-full min-w-0 flex-1">
+              <GymFilters fixedCity={city} fixedType={fixedType} amenities={amenities} />
+            </Suspense>
+
+            <div className="flex-1 min-w-0 w-full">
+              <Suspense
+                fallback={
+                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5 w-full min-w-0">
+                    {Array.from({ length: 6 }).map((_, i) => (
+                      <div
+                        key={i}
+                        className="bg-[var(--card)] border border-[var(--border)] rounded-2xl overflow-hidden animate-pulse"
+                      >
+                        <div className="h-48 bg-[var(--bg)]" />
+                        <div className="p-4 space-y-3">
+                          <div className="h-4 bg-[var(--bg)] rounded-lg w-3/4" />
+                          <div className="h-3 bg-[var(--bg)] rounded-lg w-1/2" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                }
+              >
                 <GymsResultsSection
                   key={`${filters.search ?? ""}-${filters.area ?? ""}-${filters.type ?? ""}-${filters.amenity ?? ""}-${filters.rating ?? ""}-${filters.ladiesStatus ?? ""}-${filters.sort ?? "featured"}-${page}`}
                   initialGyms={gyms}
@@ -209,8 +211,8 @@ export async function GymsListingPage({
                   page={page}
                   totalPages={totalPages}
                 />
-              </div>
-            </Suspense>
+              </Suspense>
+            </div>
           </div>
         </div>
       </main>
