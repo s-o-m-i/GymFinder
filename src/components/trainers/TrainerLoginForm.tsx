@@ -87,7 +87,12 @@ function LoginFormInner() {
           </div>
 
           <div>
-            <label className={`${labelClass} mb-1.5`}>Password</label>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className={labelClass}>Password</label>
+              <Link href="/trainer/forgot-password" className="text-xs font-semibold text-[#FF6A3D] hover:underline">
+                Forgot password?
+              </Link>
+            </div>
             <div className="relative">
               <Lock className={iconClass} />
               <input

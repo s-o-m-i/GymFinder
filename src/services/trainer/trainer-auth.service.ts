@@ -5,8 +5,13 @@ import { hashPassword, verifyPassword } from "@/lib/password";
 import {
   createTrainerVerificationOtp,
   verifyTrainerVerificationOtp,
+  createTrainerPasswordResetOtp,
+  verifyTrainerPasswordResetOtp,
 } from "@/lib/trainer-auth-tokens";
-import { sendTrainerVerificationOtpEmail } from "@/services/trainer/trainer-email.service";
+import {
+  sendTrainerVerificationOtpEmail,
+  sendTrainerPasswordResetOtpEmail,
+} from "@/services/trainer/trainer-email.service";
 import {
   isDevEmailLinksEnabled,
   isResendRecipientRestrictionError,
@@ -179,5 +184,81 @@ export async function verifyTrainerEmailOtp(email: string, code: string) {
     accountId: account.id,
     email: account.email,
     trainerId: account.trainer?.id ?? null,
+  };
+}
+
+const PASSWORD_RESET_GENERIC =
+  "If a verified account exists for that email, a reset code has been sent.";
+
+export async function requestTrainerPasswordResetOtp(email: string) {
+  const normalized = email.trim().toLowerCase();
+  const account = await prisma.trainerAccount.findUnique({
+    where: { email: normalized },
+  });
+
+  if (account?.emailVerified) {
+    const otpCode = await createTrainerPasswordResetOtp(account.id);
+    logDevEmailLink("Trainer password reset OTP", `Code: ${otpCode} for ${account.email}`);
+
+    try {
+      await sendTrainerPasswordResetOtpEmail({
+        to: account.email,
+        name: account.name ?? "Trainer",
+        code: otpCode,
+      });
+    } catch (emailError) {
+      const message = emailError instanceof Error ? emailError.message : "Email send failed";
+
+      if (isDevEmailLinksEnabled() && isResendRecipientRestrictionError(message)) {
+        return {
+          ok: true as const,
+          message: "Resend test mode: use the reset code below.",
+          email: account.email,
+          devOtpCode: otpCode,
+        };
+      }
+
+      throw emailError;
+    }
+  }
+
+  return {
+    ok: true as const,
+    message: PASSWORD_RESET_GENERIC,
+    email: account?.emailVerified ? normalized : undefined,
+  };
+}
+
+export async function resetTrainerPasswordWithOtp(
+  email: string,
+  code: string,
+  password: string
+) {
+  const account = await verifyTrainerPasswordResetOtp(email, code);
+  if (!account) {
+    return {
+      ok: false as const,
+      status: 400 as const,
+      error: "Invalid or expired code. Request a new one and try again.",
+    };
+  }
+
+  if (!account.emailVerified) {
+    return {
+      ok: false as const,
+      status: 403 as const,
+      error: "Please verify your email before resetting your password.",
+    };
+  }
+
+  const passwordHash = await hashPassword(password);
+  await prisma.trainerAccount.update({
+    where: { id: account.id },
+    data: { passwordHash },
+  });
+
+  return {
+    ok: true as const,
+    message: "Password updated. You can now sign in.",
   };
 }

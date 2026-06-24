@@ -29,3 +29,22 @@ export const trainerOtpVerifySchema = z.object({
     .trim()
     .regex(/^\d{6}$/, "Enter the 6-digit code from your email."),
 });
+
+export const trainerForgotPasswordSchema = z.object({
+  email: trainerEmailSchema,
+});
+
+export const trainerResetPasswordSchema = z
+  .object({
+    email: trainerEmailSchema,
+    code: z
+      .string()
+      .trim()
+      .regex(/^\d{6}$/, "Enter the 6-digit code from your email."),
+    password: z.string().min(8, "Password must be at least 8 characters."),
+    confirmPassword: z.string().min(8, "Password must be at least 8 characters."),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match.",
+    path: ["confirmPassword"],
+  });

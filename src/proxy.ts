@@ -159,6 +159,8 @@ export async function proxy(req: NextRequest) {
       pathname === "/trainer/register" ||
       pathname === "/trainer/verify-email" ||
       pathname.startsWith("/trainer/verify-email/") ||
+      pathname === "/trainer/forgot-password" ||
+      pathname === "/trainer/reset-password" ||
       pathname.startsWith("/api/trainer/auth/") ||
       (/^\/trainer\/[^/]+$/.test(pathname) &&
         pathname !== "/trainer/dashboard" &&

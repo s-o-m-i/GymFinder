@@ -47,6 +47,41 @@ export async function sendTrainerVerificationOtpEmail(input: {
   assertResendSuccess(result, "Trainer verification email failed");
 }
 
+export async function sendTrainerPasswordResetOtpEmail(input: {
+  to: string;
+  name: string;
+  code: string;
+}) {
+  const html = `
+<!DOCTYPE html>
+<html>
+  <body style="margin:0;padding:32px 16px;background:#f4f6f8;font-family:Arial,sans-serif;">
+    <table width="100%" style="max-width:480px;margin:0 auto;background:#fff;border-radius:16px;border:1px solid #e5e7eb;overflow:hidden;">
+      <tr><td style="height:6px;background:linear-gradient(90deg,#FF6A3D,#0B2545);"></td></tr>
+      <tr>
+        <td style="padding:32px 28px;">
+          <p style="margin:0 0 8px;font-size:12px;font-weight:700;color:#FF6A3D;text-transform:uppercase;">${SITE_NAME}</p>
+          <h1 style="margin:0 0 12px;font-size:22px;color:#0B2545;">Reset your trainer password</h1>
+          <p style="margin:0 0 12px;font-size:15px;color:#374151;">Hi ${input.name}, enter this code on the password reset page to choose a new password.</p>
+          <p style="margin:0;font-size:32px;font-weight:700;letter-spacing:0.25em;color:#0B2545;font-family:monospace;">${input.code}</p>
+          <p style="margin:16px 0 0;font-size:13px;color:#6b7280;">This code expires in 10 minutes. If you did not request this, you can ignore this email.</p>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>`;
+
+  const resend = getResendClient();
+  const result = await resend.emails.send({
+    from: getEmailFromAddress(),
+    to: input.to,
+    subject: `Your ${SITE_NAME} trainer password reset code`,
+    html,
+  });
+
+  assertResendSuccess(result, "Trainer password reset email failed");
+}
+
 /** @deprecated Legacy passwordless login */
 export async function sendTrainerOtpEmail(input: { to: string; code: string }) {
   const html = `
