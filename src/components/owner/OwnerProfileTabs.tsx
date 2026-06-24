@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { User, Shield, Link2 } from "lucide-react";
+import { User, Key, Link2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { ShareListingUrl } from "@/components/owner/ShareListingUrl";
 import { businessCategoryLabel } from "@/lib/owner-constants";
@@ -56,7 +56,7 @@ export function OwnerProfileTabs({ initial, gym }: OwnerProfileTabsProps) {
 
   const tabs: { id: TabId; label: string; icon: typeof User }[] = [
     { id: "account", label: "Account", icon: User },
-    { id: "security", label: "Security", icon: Shield },
+    { id: "security", label: "Password", icon: Key },
     ...(gym ? [{ id: "link" as const, label: "Public Link", icon: Link2 }] : []),
   ];
 
@@ -254,10 +254,10 @@ export function OwnerProfileTabs({ initial, gym }: OwnerProfileTabsProps) {
           <div>
             <div className="mb-6">
               <h2 className="font-heading font-bold text-lg text-[var(--text)]">
-                Security
+                Password
               </h2>
               <p className="text-sm text-[var(--text-muted)] mt-1">
-                Change your password to keep your owner account secure.
+                Update your sign-in password for this owner account.
               </p>
             </div>
 

@@ -36,7 +36,7 @@ export default async function OwnerProfilePage() {
             My Profile
           </h1>
           <p className="text-[var(--text-muted)] text-sm mt-1">
-            Manage account, security, and your shareable listing link
+            Manage your account, password, and shareable listing link
           </p>
         </div>
         <span
