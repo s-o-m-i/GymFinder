@@ -177,26 +177,28 @@ export function Navbar({ variant }: { variant?: "default" | "hero" }) {
                   {link.label}
                 </Link>
               ))}
-              <Link
-                href="/owner/register"
-                onClick={() => setMobileOpen(false)}
-                className="mt-2 flex items-center justify-center gap-1.5 px-4 py-2.5 bg-[#FF6A3D] text-white text-sm font-semibold rounded-xl hover:bg-[#e85528] transition-colors"
-              >
-                <PlusCircle className="w-4 h-4" />
-                List your gym
-              </Link>
-              <Link
-                href="/trainer/register"
-                onClick={() => setMobileOpen(false)}
-                className={cn(
-                  "flex items-center justify-center gap-1.5 px-4 py-2.5 text-sm font-semibold rounded-xl transition-colors",
-                  isHero
-                    ? "border border-white/30 text-white hover:bg-white/10"
-                    : "border border-[#0B2545] text-[#0B2545] hover:bg-[#0B2545] hover:text-white"
-                )}
-              >
-                Join as Trainer
-              </Link>
+              <div className="mt-3 flex flex-col gap-3">
+                <Link
+                  href="/owner/register"
+                  onClick={() => setMobileOpen(false)}
+                  className="flex items-center justify-center gap-1.5 px-4 py-2.5 bg-[#FF6A3D] text-white text-sm font-semibold rounded-xl hover:bg-[#e85528] transition-colors"
+                >
+                  <PlusCircle className="w-4 h-4" />
+                  List your gym
+                </Link>
+                <Link
+                  href="/trainer/register"
+                  onClick={() => setMobileOpen(false)}
+                  className={cn(
+                    "flex items-center justify-center gap-1.5 px-4 py-2.5 text-sm font-semibold rounded-xl transition-colors",
+                    isHero
+                      ? "border border-white/30 text-white hover:bg-white/10"
+                      : "border border-[#0B2545] text-[#0B2545] hover:bg-[#0B2545] hover:text-white"
+                  )}
+                >
+                  Join as Trainer
+                </Link>
+              </div>
             </div>
           </div>
         )}

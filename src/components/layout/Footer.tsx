@@ -109,9 +109,26 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-12 pt-6 border-t border-white/10 flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-[#8ba0b8]">
+        <div className="mt-12 pt-6 border-t border-white/10 flex flex-col gap-4 sm:gap-0 sm:flex-row sm:justify-between sm:items-center text-xs text-[#8ba0b8]">
           <span>© {new Date().getFullYear()} {SITE_NAME}. All rights reserved.</span>
-          <span>Built for Pakistan 🇵🇰</span>
+          <nav className="flex flex-wrap items-center gap-x-4 gap-y-2" aria-label="Legal">
+            <Link href="/legal" className="hover:text-[#FF6A3D] transition-colors">
+              Legal
+            </Link>
+            <Link href="/legal/terms" className="hover:text-[#FF6A3D] transition-colors">
+              Terms
+            </Link>
+            <Link href="/legal/privacy" className="hover:text-[#FF6A3D] transition-colors">
+              Privacy
+            </Link>
+            <Link href="/legal/cookies" className="hover:text-[#FF6A3D] transition-colors">
+              Cookies
+            </Link>
+            <Link href="/legal/disclaimer" className="hover:text-[#FF6A3D] transition-colors">
+              Disclaimer
+            </Link>
+          </nav>
+          <span className="hidden sm:inline">Built for Pakistan 🇵🇰</span>
         </div>
       </div>
     </footer>

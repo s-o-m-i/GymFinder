@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { User, Mail, Phone, AlertCircle, Loader2, Dumbbell, Swords, Eye, EyeOff } from "lucide-react";
+import { LegalTermsCheckbox } from "@/components/legal/LegalTermsCheckbox";
+import { ACCEPT_TERMS_MESSAGE } from "@/lib/validations/legal";
 import type { BusinessCategory } from "@prisma/client";
 
 export function OwnerRegisterForm() {
@@ -21,6 +23,7 @@ export function OwnerRegisterForm() {
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   const inputClass =
     "w-full h-11 px-4 rounded-xl border border-white/25 bg-white/10 backdrop-blur-sm text-sm text-white placeholder:text-white/45 focus:outline-none focus:ring-2 focus:ring-[#FF6A3D]/60 focus:border-[#FF6A3D]/50";
@@ -46,6 +49,10 @@ export function OwnerRegisterForm() {
       setError("Phone number is required.");
       return;
     }
+    if (!acceptedTerms) {
+      setError(ACCEPT_TERMS_MESSAGE);
+      return;
+    }
 
     setLoading(true);
     setError(null);
@@ -61,6 +68,7 @@ export function OwnerRegisterForm() {
           phone: form.phone.trim(),
           password: form.password,
           businessCategory: form.businessCategory,
+          acceptedTerms: true,
         }),
       });
       const data = await res.json();
@@ -218,6 +226,12 @@ export function OwnerRegisterForm() {
             </div>
           </div>
 
+          <LegalTermsCheckbox
+            id="owner-accept-terms"
+            checked={acceptedTerms}
+            onChange={setAcceptedTerms}
+          />
+
           {error && (
             <div className="flex items-center gap-2 p-3 bg-red-500/15 backdrop-blur-sm border border-red-400/30 rounded-xl text-sm text-red-100">
               <AlertCircle className="w-4 h-4 shrink-0" />
@@ -225,7 +239,7 @@ export function OwnerRegisterForm() {
             </div>
           )}
 
-          <button type="submit" disabled={loading} className="w-full h-11 bg-[#FF6A3D] text-white font-semibold text-sm rounded-xl hover:bg-[#e85528] disabled:opacity-70 flex items-center justify-center gap-2 shadow-lg shadow-[#FF6A3D]/25">
+          <button type="submit" disabled={loading || !acceptedTerms} className="w-full h-11 bg-[#FF6A3D] text-white font-semibold text-sm rounded-xl hover:bg-[#e85528] disabled:opacity-70 flex items-center justify-center gap-2 shadow-lg shadow-[#FF6A3D]/25">
             {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Creating account…</> : "Create Account"}
           </button>
         </form>

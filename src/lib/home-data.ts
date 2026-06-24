@@ -8,6 +8,7 @@ import {
   BadgeCheck,
   Trophy,
   CalendarDays,
+  Flower2,
 } from "lucide-react";
 
 export type HomeListingItem = {
@@ -38,6 +39,65 @@ export type HomeCategory = {
   icon: LucideIcon;
   accent: "orange" | "navy";
 };
+
+export type ExploreCenterItem = {
+  title: string;
+  subtitle: string;
+  href: string;
+  image: string;
+  icon: LucideIcon;
+};
+
+export const EXPLORE_CENTER_ITEMS: ExploreCenterItem[] = [
+  {
+    title: "Gym",
+    subtitle: "Immersed and refined",
+    href: "/gyms",
+    image:
+      "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=900&h=1200&fit=crop&q=80",
+    icon: Dumbbell,
+  },
+  {
+    title: "Boxing Club",
+    subtitle: "Immersed and refined",
+    href: "/gyms/boxing",
+    image:
+      "https://images.unsplash.com/photo-1549719386-74dfcbf7dbed?w=900&h=1200&fit=crop&q=80",
+    icon: Target,
+  },
+  {
+    title: "Yoga Studio",
+    subtitle: "Recognised and refined",
+    href: "/gyms?search=yoga",
+    image:
+      "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=900&h=1200&fit=crop&q=80",
+    icon: Flower2,
+  },
+  {
+    title: "Fitness Event",
+    subtitle: "Immersed and refined",
+    href: "/events",
+    image:
+      "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=900&h=1200&fit=crop&q=80",
+    icon: CalendarDays,
+  },
+  {
+    title: "MMA Academy",
+    subtitle: "Immersed and refined",
+    href: "/gyms/mma",
+    image:
+      "https://images.unsplash.com/photo-1555597673-b21d5c935865?w=900&h=1200&fit=crop&q=80",
+    icon: Swords,
+  },
+  {
+    title: "Fitness Trainers",
+    subtitle: "Immersed and refined",
+    href: "/trainers",
+    image:
+      "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=900&h=1200&fit=crop&q=80",
+    icon: Users,
+  },
+];
 
 export type HomeFeature = {
   title: string;

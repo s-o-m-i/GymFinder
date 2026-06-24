@@ -14,16 +14,24 @@ import type { BusinessCategory } from "@prisma/client";
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { name, email, password, phone, businessCategory } = body as {
+    const { name, email, password, phone, businessCategory, acceptedTerms } = body as {
       name:             string;
       email:            string;
       password:         string;
       phone:            string;
       businessCategory: BusinessCategory;
+      acceptedTerms?:   boolean;
     };
 
     if (!name?.trim() || !email?.trim() || !phone?.trim() || !password || !businessCategory) {
       return NextResponse.json({ error: "All required fields must be filled." }, { status: 400 });
+    }
+
+    if (acceptedTerms !== true) {
+      return NextResponse.json(
+        { error: "You must agree to the Terms of Service and Privacy Policy." },
+        { status: 400 }
+      );
     }
 
     const normalizedPhone = phone.trim();

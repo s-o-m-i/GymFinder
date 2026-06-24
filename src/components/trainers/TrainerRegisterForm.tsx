@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { User, Mail, Phone, AlertCircle, Loader2, Eye, EyeOff } from "lucide-react";
+import { LegalTermsCheckbox } from "@/components/legal/LegalTermsCheckbox";
+import { ACCEPT_TERMS_MESSAGE } from "@/lib/validations/legal";
 
 const glassCard =
   "relative w-full max-w-lg rounded-3xl overflow-hidden border border-white/20 bg-white/10 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.35)]";
@@ -28,6 +30,7 @@ export function TrainerRegisterForm() {
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -43,6 +46,10 @@ export function TrainerRegisterForm() {
       setError("Password must be at least 8 characters.");
       return;
     }
+    if (!acceptedTerms) {
+      setError(ACCEPT_TERMS_MESSAGE);
+      return;
+    }
 
     setLoading(true);
     setError(null);
@@ -56,6 +63,7 @@ export function TrainerRegisterForm() {
           email: form.email,
           phone: form.phone.trim(),
           password: form.password,
+          acceptedTerms: true,
         }),
       });
       const data = await res.json();
@@ -197,6 +205,12 @@ export function TrainerRegisterForm() {
             </div>
           </div>
 
+          <LegalTermsCheckbox
+            id="trainer-accept-terms"
+            checked={acceptedTerms}
+            onChange={setAcceptedTerms}
+          />
+
           {error && (
             <div className="flex items-center gap-2 p-3 bg-red-500/15 backdrop-blur-sm border border-red-400/30 rounded-xl text-sm text-red-100">
               <AlertCircle className="w-4 h-4 shrink-0" />
@@ -206,7 +220,7 @@ export function TrainerRegisterForm() {
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || !acceptedTerms}
             className="w-full h-11 bg-[#FF6A3D] text-white font-semibold text-sm rounded-xl hover:bg-[#e85528] disabled:opacity-70 flex items-center justify-center gap-2 shadow-lg shadow-[#FF6A3D]/25"
           >
             {loading ? (

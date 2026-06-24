@@ -3,14 +3,12 @@ export const dynamic = "force-dynamic";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { HeroSection } from "@/components/home/HeroSection";
-import { CategoryDiscoverySection } from "@/components/home/CategoryDiscoverySection";
+import { ExploreCenterSection } from "@/components/home/ExploreCenterSection";
 import { FeatureHighlightsSection } from "@/components/home/FeatureHighlightsSection";
 import { MapPreviewSection } from "@/components/home/MapPreviewSection";
 import { TrendingListingsSection } from "@/components/home/TrendingListingsSection";
 import { EventsPreviewSection } from "@/components/home/EventsPreviewSection";
-import { OwnerMonetizationSection } from "@/components/home/OwnerMonetizationSection";
-import { SocialProofSection } from "@/components/home/SocialProofSection";
-import { SeoFooterLinksSection } from "@/components/home/SeoFooterLinksSection";
+import { HomePreFooterSection } from "@/components/home/HomePreFooterSection";
 import { prisma } from "@/lib/prisma";
 import { CITIES } from "@/lib/constants";
 import {
@@ -214,14 +212,12 @@ export default async function HomePage() {
       <main>
         <HeroSection stats={stats} />
 
-        <CategoryDiscoverySection />
+        <ExploreCenterSection />
         <FeatureHighlightsSection />
         <MapPreviewSection />
         <TrendingListingsSection gyms={featuredGyms} trainers={featuredTrainers} />
         <EventsPreviewSection events={upcomingEvents} />
-        <OwnerMonetizationSection />
-        <SocialProofSection />
-        <SeoFooterLinksSection />
+        <HomePreFooterSection stats={stats} />
       </main>
       <Footer />
     </>

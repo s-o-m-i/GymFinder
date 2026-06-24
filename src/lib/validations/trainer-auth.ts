@@ -6,11 +6,14 @@ export const trainerEmailSchema = z
   .email()
   .transform((v) => v.toLowerCase());
 
+import { acceptedTermsField } from "@/lib/validations/legal";
+
 export const trainerRegisterSchema = z.object({
   name: z.string().trim().min(2, "Name is required.").max(120),
   email: trainerEmailSchema,
   phone: z.string().trim().min(10, "Enter a valid phone number.").max(20),
   password: z.string().min(8, "Password must be at least 8 characters."),
+  acceptedTerms: acceptedTermsField,
 });
 
 export const trainerLoginSchema = z.object({

@@ -5,6 +5,7 @@ import { TRAINER_CITY_SLUG_MAP } from "@/lib/trainers-routes";
 import { EVENT_CITY_SLUGS } from "@/lib/events-routes";
 import { getPublishedTrainerSlugs } from "@/services/trainer/trainer.service";
 import { getEventSlugsForSitemap } from "@/services/events/event.service";
+import { LEGAL_PAGES } from "@/lib/legal";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
@@ -72,6 +73,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "monthly",
       priority:        0.5,
     },
+    {
+      url:             `${base}/legal`,
+      lastModified:    new Date(),
+      changeFrequency: "monthly",
+      priority:        0.4,
+    },
+    ...LEGAL_PAGES.map((page) => ({
+      url:             `${base}${page.href}`,
+      lastModified:    new Date(),
+      changeFrequency: "monthly" as const,
+      priority:        0.4,
+    })),
   ];
 
   const gymPages: MetadataRoute.Sitemap = gyms.map((gym) => ({
