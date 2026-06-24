@@ -81,7 +81,7 @@ export function StaffAchievementsField({
           </span>
         </label>
 
-        <div className="flex gap-2">
+        <div className="flex flex-col gap-2 sm:flex-row">
           <input
             type="text"
             value={draft}
@@ -94,13 +94,13 @@ export function StaffAchievementsField({
             }}
             disabled={atMaxItems}
             placeholder="e.g. National Boxing Championship 2023"
-            className={cn(inputClass, (error || draftError) && "border-red-300")}
+            className={cn(inputClass, "min-w-0", (error || draftError) && "border-red-300")}
           />
           <button
             type="button"
             onClick={addItem}
             disabled={atMaxItems || !draft.trim()}
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-[#0B2545] text-white text-sm font-semibold rounded-xl hover:bg-[#071832] transition-colors disabled:opacity-50 shrink-0"
+            className="inline-flex w-full sm:w-auto items-center justify-center gap-1.5 px-4 py-2.5 bg-[#0B2545] text-white text-sm font-semibold rounded-xl hover:bg-[#071832] transition-colors disabled:opacity-50 shrink-0"
           >
             <Plus className="w-4 h-4" />
             Add
@@ -273,7 +273,7 @@ export function StaffCertificationsField({
           type="button"
           onClick={addItem}
           disabled={atMaxItems || !draftName.trim() || imageUploading}
-          className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-[#FF6A3D] text-white text-sm font-semibold rounded-xl hover:bg-[#e85528] transition-colors disabled:opacity-50"
+          className="inline-flex w-full sm:w-auto items-center justify-center gap-1.5 px-4 py-2.5 bg-[#FF6A3D] text-white text-sm font-semibold rounded-xl hover:bg-[#e85528] transition-colors disabled:opacity-50"
         >
           <Plus className="w-4 h-4" />
           Add Certification

@@ -50,7 +50,7 @@ function StatCard({
           <p className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
             {label}
           </p>
-          <p className="font-heading font-bold text-3xl text-[#0B2545] mt-2 tabular-nums">
+          <p className="font-heading font-bold text-2xl lg:text-3xl text-[#0B2545] mt-2 tabular-nums">
             {value.toLocaleString()}
           </p>
         </div>
@@ -99,8 +99,8 @@ export function TrainerAnalyticsSection({
     data.summary.contactClicks;
 
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+    <div className="space-y-6 lg:space-y-8">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-[var(--text-muted)] text-sm">
             Anonymous visitor insights for{" "}
@@ -108,14 +108,14 @@ export function TrainerAnalyticsSection({
           </p>
         </div>
 
-        <div className="flex flex-wrap gap-2">
+        <div className="flex gap-2 max-lg:overflow-x-auto max-lg:flex-nowrap max-lg:pb-1 max-lg:-mx-1 max-lg:px-1 sm:flex-wrap">
           {PERIODS.map((p) => (
             <button
               key={p.value}
               type="button"
               onClick={() => setPeriod(p.value)}
               className={cn(
-                "px-3 py-1.5 rounded-xl text-xs font-semibold border transition-colors cursor-pointer",
+                "shrink-0 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-colors cursor-pointer",
                 period === p.value
                   ? "bg-[#0B2545] text-white border-[#0B2545]"
                   : "bg-[var(--card)] text-[var(--text-muted)] border-[var(--border)] hover:border-[#FF6A3D]/40"
@@ -155,59 +155,61 @@ export function TrainerAnalyticsSection({
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-        <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-5">
+        <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-4 sm:p-5 min-w-0 max-lg:overflow-x-auto">
           <h3 className="font-heading font-bold text-[var(--text)] mb-1">
             Views Over Time
           </h3>
           <p className="text-xs text-[var(--text-muted)] mb-4">Daily profile views</p>
           {chartData.length > 0 ? (
-            <ResponsiveContainer width="100%" height={260}>
-              <AreaChart data={chartData}>
-                <defs>
-                  <linearGradient id="trainerViewsGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#0B2545" stopOpacity={0.25} />
-                    <stop offset="95%" stopColor="#0B2545" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                <XAxis
-                  dataKey="label"
-                  tick={{ fontSize: 11, fill: "var(--text-muted)" }}
-                  tickLine={false}
-                  axisLine={false}
-                />
-                <YAxis
-                  allowDecimals={false}
-                  tick={{ fontSize: 11, fill: "var(--text-muted)" }}
-                  tickLine={false}
-                  axisLine={false}
-                  width={36}
-                />
-                <Tooltip
-                  contentStyle={{
-                    borderRadius: 12,
-                    border: "1px solid var(--border)",
-                    fontSize: 12,
-                  }}
-                />
-                <Area
-                  type="monotone"
-                  dataKey="profileViews"
-                  name="Views"
-                  stroke="#0B2545"
-                  fill="url(#trainerViewsGradient)"
-                  strokeWidth={2}
-                />
-              </AreaChart>
-            </ResponsiveContainer>
+            <div className="min-w-[280px]">
+              <ResponsiveContainer width="100%" height={240}>
+                <AreaChart data={chartData}>
+                  <defs>
+                    <linearGradient id="trainerViewsGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#0B2545" stopOpacity={0.25} />
+                      <stop offset="95%" stopColor="#0B2545" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                  <XAxis
+                    dataKey="label"
+                    tick={{ fontSize: 11, fill: "var(--text-muted)" }}
+                    tickLine={false}
+                    axisLine={false}
+                  />
+                  <YAxis
+                    allowDecimals={false}
+                    tick={{ fontSize: 11, fill: "var(--text-muted)" }}
+                    tickLine={false}
+                    axisLine={false}
+                    width={36}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      borderRadius: 12,
+                      border: "1px solid var(--border)",
+                      fontSize: 12,
+                    }}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="profileViews"
+                    name="Views"
+                    stroke="#0B2545"
+                    fill="url(#trainerViewsGradient)"
+                    strokeWidth={2}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
           ) : (
-            <div className="h-[260px] flex items-center justify-center text-sm text-[var(--text-muted)]">
+            <div className="h-[240px] lg:h-[260px] flex items-center justify-center text-sm text-[var(--text-muted)]">
               No views recorded for this period yet.
             </div>
           )}
         </div>
 
-        <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-5">
+        <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-4 sm:p-5 min-w-0 max-lg:overflow-x-auto">
           <h3 className="font-heading font-bold text-[var(--text)] mb-1">
             Clicks Over Time
           </h3>
@@ -215,61 +217,63 @@ export function TrainerAnalyticsSection({
             WhatsApp, phone & email ({totalClicks.toLocaleString()} total)
           </p>
           {chartData.length > 0 ? (
-            <ResponsiveContainer width="100%" height={260}>
-              <BarChart
-                layout="vertical"
-                data={chartData}
-                margin={{ left: 4, right: 16, top: 4, bottom: 4 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" horizontal={false} />
-                <XAxis
-                  type="number"
-                  allowDecimals={false}
-                  tick={{ fontSize: 11, fill: "var(--text-muted)" }}
-                  tickLine={false}
-                  axisLine={false}
-                />
-                <YAxis
-                  type="category"
-                  dataKey="label"
-                  tick={{ fontSize: 11, fill: "var(--text-muted)" }}
-                  tickLine={false}
-                  axisLine={false}
-                  width={52}
-                />
-                <Tooltip
-                  contentStyle={{
-                    borderRadius: 12,
-                    border: "1px solid var(--border)",
-                    fontSize: 12,
-                  }}
-                />
-                <Legend wrapperStyle={{ fontSize: 12 }} />
-                <Bar
-                  dataKey="whatsappClicks"
-                  name="WhatsApp"
-                  fill="#25D366"
-                  radius={[0, 4, 4, 0]}
-                  barSize={10}
-                />
-                <Bar
-                  dataKey="phoneClicks"
-                  name="Phone"
-                  fill="#FF6A3D"
-                  radius={[0, 4, 4, 0]}
-                  barSize={10}
-                />
-                <Bar
-                  dataKey="contactClicks"
-                  name="Email"
-                  fill="#3B82F6"
-                  radius={[0, 4, 4, 0]}
-                  barSize={10}
-                />
-              </BarChart>
-            </ResponsiveContainer>
+            <div className="min-w-[280px]">
+              <ResponsiveContainer width="100%" height={240}>
+                <BarChart
+                  layout="vertical"
+                  data={chartData}
+                  margin={{ left: 4, right: 16, top: 4, bottom: 4 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" horizontal={false} />
+                  <XAxis
+                    type="number"
+                    allowDecimals={false}
+                    tick={{ fontSize: 11, fill: "var(--text-muted)" }}
+                    tickLine={false}
+                    axisLine={false}
+                  />
+                  <YAxis
+                    type="category"
+                    dataKey="label"
+                    tick={{ fontSize: 11, fill: "var(--text-muted)" }}
+                    tickLine={false}
+                    axisLine={false}
+                    width={52}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      borderRadius: 12,
+                      border: "1px solid var(--border)",
+                      fontSize: 12,
+                    }}
+                  />
+                  <Legend wrapperStyle={{ fontSize: 12 }} />
+                  <Bar
+                    dataKey="whatsappClicks"
+                    name="WhatsApp"
+                    fill="#25D366"
+                    radius={[0, 4, 4, 0]}
+                    barSize={10}
+                  />
+                  <Bar
+                    dataKey="phoneClicks"
+                    name="Phone"
+                    fill="#FF6A3D"
+                    radius={[0, 4, 4, 0]}
+                    barSize={10}
+                  />
+                  <Bar
+                    dataKey="contactClicks"
+                    name="Email"
+                    fill="#3B82F6"
+                    radius={[0, 4, 4, 0]}
+                    barSize={10}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
           ) : (
-            <div className="h-[260px] flex items-center justify-center text-sm text-[var(--text-muted)]">
+            <div className="h-[240px] lg:h-[260px] flex items-center justify-center text-sm text-[var(--text-muted)]">
               No clicks recorded for this period yet.
             </div>
           )}

@@ -57,7 +57,7 @@ export default async function TrainerDashboardPage({ searchParams }: PageProps) 
   const overviewContent = !trainer ? (
     <Link
       href="/trainer/dashboard/profile"
-      className="group block bg-[var(--card)] border border-[var(--border)] rounded-2xl p-8 text-center transition-all hover:border-[#FF6A3D]/40 hover:shadow-md hover:shadow-[#FF6A3D]/10 cursor-pointer"
+      className="group block bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6 lg:p-8 text-center transition-all hover:border-[#FF6A3D]/40 hover:shadow-md hover:shadow-[#FF6A3D]/10 cursor-pointer"
     >
       <div className="w-16 h-16 bg-[#FF6A3D]/10 rounded-2xl flex items-center justify-center mx-auto mb-4 transition-colors group-hover:bg-[#FF6A3D]/15">
         <PlusCircle className="w-8 h-8 text-[#FF6A3D]" />
@@ -75,8 +75,8 @@ export default async function TrainerDashboardPage({ searchParams }: PageProps) 
     </Link>
   ) : (
     <div className="space-y-6">
-      <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6">
-        <div className="flex items-start justify-between gap-4 flex-wrap mb-4">
+      <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-4 sm:p-6">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4 mb-4">
           <div>
             <h2 className="font-heading font-bold text-lg text-[var(--text)]">
               {trainer.fullName}
@@ -114,10 +114,10 @@ export default async function TrainerDashboardPage({ searchParams }: PageProps) 
           </p>
         )}
 
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:gap-3">
           <Link
             href="/trainer/dashboard/profile"
-            className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#0B2545] text-white text-sm font-semibold rounded-xl hover:bg-[#071832] transition-colors"
+            className="inline-flex w-full sm:w-auto items-center justify-center gap-2 px-4 py-2.5 bg-[#0B2545] text-white text-sm font-semibold rounded-xl hover:bg-[#071832] transition-colors"
           >
             <Edit className="w-4 h-4" />
             Edit Profile
@@ -126,7 +126,7 @@ export default async function TrainerDashboardPage({ searchParams }: PageProps) 
             <Link
               href={`/trainer/${trainer.slug}`}
               target="_blank"
-              className="inline-flex items-center gap-2 px-4 py-2.5 bg-[var(--bg)] border border-[var(--border)] text-sm font-semibold text-[var(--text)] rounded-xl hover:border-[#FF6A3D]/30 transition-colors"
+              className="inline-flex w-full sm:w-auto items-center justify-center gap-2 px-4 py-2.5 bg-[var(--bg)] border border-[var(--border)] text-sm font-semibold text-[var(--text)] rounded-xl hover:border-[#FF6A3D]/30 transition-colors"
             >
               <ExternalLink className="w-4 h-4" />
               View Public Profile
@@ -192,12 +192,12 @@ export default async function TrainerDashboardPage({ searchParams }: PageProps) 
   ) : null;
 
   return (
-    <div className="p-8 max-w-6xl mx-auto w-full">
-      <div className="mb-8">
-        <h1 className="font-heading font-bold text-2xl text-[var(--text)]">
+    <div className="p-4 sm:p-6 lg:p-8 max-w-6xl mx-auto w-full min-w-0">
+      <div className="mb-6 lg:mb-8">
+        <h1 className="font-heading font-bold text-xl lg:text-2xl text-[var(--text)]">
           Welcome, {displayName}
         </h1>
-        <p className="text-[var(--text-muted)] text-sm mt-1">
+        <p className="text-[var(--text-muted)] text-sm mt-1 break-words">
           {trainer
             ? `${specializationLabel(trainer.specialization)} · ${account.email}`
             : account.email}

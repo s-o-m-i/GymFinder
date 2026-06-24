@@ -171,7 +171,7 @@ export function TrainerAvailabilityField({
         type="button"
         onClick={addSlot}
         disabled={slots.length >= TRAINER_AVAILABILITY_MAX_SLOTS}
-        className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-[#0B2545] text-white text-sm font-semibold rounded-xl hover:bg-[#071832] transition-colors disabled:opacity-50 cursor-pointer"
+        className="inline-flex w-full sm:w-auto items-center justify-center gap-1.5 px-4 py-2.5 bg-[#0B2545] text-white text-sm font-semibold rounded-xl hover:bg-[#071832] transition-colors disabled:opacity-50 cursor-pointer"
       >
         <Plus className="w-4 h-4" />
         Add availability slot

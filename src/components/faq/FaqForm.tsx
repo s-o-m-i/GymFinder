@@ -165,11 +165,11 @@ export function FaqForm({ faq, onCancel, onSuccess, onSubmit }: FaqFormProps) {
         </span>
       </label>
 
-      <div className="flex flex-wrap gap-3 pt-1">
+      <div className="flex flex-col-reverse gap-2 sm:flex-row sm:flex-wrap sm:gap-3 pt-1">
         <button
           type="submit"
           disabled={isPending}
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#FF6A3D] text-white text-sm font-semibold rounded-xl hover:bg-[#e85528] disabled:opacity-60 transition-colors"
+          className="inline-flex w-full sm:w-auto items-center justify-center gap-2 px-5 py-2.5 bg-[#FF6A3D] text-white text-sm font-semibold rounded-xl hover:bg-[#e85528] disabled:opacity-60 transition-colors"
         >
           {isPending && <Loader2 className="w-4 h-4 animate-spin" />}
           {faq ? "Save Changes" : "Add FAQ"}
@@ -178,7 +178,7 @@ export function FaqForm({ faq, onCancel, onSuccess, onSubmit }: FaqFormProps) {
           type="button"
           onClick={onCancel}
           disabled={isPending}
-          className="px-5 py-2.5 text-sm font-semibold text-[var(--text-muted)] hover:text-[var(--text)] transition-colors"
+          className="w-full sm:w-auto px-5 py-2.5 text-sm font-semibold text-[var(--text-muted)] hover:text-[var(--text)] transition-colors"
         >
           Cancel
         </button>

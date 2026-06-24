@@ -305,7 +305,7 @@ export function TrainerProfileForm({ trainer, accountEmail }: TrainerProfileForm
       <button
         type="submit"
         disabled={loading}
-        className="inline-flex items-center gap-2 px-6 py-3 bg-[#FF6A3D] text-white font-semibold text-sm rounded-xl hover:bg-[#e85528] disabled:opacity-70"
+        className="inline-flex w-full sm:w-auto items-center justify-center gap-2 px-6 py-3 bg-[#FF6A3D] text-white font-semibold text-sm rounded-xl hover:bg-[#e85528] disabled:opacity-70"
       >
         {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
         Save profile

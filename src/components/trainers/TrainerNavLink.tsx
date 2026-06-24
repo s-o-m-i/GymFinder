@@ -9,9 +9,10 @@ interface TrainerNavLinkProps {
   icon: React.ReactNode;
   label: string;
   exact?: boolean;
+  onNavigate?: () => void;
 }
 
-export function TrainerNavLink({ href, icon, label, exact = false }: TrainerNavLinkProps) {
+export function TrainerNavLink({ href, icon, label, exact = false, onNavigate }: TrainerNavLinkProps) {
   const pathname = usePathname();
   const isActive = exact
     ? pathname === href
@@ -20,6 +21,7 @@ export function TrainerNavLink({ href, icon, label, exact = false }: TrainerNavL
   return (
     <Link
       href={href}
+      onClick={onNavigate}
       className={cn(
         "flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors",
         isActive

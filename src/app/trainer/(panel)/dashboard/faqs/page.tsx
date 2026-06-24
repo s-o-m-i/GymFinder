@@ -42,11 +42,11 @@ export default async function TrainerFaqsPage() {
   const trainer = account.trainer;
 
   return (
-    <div className="p-8 max-w-3xl mx-auto w-full">
-      <div className="mb-8">
+    <div className="p-4 sm:p-6 lg:p-8 max-w-3xl mx-auto w-full min-w-0">
+      <div className="mb-6 lg:mb-8">
         <div className="flex items-center gap-2 mb-2">
-          <HelpCircle className="w-6 h-6 text-[#FF6A3D]" />
-          <h1 className="font-heading font-bold text-2xl text-[var(--text)]">FAQs</h1>
+          <HelpCircle className="w-6 h-6 text-[#FF6A3D] shrink-0" />
+          <h1 className="font-heading font-bold text-xl lg:text-2xl text-[var(--text)]">FAQs</h1>
         </div>
         <p className="text-[var(--text-muted)] text-sm">
           Add questions and answers that appear on your public trainer profile.
@@ -54,7 +54,7 @@ export default async function TrainerFaqsPage() {
       </div>
 
       {!trainer ? (
-        <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-8 text-center">
+        <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6 lg:p-8 text-center">
           <div className="w-14 h-14 bg-[#FF6A3D]/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <PlusCircle className="w-7 h-7 text-[#FF6A3D]" />
           </div>
