@@ -74,7 +74,7 @@ export function OwnerRegisterForm() {
         return;
       }
 
-      if (data.requiresVerification) {
+      if (data.requiresVerification || data.success) {
         if (data.devVerificationUrl) {
           sessionStorage.setItem("owner_dev_verification_url", data.devVerificationUrl);
         }
@@ -84,8 +84,7 @@ export function OwnerRegisterForm() {
         return;
       }
 
-      router.push("/owner/dashboard");
-      router.refresh();
+      setError("Registration completed but verification is required. Check your email.");
     } catch {
       setError("Network error. Please try again.");
     } finally {

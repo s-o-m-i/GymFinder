@@ -119,6 +119,7 @@ export async function proxy(req: NextRequest) {
       pathname === "/owner/login" ||
       pathname === "/owner/register" ||
       pathname === "/owner/verify-email" ||
+      pathname.startsWith("/owner/verify-email/") ||
       pathname === "/owner/forgot-password" ||
       pathname === "/owner/reset-password" ||
       pathname.startsWith("/api/owner/login") ||

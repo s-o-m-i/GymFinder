@@ -63,7 +63,7 @@ function StatCard({
           <p className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
             {label}
           </p>
-          <p className="font-heading font-bold text-3xl text-[#0B2545] mt-2 tabular-nums">
+          <p className="font-heading font-bold text-2xl sm:text-3xl text-[#0B2545] mt-2 tabular-nums">
             {value.toLocaleString()}
           </p>
         </div>

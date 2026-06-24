@@ -13,14 +13,21 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default async function OwnerVerifyEmailPage() {
+export default async function OwnerVerifyEmailPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ pending?: string }>;
+}) {
+  const { pending } = await searchParams;
+  const isSignupFlow = pending === "1";
+
   const session = await getOwnerSession();
   if (session) {
     const owner = await prisma.gymOwner.findUnique({
       where: { id: session.ownerId },
       select: { emailVerified: true },
     });
-    if (owner?.emailVerified) {
+    if (owner?.emailVerified && !isSignupFlow) {
       redirect("/owner/dashboard");
     }
   }

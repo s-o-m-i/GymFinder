@@ -79,18 +79,18 @@ export default async function OwnerDashboardPage({ searchParams }: PageProps) {
   const statusInfo = owner.gym ? STATUS_STYLES[owner.gym.listingStatus] : null;
 
   const overviewContent = owner.gym ? (
-    <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6">
-      <div className="flex items-start justify-between gap-4 flex-wrap mb-4">
-        <div>
-          <h2 className="font-heading font-bold text-lg text-[var(--text)]">{owner.gym.name}</h2>
-          <p className="text-sm text-[var(--text-muted)] mt-0.5">
+    <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-4 sm:p-6">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4 mb-4">
+        <div className="min-w-0">
+          <h2 className="font-heading font-bold text-base sm:text-lg text-[var(--text)] break-words">{owner.gym.name}</h2>
+          <p className="text-sm text-[var(--text-muted)] mt-0.5 break-words">
             {gymTypeLabel(owner.gym.type, owner.gym.customTypeLabel)} · {owner.gym.area}, {owner.gym.city}
           </p>
         </div>
         {statusInfo && (() => {
           const StatusIcon = statusInfo.icon;
           return (
-            <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${statusInfo.className}`}>
+            <span className={`inline-flex w-fit items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border shrink-0 ${statusInfo.className}`}>
               <StatusIcon className="w-3.5 h-3.5" />
               {statusInfo.label}
             </span>
@@ -104,31 +104,31 @@ export default async function OwnerDashboardPage({ searchParams }: PageProps) {
         </p>
       )}
 
-      <div className="flex flex-wrap gap-3">
+      <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2 sm:gap-3">
         <Link
           href="/owner/gym"
-          className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#0B2545] text-white text-sm font-semibold rounded-xl hover:bg-[#071832] transition-colors"
+          className="inline-flex w-full sm:w-auto items-center justify-center gap-2 px-4 py-2.5 bg-[#0B2545] text-white text-sm font-semibold rounded-xl hover:bg-[#071832] transition-colors"
         >
           <Edit className="w-4 h-4" />
           Edit Listing
         </Link>
         <Link
           href="/owner/memberships"
-          className="inline-flex items-center gap-2 px-4 py-2.5 bg-[var(--bg)] border border-[var(--border)] text-sm font-semibold text-[var(--text)] rounded-xl hover:border-[#FF6A3D]/30 transition-colors"
+          className="inline-flex w-full sm:w-auto items-center justify-center gap-2 px-4 py-2.5 bg-[var(--bg)] border border-[var(--border)] text-sm font-semibold text-[var(--text)] rounded-xl hover:border-[#FF6A3D]/30 transition-colors"
         >
           <CreditCard className="w-4 h-4" />
           Membership Plans
         </Link>
         <Link
           href="/owner/team"
-          className="inline-flex items-center gap-2 px-4 py-2.5 bg-[var(--bg)] border border-[var(--border)] text-sm font-semibold text-[var(--text)] rounded-xl hover:border-[#FF6A3D]/30 transition-colors"
+          className="inline-flex w-full sm:w-auto items-center justify-center gap-2 px-4 py-2.5 bg-[var(--bg)] border border-[var(--border)] text-sm font-semibold text-[var(--text)] rounded-xl hover:border-[#FF6A3D]/30 transition-colors"
         >
           <Users className="w-4 h-4" />
           Team & Coaches
         </Link>
         <Link
           href="/owner/equipment"
-          className="inline-flex items-center gap-2 px-4 py-2.5 bg-[var(--bg)] border border-[var(--border)] text-sm font-semibold text-[var(--text)] rounded-xl hover:border-[#FF6A3D]/30 transition-colors"
+          className="inline-flex w-full sm:w-auto items-center justify-center gap-2 px-4 py-2.5 bg-[var(--bg)] border border-[var(--border)] text-sm font-semibold text-[var(--text)] rounded-xl hover:border-[#FF6A3D]/30 transition-colors"
         >
           <Dumbbell className="w-4 h-4" />
           Equipment
@@ -137,7 +137,7 @@ export default async function OwnerDashboardPage({ searchParams }: PageProps) {
           <Link
             href={`/gyms/${owner.gym.slug}`}
             target="_blank"
-            className="inline-flex items-center gap-2 px-4 py-2.5 bg-[var(--bg)] border border-[var(--border)] text-sm font-semibold text-[var(--text)] rounded-xl hover:border-[#FF6A3D]/30 transition-colors"
+            className="inline-flex w-full sm:w-auto items-center justify-center gap-2 px-4 py-2.5 bg-[var(--bg)] border border-[var(--border)] text-sm font-semibold text-[var(--text)] rounded-xl hover:border-[#FF6A3D]/30 transition-colors"
           >
             <ExternalLink className="w-4 h-4" />
             View Public Page
@@ -162,12 +162,12 @@ export default async function OwnerDashboardPage({ searchParams }: PageProps) {
   ) : null;
 
   return (
-    <div className="flex flex-col min-h-screen p-8 max-w-6xl mx-auto w-full">
-      <div className="mb-8">
-        <h1 className="font-heading font-bold text-2xl text-[var(--text)]">
+    <div className="flex flex-col min-h-screen p-4 sm:p-6 lg:p-8 max-w-6xl mx-auto w-full min-w-0">
+      <div className="mb-6 sm:mb-8">
+        <h1 className="font-heading font-bold text-xl sm:text-2xl text-[var(--text)] break-words">
           Welcome, {owner.name}
         </h1>
-        <p className="text-[var(--text-muted)] text-sm mt-1">
+        <p className="text-[var(--text-muted)] text-sm mt-1 break-words">
           {businessCategoryLabel(owner.businessCategory)} · {owner.email}
         </p>
       </div>
@@ -180,10 +180,10 @@ export default async function OwnerDashboardPage({ searchParams }: PageProps) {
       </div>
 
       {!owner.gym ? (
-        <div className="flex flex-1 items-center justify-center pb-12 min-h-[calc(100vh-14rem)]">
+        <div className="flex flex-1 items-center justify-center pb-8 sm:pb-12 min-h-[calc(100vh-12rem)] sm:min-h-[calc(100vh-14rem)]">
           <Link
             href="/owner/gym"
-            className="group block w-full max-w-lg mx-auto bg-[var(--card)] border border-[var(--border)] rounded-2xl p-8 text-center transition-all hover:border-[#FF6A3D]/40 hover:shadow-md hover:shadow-[#FF6A3D]/10 cursor-pointer"
+            className="group block w-full max-w-lg mx-auto bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6 sm:p-8 text-center transition-all hover:border-[#FF6A3D]/40 hover:shadow-md hover:shadow-[#FF6A3D]/10 cursor-pointer"
           >
             <div className="w-16 h-16 bg-[#FF6A3D]/10 rounded-2xl flex items-center justify-center mx-auto mb-4 transition-colors group-hover:bg-[#FF6A3D]/15">
               <PlusCircle className="w-8 h-8 text-[#FF6A3D]" />

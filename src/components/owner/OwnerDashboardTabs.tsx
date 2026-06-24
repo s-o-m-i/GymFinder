@@ -46,7 +46,7 @@ export function OwnerDashboardTabs({
     <div className="space-y-6">
       {showAnalytics && (
         <div
-          className="inline-flex p-1 bg-[var(--bg)] border border-[var(--border)] rounded-xl"
+          className="flex w-full sm:inline-flex sm:w-auto p-1 bg-[var(--bg)] border border-[var(--border)] rounded-xl overflow-x-auto"
           role="tablist"
           aria-label="Dashboard sections"
         >
@@ -58,7 +58,7 @@ export function OwnerDashboardTabs({
               aria-selected={currentTab === id}
               onClick={() => setTab(id)}
               className={cn(
-                "inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors cursor-pointer",
+                "inline-flex flex-1 sm:flex-none items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-sm font-semibold transition-colors cursor-pointer whitespace-nowrap",
                 currentTab === id
                   ? "bg-[#0B2545] text-white shadow-sm"
                   : "text-[var(--text-muted)] hover:text-[var(--text)]"
