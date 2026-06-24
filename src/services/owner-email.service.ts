@@ -4,7 +4,6 @@ import { getResendClient, getEmailFromAddress } from "@/lib/resend";
 import { SITE_NAME } from "@/lib/constants";
 import {
   buildOwnerPasswordResetUrl,
-  buildOwnerVerificationUrl,
 } from "@/lib/email-dev";
 
 function emailShell(title: string, bodyHtml: string) {
@@ -53,21 +52,20 @@ function assertResendSuccess(
   }
 }
 
-export async function sendOwnerVerificationEmail(input: {
+export async function sendOwnerVerificationOtpEmail(input: {
   to: string;
   name: string;
-  token: string;
+  code: string;
 }) {
-  const verifyUrl = buildOwnerVerificationUrl(input.token);
   const html = emailShell(
     "Verify your email",
     `
       <p style="margin:0 0 12px;font-size:15px;line-height:1.6;color:#374151;">Hi ${input.name},</p>
       <p style="margin:0 0 12px;font-size:15px;line-height:1.6;color:#374151;">
-        Thanks for registering on ${SITE_NAME}. Please confirm your email address to access your owner dashboard.
+        Thanks for registering on ${SITE_NAME}. Enter this code on the verification page to activate your owner account.
       </p>
-      ${actionButton("Verify Email", verifyUrl)}
-      <p style="margin:0;font-size:13px;line-height:1.6;color:#6b7280;">This link expires in 24 hours.</p>
+      <p style="margin:0 0 8px;font-size:32px;font-weight:700;letter-spacing:0.25em;color:#0B2545;font-family:monospace;">${input.code}</p>
+      <p style="margin:0;font-size:13px;line-height:1.6;color:#6b7280;">This code expires in 10 minutes.</p>
     `
   );
 
@@ -75,7 +73,7 @@ export async function sendOwnerVerificationEmail(input: {
   const result = await resend.emails.send({
     from: getEmailFromAddress(),
     to: input.to,
-    subject: `Verify your ${SITE_NAME} owner account`,
+    subject: `Your ${SITE_NAME} verification code`,
     html,
   });
   assertResendSuccess(result, "Verification email failed");

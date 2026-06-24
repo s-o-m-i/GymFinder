@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { hashPassword } from "@/lib/password";
-import { createOwnerAuthToken } from "@/lib/owner-auth-tokens";
-import { sendOwnerVerificationEmail } from "@/services/owner-email.service";
+import { createOwnerEmailOtp } from "@/lib/owner-auth-tokens";
+import { sendOwnerVerificationOtpEmail } from "@/services/owner-email.service";
 import {
-  buildOwnerVerificationUrl,
   formatOwnerEmailError,
   isDevEmailLinksEnabled,
   isResendRecipientRestrictionError,
@@ -70,15 +69,14 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    const token = await createOwnerAuthToken(owner.id, "EMAIL_VERIFICATION");
-    const verificationUrl = buildOwnerVerificationUrl(token);
-    logDevEmailLink("Owner verification link", verificationUrl);
+    const otpCode = await createOwnerEmailOtp(owner.id);
+    logDevEmailLink("Owner verification OTP", `Code: ${otpCode} for ${owner.email}`);
 
     try {
-      await sendOwnerVerificationEmail({
+      await sendOwnerVerificationOtpEmail({
         to: owner.email,
         name: owner.name,
-        token,
+        code: otpCode,
       });
     } catch (emailError) {
       console.error("Failed to send verification email:", emailError);
@@ -93,7 +91,7 @@ export async function POST(req: NextRequest) {
           success: true,
           requiresVerification: true,
           email: owner.email,
-          devVerificationUrl: verificationUrl,
+          devOtpCode: otpCode,
         });
       }
 

@@ -75,8 +75,8 @@ export function OwnerRegisterForm() {
       }
 
       if (data.requiresVerification || data.success) {
-        if (data.devVerificationUrl) {
-          sessionStorage.setItem("owner_dev_verification_url", data.devVerificationUrl);
+        if (data.devOtpCode) {
+          sessionStorage.setItem("owner_dev_otp", data.devOtpCode);
         }
         router.push(
           `/owner/verify-email?email=${encodeURIComponent(data.email ?? form.email)}&pending=1`

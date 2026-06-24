@@ -41,7 +41,7 @@ function LoginFormInner() {
         if (data.requiresVerification && data.email) {
           setUnverifiedEmail(data.email);
           setError(
-            `The account for ${data.email} is not verified yet. Use the link from signup, or request a new one below.`
+            `The account for ${data.email} is not verified yet. Enter the code from your email, or request a new one below.`
           );
           return;
         }
@@ -120,12 +120,12 @@ function LoginFormInner() {
               </div>
               {unverifiedEmail && (
                 <p className="text-xs pl-6 text-red-100/90">
-                  Lost the link?{" "}
+                  Lost the code?{" "}
                   <Link
-                    href={`/owner/verify-email?email=${encodeURIComponent(unverifiedEmail)}`}
+                    href={`/owner/verify-email?email=${encodeURIComponent(unverifiedEmail)}&pending=1`}
                     className="font-semibold text-[#FF6A3D] hover:underline"
                   >
-                    Request a new verification link
+                    Verify with OTP
                   </Link>
                 </p>
               )}

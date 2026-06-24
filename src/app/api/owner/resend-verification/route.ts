@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { ownerResendVerificationSchema } from "@/lib/validations/owner-auth";
-import { createOwnerAuthToken } from "@/lib/owner-auth-tokens";
-import { sendOwnerVerificationEmail } from "@/services/owner-email.service";
+import { createOwnerEmailOtp } from "@/lib/owner-auth-tokens";
+import { sendOwnerVerificationOtpEmail } from "@/services/owner-email.service";
 import {
-  buildOwnerVerificationUrl,
   formatOwnerEmailError,
   isDevEmailLinksEnabled,
   isResendRecipientRestrictionError,
@@ -26,7 +25,7 @@ export async function POST(req: NextRequest) {
     if (!owner) {
       return NextResponse.json({
         success: true,
-        message: "If an unverified account exists, a verification email has been sent.",
+        message: "If an unverified account exists, a verification code has been sent.",
       });
     }
 
@@ -37,15 +36,14 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const token = await createOwnerAuthToken(owner.id, "EMAIL_VERIFICATION");
-    const verificationUrl = buildOwnerVerificationUrl(token);
-    logDevEmailLink("Owner verification link", verificationUrl);
+    const otpCode = await createOwnerEmailOtp(owner.id);
+    logDevEmailLink("Owner verification OTP", `Code: ${otpCode} for ${owner.email}`);
 
     try {
-      await sendOwnerVerificationEmail({
+      await sendOwnerVerificationOtpEmail({
         to: owner.email,
         name: owner.name,
-        token,
+        code: otpCode,
       });
     } catch (emailError) {
       console.error("POST /api/owner/resend-verification email error:", emailError);
@@ -58,8 +56,8 @@ export async function POST(req: NextRequest) {
       ) {
         return NextResponse.json({
           success: true,
-          message: "Resend test mode: use the verification link below.",
-          devVerificationUrl: verificationUrl,
+          message: "Resend test mode: use the verification code below.",
+          devOtpCode: otpCode,
         });
       }
 
@@ -71,12 +69,12 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: "Verification email sent.",
+      message: "Verification code sent. Check your inbox.",
     });
   } catch (error) {
     console.error("POST /api/owner/resend-verification error:", error);
     return NextResponse.json(
-      { error: "Could not send verification email." },
+      { error: "Could not send verification code." },
       { status: 500 }
     );
   }

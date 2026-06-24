@@ -7,10 +7,6 @@ export function isDevEmailLinksEnabled(): boolean {
   );
 }
 
-export function buildOwnerVerificationUrl(token: string): string {
-  return `${getAppBaseUrl()}/owner/verify-email/confirm?token=${encodeURIComponent(token)}`;
-}
-
 export function buildOwnerPasswordResetUrl(token: string): string {
   return `${getAppBaseUrl()}/owner/reset-password?token=${encodeURIComponent(token)}`;
 }
