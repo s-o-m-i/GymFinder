@@ -7,14 +7,14 @@ import { TrainerProfileForm } from "@/components/trainers/TrainerProfileForm";
 
 export default async function TrainerProfileEditPage() {
   const session = await getTrainerSession();
-  if (!session) redirect("/trainer/auth");
+  if (!session) redirect("/trainer/login");
 
   const account = await prisma.trainerAccount.findUnique({
     where: { id: session.accountId },
     include: { trainer: true },
   });
 
-  if (!account) redirect("/trainer/auth");
+  if (!account) redirect("/trainer/login");
 
   return (
     <div className="p-8 max-w-6xl">

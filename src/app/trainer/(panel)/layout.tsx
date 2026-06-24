@@ -28,7 +28,7 @@ export default async function TrainerPanelLayout({
   children: React.ReactNode;
 }) {
   const session = await getTrainerSession();
-  if (!session) redirect("/trainer/auth?from=/trainer/dashboard");
+  if (!session) redirect("/trainer/login?from=/trainer/dashboard");
 
   const account = await prisma.trainerAccount.findUnique({
     where: { id: session.accountId },
@@ -44,12 +44,18 @@ export default async function TrainerPanelLayout({
     },
   });
 
-  if (!account) redirect("/trainer/auth");
+  if (!account) redirect("/trainer/login");
+
+  if (!account.emailVerified) {
+    redirect(
+      `/trainer/verify-email?email=${encodeURIComponent(account.email)}&pending=1`
+    );
+  }
 
   const trainer = account.trainer;
   const roleLabel = trainer
     ? specializationLabel(trainer.specialization)
-    : "Trainer Account";
+    : account.name ?? "Trainer Account";
 
   return (
     <div className="min-h-screen bg-[var(--bg)]">

@@ -155,6 +155,10 @@ export async function proxy(req: NextRequest) {
   if (pathname.startsWith("/trainer")) {
     const isPublicTrainer =
       pathname === "/trainer/auth" ||
+      pathname === "/trainer/login" ||
+      pathname === "/trainer/register" ||
+      pathname === "/trainer/verify-email" ||
+      pathname.startsWith("/trainer/verify-email/") ||
       pathname.startsWith("/api/trainer/auth/") ||
       (/^\/trainer\/[^/]+$/.test(pathname) &&
         pathname !== "/trainer/dashboard" &&
@@ -167,14 +171,14 @@ export async function proxy(req: NextRequest) {
     if (pathname.startsWith("/trainer/dashboard") || pathname.startsWith("/api/trainer/me")) {
       const token = req.cookies.get(TRAINER_COOKIE_NAME)?.value;
       if (!token) {
-        const authUrl = new URL("/trainer/auth", req.url);
+        const authUrl = new URL("/trainer/login", req.url);
         authUrl.searchParams.set("from", pathname);
         return attachAnalyticsSession(req, NextResponse.redirect(authUrl));
       }
       if (await verifyTrainerToken(token)) {
         return attachAnalyticsSession(req, NextResponse.next());
       }
-      const authUrl = new URL("/trainer/auth", req.url);
+      const authUrl = new URL("/trainer/login", req.url);
       const res = NextResponse.redirect(authUrl);
       res.cookies.set(TRAINER_COOKIE_NAME, "", { maxAge: 0, path: "/" });
       return attachAnalyticsSession(req, res);

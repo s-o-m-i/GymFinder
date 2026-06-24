@@ -109,7 +109,7 @@ export function Navbar({ variant }: { variant?: "default" | "hero" }) {
               List your gym
             </Link>
             <Link
-              href="/trainer/auth"
+              href="/trainer/register"
               className={cn(
                 "hidden sm:inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-xl transition-colors",
                 isHero
@@ -186,7 +186,7 @@ export function Navbar({ variant }: { variant?: "default" | "hero" }) {
                 List your gym
               </Link>
               <Link
-                href="/trainer/auth"
+                href="/trainer/register"
                 onClick={() => setMobileOpen(false)}
                 className={cn(
                   "flex items-center justify-center gap-1.5 px-4 py-2.5 text-sm font-semibold rounded-xl transition-colors",

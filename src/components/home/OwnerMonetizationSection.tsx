@@ -52,7 +52,7 @@ export function OwnerMonetizationSection() {
               Register Your Gym
             </Link>
             <Link
-              href="/trainer/auth"
+              href="/trainer/register"
               className="inline-flex items-center justify-center rounded-2xl border-2 border-white/25 px-8 py-3.5 text-sm font-bold text-white transition-colors hover:bg-white/10"
             >
               List as Trainer

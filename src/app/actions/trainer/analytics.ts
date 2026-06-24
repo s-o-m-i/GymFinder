@@ -23,7 +23,7 @@ export type TrainerAnalyticsData = {
 
 async function requireTrainerProfile() {
   const session = await getTrainerSession();
-  if (!session) redirect("/trainer/auth");
+  if (!session) redirect("/trainer/login");
 
   const account = await prisma.trainerAccount.findUnique({
     where: { id: session.accountId },

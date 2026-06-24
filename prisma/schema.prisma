@@ -62,6 +62,8 @@ enum AnalyticsEventType {
 
 enum TrainerAuthTokenType {
   EMAIL_OTP
+  EMAIL_VERIFICATION
+  PASSWORD_RESET
 }
 
 enum TrainerLeadEventType {
@@ -329,13 +331,17 @@ model GymAnalyticsEvent {
 }
 
 model TrainerAccount {
-  id            String             @id @default(cuid())
-  email         String             @unique
-  emailVerified Boolean            @default(false)
-  createdAt     DateTime           @default(now())
-  updatedAt     DateTime           @updatedAt
-  trainer       Trainer?
-  authTokens    TrainerAuthToken[]
+  id              String             @id @default(cuid())
+  email           String             @unique
+  passwordHash    String?
+  name            String?
+  phone           String?
+  emailVerified   Boolean            @default(false)
+  emailVerifiedAt DateTime?
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  trainer         Trainer?
+  authTokens      TrainerAuthToken[]
 
   @@index([emailVerified])
 }

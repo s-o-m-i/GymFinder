@@ -34,14 +34,14 @@ function parseTab(tab: string | undefined): DashboardTab {
 
 export default async function TrainerDashboardPage({ searchParams }: PageProps) {
   const session = await getTrainerSession();
-  if (!session) redirect("/trainer/auth");
+  if (!session) redirect("/trainer/login");
 
   const account = await prisma.trainerAccount.findUnique({
     where: { id: session.accountId },
     include: { trainer: true },
   });
 
-  if (!account) redirect("/trainer/auth");
+  if (!account) redirect("/trainer/login");
 
   const trainer = account.trainer;
   const displayName = trainer?.fullName ?? account.email.split("@")[0];

@@ -75,7 +75,7 @@ export async function TrainersListingPage({ searchParams, city }: TrainersListin
             </p>
             <div className="mt-4">
               <Link
-                href="/trainer/auth"
+                href="/trainer/register"
                 className="inline-flex items-center px-4 py-2 bg-[#FF6A3D] text-white text-sm font-semibold rounded-xl hover:bg-[#e85528]"
               >
                 Join as a Trainer

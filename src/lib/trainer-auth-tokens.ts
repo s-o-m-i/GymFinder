@@ -20,6 +20,61 @@ export function generateOtpCode(): string {
   return String(randomInt(100000, 999999));
 }
 
+export async function createTrainerVerificationOtp(accountId: string): Promise<string> {
+  const code = generateOtpCode();
+  const tokenHash = hashTrainerAuthToken(code);
+  const expiresAt = new Date(Date.now() + OTP_TTL_MINUTES * 60 * 1000);
+
+  await prisma.$transaction([
+    prisma.trainerAuthToken.updateMany({
+      where: { accountId, type: "EMAIL_VERIFICATION", usedAt: null },
+      data: { usedAt: new Date() },
+    }),
+    prisma.trainerAuthToken.create({
+      data: {
+        accountId,
+        tokenHash,
+        type: "EMAIL_VERIFICATION",
+        expiresAt,
+      },
+    }),
+  ]);
+
+  return code;
+}
+
+export async function verifyTrainerVerificationOtp(email: string, code: string) {
+  const normalized = email.trim().toLowerCase();
+  const account = await prisma.trainerAccount.findUnique({
+    where: { email: normalized },
+    include: { trainer: { select: { id: true } } },
+  });
+  if (!account) return null;
+
+  const tokenHash = hashTrainerAuthToken(code.trim());
+  const now = new Date();
+
+  const record = await prisma.trainerAuthToken.findFirst({
+    where: {
+      accountId: account.id,
+      tokenHash,
+      type: "EMAIL_VERIFICATION",
+      usedAt: null,
+      expiresAt: { gt: now },
+    },
+  });
+
+  if (!record) return null;
+
+  await prisma.trainerAuthToken.update({
+    where: { id: record.id },
+    data: { usedAt: now },
+  });
+
+  return account;
+}
+
+/** @deprecated Legacy passwordless login OTP */
 export async function createTrainerOtp(accountId: string): Promise<string> {
   const code = generateOtpCode();
   const tokenHash = hashTrainerAuthToken(code);

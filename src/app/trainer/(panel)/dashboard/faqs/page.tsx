@@ -34,10 +34,10 @@ async function getTrainerFaqData(accountId: string) {
 
 export default async function TrainerFaqsPage() {
   const session = await getTrainerSession();
-  if (!session) redirect("/trainer/auth");
+  if (!session) redirect("/trainer/login");
 
   const account = await getTrainerFaqData(session.accountId);
-  if (!account) redirect("/trainer/auth");
+  if (!account) redirect("/trainer/login");
 
   const trainer = account.trainer;
 

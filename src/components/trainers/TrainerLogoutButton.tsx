@@ -7,7 +7,7 @@ export function TrainerLogoutButton() {
 
   async function handleLogout() {
     await fetch("/api/trainer/auth/logout", { method: "POST", credentials: "include" });
-    router.push("/trainer/auth");
+    router.push("/trainer/login");
     router.refresh();
   }
 
