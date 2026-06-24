@@ -63,7 +63,7 @@ export function HeroSection({ stats }: HeroSectionProps) {
       {/* Background */}
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: "url(/images/Hero_Bg.png)" }}
+        style={{ backgroundImage: "url(/images/Hero_Bg.jpg)" }}
         aria-hidden
       />
       <div className="absolute inset-0 bg-[#050d18]/55" aria-hidden />
