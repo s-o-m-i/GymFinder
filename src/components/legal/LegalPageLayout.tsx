@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Navbar } from "@/components/layout/Navbar";
+import { NavbarWithSuspense } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { LEGAL_LAST_UPDATED, LEGAL_PAGES } from "@/lib/legal";
 import { cn } from "@/lib/utils";
@@ -19,7 +19,7 @@ export function LegalPageLayout({
 }: LegalPageLayoutProps) {
   return (
     <>
-      <Navbar />
+      <NavbarWithSuspense />
       <main className="min-h-screen bg-[var(--bg)]">
         <div className="border-b border-[var(--border)] bg-[var(--card)]">
           <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-12">

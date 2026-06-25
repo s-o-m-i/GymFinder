@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { FileText, Shield, Cookie, AlertTriangle, Scale } from "lucide-react";
-import { Navbar } from "@/components/layout/Navbar";
+import { NavbarWithSuspense } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { LEGAL_INTRO, LEGAL_LAST_UPDATED, LEGAL_PAGES } from "@/lib/legal";
 import { SITE_NAME } from "@/lib/constants";
@@ -23,7 +23,7 @@ const ICONS = {
 export default function LegalIndexPage() {
   return (
     <>
-      <Navbar />
+      <NavbarWithSuspense />
       <main className="min-h-screen bg-[var(--bg)]">
         <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8 lg:py-20">
           <div className="mx-auto max-w-3xl text-center">
