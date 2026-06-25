@@ -125,11 +125,11 @@ export function OwnerPanelShell({ session, children }: OwnerPanelShellProps) {
 
         {session && (
           <div className="border-b border-white/10 px-4 py-3">
-            <div className="flex items-center gap-2 text-xs">
+            <div className="flex items-center gap-2.5 px-3 text-xs">
               {session.businessCategory === "fighting_club" ? (
-                <Swords className="h-3.5 w-3.5 shrink-0 text-[#FF6A3D]" />
+                <Swords className="w-4 h-4 shrink-0 text-[#FF6A3D]" />
               ) : (
-                <Building2 className="h-3.5 w-3.5 shrink-0 text-blue-300" />
+                <Building2 className="w-4 h-4 shrink-0 text-blue-300" />
               )}
               <span className="truncate text-[#8ba0b8]">
                 {businessCategoryLabel(session.businessCategory)}

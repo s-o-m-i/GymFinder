@@ -5,6 +5,8 @@ export const GYM_EQUIPMENT_ITEM_MAX_WORDS = 15;
 export type GymEquipmentItem = {
   id: string;
   name: string;
+  imageUrl?: string | null;
+  cloudinaryId?: string | null;
 };
 
 export function countEquipmentWords(text: string): number {
@@ -23,7 +25,12 @@ export function isEquipmentItemWithinLimits(text: string): boolean {
 function isEquipmentItem(value: unknown): value is GymEquipmentItem {
   if (!value || typeof value !== "object") return false;
   const item = value as GymEquipmentItem;
-  return typeof item.id === "string" && typeof item.name === "string" && item.name.trim().length > 0;
+  if (typeof item.id !== "string" || typeof item.name !== "string" || item.name.trim().length === 0) {
+    return false;
+  }
+  if (item.imageUrl != null && typeof item.imageUrl !== "string") return false;
+  if (item.cloudinaryId != null && typeof item.cloudinaryId !== "string") return false;
+  return true;
 }
 
 function legacyLinesToItems(raw: string): GymEquipmentItem[] {
@@ -43,6 +50,8 @@ export function parseGymEquipment(raw: string | null | undefined): GymEquipmentI
       return parsed.filter(isEquipmentItem).map((item) => ({
         id: item.id,
         name: item.name.trim(),
+        ...(item.imageUrl ? { imageUrl: item.imageUrl.trim() } : {}),
+        ...(item.cloudinaryId ? { cloudinaryId: item.cloudinaryId.trim() } : {}),
       }));
     }
   } catch {
@@ -54,5 +63,12 @@ export function parseGymEquipment(raw: string | null | undefined): GymEquipmentI
 
 export function serializeGymEquipment(items: GymEquipmentItem[]): string | null {
   if (items.length === 0) return null;
-  return JSON.stringify(items);
+  return JSON.stringify(
+    items.map((item) => {
+      const entry: GymEquipmentItem = { id: item.id, name: item.name.trim() };
+      if (item.imageUrl?.trim()) entry.imageUrl = item.imageUrl.trim();
+      if (item.cloudinaryId?.trim()) entry.cloudinaryId = item.cloudinaryId.trim();
+      return entry;
+    })
+  );
 }

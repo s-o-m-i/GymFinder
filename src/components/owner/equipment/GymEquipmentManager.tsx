@@ -12,7 +12,10 @@ import {
   Save,
   X,
 } from "lucide-react";
+import { ImageUploader } from "@/components/admin/ImageUploader";
+import { EquipmentItemImageCell } from "@/components/owner/equipment/EquipmentItemImageCell";
 import { updateGymEquipment } from "@/app/actions/owner/gym-equipment";
+import type { UploadedImage } from "@/lib/gym-images-form";
 import {
   GYM_EQUIPMENT_ITEM_MAX_CHARS,
   GYM_EQUIPMENT_ITEM_MAX_WORDS,
@@ -35,6 +38,7 @@ export function GymEquipmentManager({ gymName, initialItems }: GymEquipmentManag
   const router = useRouter();
   const [items, setItems] = useState(initialItems);
   const [draft, setDraft] = useState("");
+  const [draftImage, setDraftImage] = useState<UploadedImage[]>([]);
   const [draftError, setDraftError] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -47,6 +51,10 @@ export function GymEquipmentManager({ gymName, initialItems }: GymEquipmentManag
   const charCount = draft.length;
   const wordCount = countEquipmentWords(draft);
   const atMaxItems = items.length >= GYM_EQUIPMENT_MAX_ITEMS;
+  const imageUploading = draftImage.some(
+    (img) => img.status === "uploading" || img.status === "pending"
+  );
+  const uploadedDraftImage = draftImage.find((img) => img.status === "uploaded");
 
   function handleDraftChange(value: string) {
     if (value.length > GYM_EQUIPMENT_ITEM_MAX_CHARS) return;
@@ -72,9 +80,22 @@ export function GymEquipmentManager({ gymName, initialItems }: GymEquipmentManag
       setDraftError(`Maximum ${GYM_EQUIPMENT_MAX_ITEMS} items allowed.`);
       return;
     }
+    if (imageUploading) {
+      setDraftError("Please wait for the photo upload to finish.");
+      return;
+    }
 
-    setItems((prev) => [...prev, { id: crypto.randomUUID(), name }]);
+    setItems((prev) => [
+      ...prev,
+      {
+        id: crypto.randomUUID(),
+        name,
+        imageUrl: uploadedDraftImage?.imageUrl ?? null,
+        cloudinaryId: uploadedDraftImage?.publicId ?? null,
+      },
+    ]);
     setDraft("");
+    setDraftImage([]);
     setDraftError(null);
     setSuccessMessage(null);
   }
@@ -92,6 +113,15 @@ export function GymEquipmentManager({ gymName, initialItems }: GymEquipmentManag
     const [item] = reordered.splice(index, 1);
     reordered.splice(targetIndex, 0, item);
     setItems(reordered);
+    setSuccessMessage(null);
+  }
+
+  function updateItemImage(id: string, imageUrl: string | null, cloudinaryId: string | null) {
+    setItems((prev) =>
+      prev.map((item) =>
+        item.id === id ? { ...item, imageUrl, cloudinaryId } : item
+      )
+    );
     setSuccessMessage(null);
   }
 
@@ -129,7 +159,7 @@ export function GymEquipmentManager({ gymName, initialItems }: GymEquipmentManag
           </span>
         </label>
 
-        <div className="flex gap-2">
+        <div className="flex flex-col gap-2 sm:flex-row">
           <input
             type="text"
             value={draft}
@@ -147,13 +177,27 @@ export function GymEquipmentManager({ gymName, initialItems }: GymEquipmentManag
           <button
             type="button"
             onClick={addItem}
-            disabled={atMaxItems || !draft.trim()}
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-[#FF6A3D] text-white text-sm font-semibold rounded-xl hover:bg-[#e85528] transition-colors disabled:opacity-50 shrink-0"
+            disabled={atMaxItems || !draft.trim() || imageUploading}
+            className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-[#FF6A3D] text-white text-sm font-semibold rounded-xl hover:bg-[#e85528] transition-colors disabled:opacity-50 shrink-0"
           >
             <Plus className="w-4 h-4" />
             Add
           </button>
         </div>
+
+        <ImageUploader
+          label="Equipment Photo (optional)"
+          description="Add a photo so visitors can see this equipment on your gym page."
+          images={draftImage}
+          onChange={setDraftImage}
+          multiple={false}
+          maxImages={1}
+          uploadType="equipment"
+          authMode="cookie"
+          previewAspect="square"
+          fullWidth
+          className="w-full"
+        />
 
         <p className="text-xs text-[var(--text-muted)]">
           {wordCount} / {GYM_EQUIPMENT_ITEM_MAX_WORDS} words · {charCount} /{" "}
@@ -190,10 +234,20 @@ export function GymEquipmentManager({ gymName, initialItems }: GymEquipmentManag
           {items.map((item, index) => (
             <li
               key={item.id}
-              className="flex items-center gap-3 p-3 bg-white border border-[var(--border)] rounded-xl"
+              className="flex items-center gap-3 p-3 bg-white border border-[var(--border)] rounded-xl min-w-0"
             >
               <Dumbbell className="w-4 h-4 text-[#FF6A3D] shrink-0" />
-              <span className="flex-1 text-sm font-medium text-[var(--text)]">{item.name}</span>
+              <span className="flex-1 min-w-0 text-sm font-medium text-[var(--text)] truncate">
+                {item.name}
+              </span>
+              <EquipmentItemImageCell
+                name={item.name}
+                imageUrl={item.imageUrl}
+                disabled={isPending}
+                onChange={(imageUrl, cloudinaryId) =>
+                  updateItemImage(item.id, imageUrl, cloudinaryId)
+                }
+              />
               <div className="flex items-center gap-1 shrink-0">
                 <button
                   type="button"

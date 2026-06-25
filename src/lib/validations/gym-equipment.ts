@@ -25,6 +25,8 @@ const equipmentItemSchema = z.object({
         });
       }
     }),
+  imageUrl: z.string().url().nullish(),
+  cloudinaryId: z.string().nullish(),
 });
 
 export const gymEquipmentSchema = z

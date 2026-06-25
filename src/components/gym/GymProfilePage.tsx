@@ -16,7 +16,7 @@ import { MembershipPlansSection } from "@/components/gym/MembershipPlansSection"
 import { MeetOurTeamSectionLazy } from "@/components/gym/MeetOurTeamSectionLazy";
 import { FaqAccordionSection } from "@/components/faq/FaqAccordionSection";
 import { GymEquipmentSection } from "@/components/gym/GymEquipmentSection";
-import { GymEventsSection } from "@/components/events/GymEventsSection";
+import { GymAboutText } from "@/components/gym/GymAboutText";
 import { getGymEvents } from "@/services/events/event.service";
 import { prisma } from "@/lib/prisma";
 import {
@@ -32,10 +32,10 @@ import {
   ExternalLink,
   Clock,
   ChevronRight,
-  User,
   CheckCircle2,
   Star,
 } from "lucide-react";
+import { GymEventsSection } from "../events/GymEventsSection";
 
 interface GymProfilePageProps {
   slug: string;
@@ -183,9 +183,7 @@ export async function GymProfilePage({ slug }: GymProfilePageProps) {
 
               <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6 min-w-0 overflow-hidden">
                 <h2 className="font-heading font-bold text-lg text-[var(--text)] mb-3">About</h2>
-                <p className="text-[var(--text-muted)] leading-relaxed whitespace-pre-line break-words break-all max-w-full">
-                  {gym.description}
-                </p>
+                <GymAboutText text={gym.description} />
               </div>
 
               {disciplineNames.length > 0 && (
@@ -227,18 +225,6 @@ export async function GymProfilePage({ slug }: GymProfilePageProps) {
               )}
 
               <GymEquipmentSection equipmentRaw={gym.equipment} />
-
-              {gym.coachInfo && (
-                <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6">
-                  <h2 className="font-heading font-bold text-lg text-[var(--text)] mb-4 flex items-center gap-2">
-                    <User className="w-5 h-5 text-[#FF6A3D]" />
-                    Coach & Trainers
-                  </h2>
-                  <p className="text-[var(--text-muted)] leading-relaxed whitespace-pre-line break-words break-all max-w-full">
-                    {gym.coachInfo}
-                  </p>
-                </div>
-              )}
 
               <MeetOurTeamSectionLazy members={gym.staffMembers} />
 

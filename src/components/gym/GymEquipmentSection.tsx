@@ -1,5 +1,11 @@
+"use client";
+
+import { useState } from "react";
 import { Dumbbell } from "lucide-react";
 import { parseGymEquipment } from "@/lib/gym-equipment";
+import { EquipmentCard } from "@/components/gym/EquipmentCard";
+
+const DEFAULT_VISIBLE_COUNT = 4;
 
 interface GymEquipmentSectionProps {
   equipmentRaw: string | null;
@@ -7,8 +13,12 @@ interface GymEquipmentSectionProps {
 }
 
 export function GymEquipmentSection({ equipmentRaw, className }: GymEquipmentSectionProps) {
+  const [expanded, setExpanded] = useState(false);
   const items = parseGymEquipment(equipmentRaw);
   if (items.length === 0) return null;
+
+  const hasMore = items.length > DEFAULT_VISIBLE_COUNT;
+  const visibleItems = expanded || !hasMore ? items : items.slice(0, DEFAULT_VISIBLE_COUNT);
 
   return (
     <section className={className}>
@@ -18,16 +28,19 @@ export function GymEquipmentSection({ equipmentRaw, className }: GymEquipmentSec
           Equipment & Gear
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-          {items.map((item) => (
-            <div
-              key={item.id}
-              className="flex items-center gap-2.5 px-4 py-2.5 bg-[var(--bg)] border border-[var(--border)] rounded-xl text-sm text-[var(--text)]"
-            >
-              <Dumbbell className="w-3.5 h-3.5 text-[#FF6A3D] shrink-0" />
-              {item.name}
-            </div>
+          {visibleItems.map((item) => (
+            <EquipmentCard key={item.id} name={item.name} imageUrl={item.imageUrl} />
           ))}
         </div>
+        {hasMore && (
+          <button
+            type="button"
+            onClick={() => setExpanded((prev) => !prev)}
+            className="mt-3 text-sm font-semibold text-[#FF6A3D] hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF6A3D]/30 rounded"
+          >
+            {expanded ? "Show less" : "View all equipments"}
+          </button>
+        )}
       </div>
     </section>
   );

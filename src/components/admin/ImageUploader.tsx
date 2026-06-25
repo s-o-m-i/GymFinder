@@ -5,6 +5,10 @@ import Image from "next/image";
 import { ImagePlus, Loader2, Upload, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { UploadedImage } from "@/lib/gym-images-form";
+import {
+  uploadImageWithProgress,
+  type ClientImageUploadType,
+} from "@/lib/client-image-upload";
 
 export type { UploadedImage } from "@/lib/gym-images-form";
 
@@ -17,58 +21,15 @@ interface ImageUploaderProps {
   onChange:     (images: UploadedImage[]) => void;
   multiple?:    boolean;
   maxImages?:   number;
-  uploadType:   "cover" | "gallery" | "coach" | "coach_cert" | "event_cover" | "payment_proof";
+  uploadType:   ClientImageUploadType;
   className?:   string;
   authMode?:    "admin-secret" | "cookie";
   /** Square/portrait preview for profile photos (single upload) */
   previewAspect?: "video" | "square" | "portrait";
   centered?: boolean;
   replaceLabel?: string;
-}
-
-function uploadWithProgress(
-  file: File,
-  type: "cover" | "gallery" | "coach" | "coach_cert" | "event_cover" | "payment_proof",
-  onProgress: (pct: number) => void,
-  authMode: "admin-secret" | "cookie" = "admin-secret"
-): Promise<{ secure_url: string; public_id: string }> {
-  return new Promise((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("type", type);
-
-    xhr.upload.addEventListener("progress", (e) => {
-      if (e.lengthComputable) {
-        onProgress(Math.round((e.loaded / e.total) * 100));
-      }
-    });
-
-    xhr.addEventListener("load", () => {
-      if (xhr.status >= 200 && xhr.status < 300) {
-        try {
-          resolve(JSON.parse(xhr.responseText));
-        } catch {
-          reject(new Error("Invalid server response"));
-        }
-      } else {
-        try {
-          const err = JSON.parse(xhr.responseText);
-          reject(new Error(err.error ?? "Upload failed"));
-        } catch {
-          reject(new Error("Upload failed"));
-        }
-      }
-    });
-
-    xhr.addEventListener("error", () => reject(new Error("Network error")));
-    xhr.open("POST", "/api/admin/upload");
-    if (authMode === "admin-secret") {
-      xhr.setRequestHeader("x-admin-secret", ADMIN_SECRET);
-    }
-    xhr.withCredentials = true;
-    xhr.send(formData);
-  });
+  /** Stretch drop zone and single-image preview to container width */
+  fullWidth?: boolean;
 }
 
 export function ImageUploader({
@@ -84,6 +45,7 @@ export function ImageUploader({
   previewAspect = "video",
   centered = false,
   replaceLabel = "Replace cover image",
+  fullWidth = false,
 }: ImageUploaderProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
@@ -118,7 +80,7 @@ export function ImageUploader({
         onChange([...current]);
 
         try {
-          const result = await uploadWithProgress(file, uploadType, (pct) => {
+          const result = await uploadImageWithProgress(file, uploadType, (pct) => {
             current = current.map((img, j) =>
               j === idx ? { ...img, progress: pct } : img
             );
@@ -188,7 +150,11 @@ export function ImageUploader({
         ? "aspect-[3/4]"
         : "aspect-video";
 
-  const singlePreviewWidth = centered ? "w-full max-w-[220px] mx-auto" : "w-full max-w-2xl";
+  const singlePreviewWidth = fullWidth
+    ? "w-full"
+    : centered
+      ? "w-full max-w-[220px] mx-auto"
+      : "w-full max-w-2xl";
 
   return (
     <div className={className}>
@@ -290,7 +256,9 @@ export function ImageUploader({
           onClick={() => inputRef.current?.click()}
           className={cn(
             "flex flex-col items-center justify-center gap-2 p-8 border-2 border-dashed rounded-2xl cursor-pointer transition-colors w-full",
-            !multiple && (centered ? "max-w-[220px] mx-auto" : "max-w-2xl"),
+            !multiple &&
+              !fullWidth &&
+              (centered ? "max-w-[220px] mx-auto" : "max-w-2xl"),
             dragging
               ? "border-[#FF6A3D] bg-[#FF6A3D]/5"
               : "border-[var(--border)] hover:border-[#FF6A3D]/50 hover:bg-[var(--bg)]"

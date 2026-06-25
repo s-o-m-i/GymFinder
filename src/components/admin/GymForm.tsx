@@ -832,21 +832,23 @@ export function GymForm({
           )}
         </div>
 
-        <div className="mt-4">
-          <label className={labelClass}>
-            {ownerCopy?.coachLabel ?? "Coach Information (optional)"}
-          </label>
-          <textarea
-            rows={3}
-            value={form.coachInfo}
-            onChange={(e) => set("coachInfo", e.target.value)}
-            placeholder={
-              ownerCopy?.coachPlaceholder ??
-              "Describe the coaches, their experience, and certifications…"
-            }
-            className={`${inputClass} resize-none`}
-          />
-        </div>
+        {variant === "admin" && (
+          <div className="mt-4">
+            <label className={labelClass}>
+              {ownerCopy?.coachLabel ?? "Coach Information (optional)"}
+            </label>
+            <textarea
+              rows={3}
+              value={form.coachInfo}
+              onChange={(e) => set("coachInfo", e.target.value)}
+              placeholder={
+                ownerCopy?.coachPlaceholder ??
+                "Describe the coaches, their experience, and certifications…"
+              }
+              className={`${inputClass} resize-none`}
+            />
+          </div>
+        )}
       </SectionCard>
       )}
 

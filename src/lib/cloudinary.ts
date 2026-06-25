@@ -5,6 +5,7 @@ export const CLOUDINARY_FOLDERS = {
   root:    "gymxclubs/gyms",
   covers:  "gymxclubs/gyms/covers",
   gallery: "gymxclubs/gyms/gallery",
+  equipment: "gymxclubs/gyms/equipment",
   coaches: "gymxclubs/coaches",
   coachCerts: "gymxclubs/coaches/certifications",
   events:  "gymxclubs/events",
