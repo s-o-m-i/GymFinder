@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Dumbbell, LayoutDashboard, PlusCircle, Users, BarChart3, UserRound, Sparkles } from "lucide-react";
+import { LayoutDashboard, PlusCircle, Users, BarChart3, UserRound, Sparkles } from "lucide-react";
 import { LogoutButton } from "@/components/admin/LogoutButton";
+import { SiteLogoStack } from "@/components/layout/SiteLogo";
 
 export const metadata: Metadata = {
   title: "Admin Panel | fitnessadda PK",
@@ -14,15 +15,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {/* Sidebar */}
       <aside className="w-60 shrink-0 bg-[#0B2545] text-white flex flex-col">
         <div className="p-5 border-b border-white/10">
-          <Link href="/admin" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-[#FF6A3D] rounded-lg flex items-center justify-center">
-              <Dumbbell className="w-4 h-4 text-white" />
-            </div>
-            <div>
-              <div className="font-heading font-bold text-sm leading-tight">FitnessAdda PK</div>
-              <div className="text-xs text-[#8ba0b8]">Admin Panel</div>
-            </div>
-          </Link>
+          <SiteLogoStack
+            href="/admin"
+            size="sm"
+            caption="Admin Panel"
+            captionClassName="text-[#8ba0b8]"
+          />
         </div>
 
         <nav className="flex-1 p-4 space-y-1">

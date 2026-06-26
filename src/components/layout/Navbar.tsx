@@ -3,9 +3,9 @@
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
-import { Menu, X, Dumbbell, PlusCircle } from "lucide-react";
+import { Menu, X, PlusCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { SITE_NAME } from "@/lib/constants";
+import { SiteLogo } from "@/components/layout/SiteLogo";
 
 function isNavActive(pathname: string, href: string, searchParams: URLSearchParams) {
   const [path, queryString] = href.split("?");
@@ -57,25 +57,9 @@ export function Navbar({ variant }: { variant?: "default" | "hero" }) {
       )}
     >
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-18 sm:h-20">
           {/* Logo */}
-          <Link
-            href="/"
-            className={cn(
-              "flex items-center gap-2 font-heading font-bold text-xl",
-              isHero ? "text-white" : "text-[var(--navy)]"
-            )}
-          >
-            <div
-              className={cn(
-                "w-8 h-8 rounded-lg flex items-center justify-center",
-                isHero ? "bg-[#FF6A3D]" : "bg-[#0B2545]"
-              )}
-            >
-              <Dumbbell className={cn("w-4 h-4", isHero ? "text-white" : "text-[#FF6A3D]")} />
-            </div>
-            <span className="hidden sm:block">{SITE_NAME}</span>
-          </Link>
+          <SiteLogo size="xl" priority />
 
           {/* Desktop nav */}
           <div className="hidden md:flex items-center gap-1">
@@ -137,7 +121,7 @@ export function Navbar({ variant }: { variant?: "default" | "hero" }) {
         {/* Mobile menu — hero: fixed glass panel; default: inline dropdown */}
         {mobileOpen && isHero && (
           <div
-            className="fixed inset-0 top-16 z-40 md:hidden bg-[#050d18]/50 backdrop-blur-sm"
+            className="fixed inset-0 top-18 sm:top-20 z-40 md:hidden bg-[#050d18]/50 backdrop-blur-sm"
             onClick={() => setMobileOpen(false)}
             aria-hidden
           />
@@ -148,7 +132,7 @@ export function Navbar({ variant }: { variant?: "default" | "hero" }) {
             className={cn(
               "md:hidden pb-4 pt-3",
               isHero
-                ? "fixed left-0 right-0 top-16 z-50 border-b border-white/10 bg-[#0B2545]/80 px-4 backdrop-blur-2xl backdrop-saturate-150 shadow-[0_12px_40px_rgba(0,0,0,0.45)] sm:px-6"
+                ? "fixed left-0 right-0 top-18 sm:top-20 z-50 border-b border-white/10 bg-[#0B2545]/80 px-4 backdrop-blur-2xl backdrop-saturate-150 shadow-[0_12px_40px_rgba(0,0,0,0.45)] sm:px-6"
                 : cn("border-t mt-0", "border-[var(--border)]")
             )}
           >
@@ -222,7 +206,7 @@ function NavbarFallback({ variant }: { variant?: "default" | "hero" }) {
       aria-hidden
     >
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="h-16" />
+        <div className="h-18 sm:h-20" />
       </nav>
     </header>
   );

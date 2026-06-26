@@ -97,6 +97,8 @@ export const WHATSAPP_DEFAULT_MESSAGE =
   "Hi, I found your gym on FitnessAdda PK. I want more details about membership.";
 
 export const SITE_NAME = "FitnessAdda PK";
+/** Cache-bust when replacing public/images/Logo.png */
+export const SITE_LOGO_SRC = "/images/Logo.png?v=3";
 export const SITE_TAGLINE = "Find Gyms • Trainers • Fighting Clubs";
 export const SITE_DESCRIPTION =
   "Discover the best gyms, fighting clubs, and personal trainers across Pakistan. Compare prices, facilities, and contact directly on WhatsApp.";

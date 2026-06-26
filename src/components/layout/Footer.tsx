@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { Dumbbell } from "lucide-react";
 import { SITE_NAME, SOCIAL_LINKS, CITIES, cityNameToSlug } from "@/lib/constants";
+import { SiteLogo } from "@/components/layout/SiteLogo";
 import {
   InstagramIcon,
   FacebookIcon,
@@ -24,11 +24,8 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
           {/* Brand */}
           <div>
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 bg-[#FF6A3D] rounded-lg flex items-center justify-center">
-                <Dumbbell className="w-4 h-4 text-white" />
-              </div>
-              <span className="font-heading font-bold text-lg">{SITE_NAME}</span>
+            <div className="mb-4">
+              <SiteLogo size="lg" />
             </div>
             <p className="text-sm text-[#8ba0b8] leading-relaxed max-w-xs">
               Discover the best gyms, fighting clubs, and trainers across Pakistan.

@@ -19,6 +19,7 @@ import {
 import type { OwnerSession } from "@/lib/owner-auth";
 import { businessCategoryLabel } from "@/lib/owner-constants";
 import { OwnerLogoutButton } from "@/components/owner/OwnerLogoutButton";
+import { SiteLogoStack } from "@/components/layout/SiteLogo";
 
 const NAV_LINKS = [
   { href: "/owner/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -74,17 +75,12 @@ export function OwnerPanelShell({ session, children }: OwnerPanelShellProps) {
         >
           <Menu className="h-5 w-5" />
         </button>
-        <Link href="/owner/dashboard" className="flex min-w-0 items-center gap-2">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#FF6A3D]">
-            <Dumbbell className="h-4 w-4 text-white" />
-          </div>
-          <div className="min-w-0">
-            <div className="truncate font-heading text-sm font-bold leading-tight text-[var(--text)]">
-              FitnessAdda PK
-            </div>
-            <div className="text-xs text-[var(--text-muted)]">Owner Portal</div>
-          </div>
-        </Link>
+        <SiteLogoStack
+          href="/owner/dashboard"
+          size="sm"
+          caption="Owner Portal"
+          captionClassName="text-[var(--text-muted)]"
+        />
       </header>
 
       {/* Mobile drawer backdrop */}
@@ -104,15 +100,13 @@ export function OwnerPanelShell({ session, children }: OwnerPanelShellProps) {
         }`}
       >
         <div className="flex items-center justify-between border-b border-white/10 p-5 lg:block">
-          <Link href="/owner/dashboard" className="flex items-center gap-2" onClick={closeMobile}>
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#FF6A3D]">
-              <Dumbbell className="h-4 w-4 text-white" />
-            </div>
-            <div>
-              <div className="font-heading text-sm font-bold leading-tight">FitnessAdda PK</div>
-              <div className="text-xs text-[#8ba0b8]">Owner Portal</div>
-            </div>
-          </Link>
+          <SiteLogoStack
+            href="/owner/dashboard"
+            size="sm"
+            caption="Owner Portal"
+            captionClassName="text-[#8ba0b8]"
+            onClick={closeMobile}
+          />
           <button
             type="button"
             onClick={closeMobile}

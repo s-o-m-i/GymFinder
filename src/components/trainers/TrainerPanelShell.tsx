@@ -3,7 +3,6 @@
 import { useState } from "react";
 import Link from "next/link";
 import {
-  Dumbbell,
   ExternalLink,
   HelpCircle,
   LayoutDashboard,
@@ -14,6 +13,7 @@ import {
 } from "lucide-react";
 import { TrainerNavLink } from "@/components/trainers/TrainerNavLink";
 import { TrainerLogoutButton } from "@/components/trainers/TrainerLogoutButton";
+import { SiteLogoStack } from "@/components/layout/SiteLogo";
 
 interface TrainerPanelShellProps {
   roleLabel: string;
@@ -116,17 +116,12 @@ export function TrainerPanelShell({
         >
           <Menu className="h-5 w-5" />
         </button>
-        <Link href="/trainer/dashboard" className="flex min-w-0 items-center gap-2">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#FF6A3D]">
-            <Dumbbell className="h-4 w-4 text-white" />
-          </div>
-          <div className="min-w-0">
-            <div className="truncate font-heading text-sm font-bold leading-tight text-[var(--text)]">
-              FitnessAdda PK
-            </div>
-            <div className="truncate text-xs text-[var(--text-muted)]">Trainer Portal</div>
-          </div>
-        </Link>
+        <SiteLogoStack
+          href="/trainer/dashboard"
+          size="sm"
+          caption="Trainer Portal"
+          captionClassName="text-[var(--text-muted)]"
+        />
       </header>
 
       {mobileOpen && (
@@ -145,15 +140,13 @@ export function TrainerPanelShell({
         }`}
       >
         <div className="flex items-center justify-between border-b border-white/10 p-5 lg:block">
-          <Link href="/trainer/dashboard" className="flex items-center gap-2" onClick={closeMobile}>
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#FF6A3D]">
-              <Dumbbell className="w-4 h-4 text-white" />
-            </div>
-            <div>
-              <div className="font-heading text-sm font-bold leading-tight">FitnessAdda PK</div>
-              <div className="text-xs text-[#8ba0b8]">Trainer Portal</div>
-            </div>
-          </Link>
+          <SiteLogoStack
+            href="/trainer/dashboard"
+            size="sm"
+            caption="Trainer Portal"
+            captionClassName="text-[#8ba0b8]"
+            onClick={closeMobile}
+          />
           <button
             type="button"
             onClick={closeMobile}
