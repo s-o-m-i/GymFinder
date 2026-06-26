@@ -73,6 +73,14 @@ enum TrainerLeadEventType {
   PROFILE_VIEW
 }
 
+enum GymLeadGoal {
+  WEIGHT_LOSS
+  MUSCLE_GAIN
+  MMA
+  BOXING
+  OTHER
+}
+
 enum FeatureRequestStatus {
   pending
   approved
@@ -171,6 +179,7 @@ model Gym {
   events           Event[]
   faqs             GymFAQ[]
   featureRequests  FeatureRequest[]
+  leads            GymLead[]
 
   @@index([city])
   @@index([area])
@@ -328,6 +337,21 @@ model GymAnalyticsEvent {
   @@index([createdAt])
   @@index([gymId, eventType, createdAt])
   @@index([gymId, eventType, visitorHash, createdAt])
+}
+
+model GymLead {
+  id         String       @id @default(cuid())
+  gymId      String
+  name       String
+  goal       GymLeadGoal
+  customGoal String?
+  sessionId  String?
+  userAgent  String?      @db.Text
+  createdAt  DateTime     @default(now())
+  gym        Gym          @relation(fields: [gymId], references: [id], onDelete: Cascade)
+
+  @@index([gymId, createdAt])
+  @@index([goal])
 }
 
 model TrainerAccount {

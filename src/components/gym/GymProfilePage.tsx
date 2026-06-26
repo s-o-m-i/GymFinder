@@ -16,7 +16,7 @@ import { MembershipPlansSection } from "@/components/gym/MembershipPlansSection"
 import { MeetOurTeamSectionLazy } from "@/components/gym/MeetOurTeamSectionLazy";
 import { FaqAccordionSection } from "@/components/faq/FaqAccordionSection";
 import { GymEquipmentSection } from "@/components/gym/GymEquipmentSection";
-import { GymAboutText } from "@/components/gym/GymAboutText";
+import { GymMobileStickyBar } from "@/components/gym/GymMobileStickyBar";
 import { getGymEvents } from "@/services/events/event.service";
 import { prisma } from "@/lib/prisma";
 import {
@@ -36,6 +36,7 @@ import {
   Star,
 } from "lucide-react";
 import { GymEventsSection } from "../events/GymEventsSection";
+import { GymAboutText } from "./GymAboutText";
 
 interface GymProfilePageProps {
   slug: string;
@@ -122,7 +123,7 @@ export async function GymProfilePage({ slug }: GymProfilePageProps) {
       />
 
       <Navbar />
-      <main className="min-h-screen bg-[var(--bg)]">
+      <main className="min-h-screen bg-[var(--bg)] pb-24 lg:pb-0">
         <div className="bg-[var(--card)] border-b border-[var(--border)]">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
             <nav className="flex items-center gap-1 text-xs text-[var(--text-muted)]">
@@ -328,6 +329,7 @@ export async function GymProfilePage({ slug }: GymProfilePageProps) {
                     gymName={gym.name}
                     size="lg"
                     fullWidth
+                    captureLead
                     label="WhatsApp Gym"
                   />
                   <CallGymButton gymId={gym.id} size="lg" fullWidth />
@@ -379,7 +381,10 @@ export async function GymProfilePage({ slug }: GymProfilePageProps) {
           </div>
         </div>
       </main>
-      <Footer />
+      <GymMobileStickyBar gymId={gym.id} gymName={gym.name} />
+      <div className="pb-24 lg:pb-0">
+        <Footer />
+      </div>
     </>
   );
 }

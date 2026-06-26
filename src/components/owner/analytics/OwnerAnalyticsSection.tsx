@@ -25,6 +25,7 @@ import type { OwnerAnalyticsData } from "@/app/actions/owner/analytics";
 import type { GymAnalyticsViewData } from "@/services/analytics-query.service";
 import type { AnalyticsPeriod } from "@/lib/validations/analytics";
 import { cn } from "@/lib/utils";
+import { GymLeadsPanel } from "@/components/owner/analytics/GymLeadsPanel";
 
 export type GymAnalyticsPanelData = OwnerAnalyticsData | GymAnalyticsViewData;
 
@@ -172,6 +173,10 @@ export function OwnerAnalyticsSection({
           accent="#3B82F6"
         />
       </div>
+
+      {"leads" in data && data.leads && (
+        <GymLeadsPanel leads={data.leads} />
+      )}
 
       {showTopPerforming &&
         (topPerforming.mostViewed || topPerforming.mostContacted) && (

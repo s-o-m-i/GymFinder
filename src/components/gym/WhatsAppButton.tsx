@@ -1,7 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import { MessageCircle } from "lucide-react";
 import { analyticsRedirectUrl } from "@/lib/analytics-urls";
+import { GymWhatsAppLeadModal } from "@/components/gym/GymWhatsAppLeadModal";
 import { cn } from "@/lib/utils";
 
 interface WhatsAppButtonProps {
@@ -12,16 +14,20 @@ interface WhatsAppButtonProps {
   fullWidth?: boolean;
   /** Override label. Defaults to "WhatsApp" for sm/md, "Contact on WhatsApp" for lg */
   label?: string;
+  /** Show lead capture modal before opening WhatsApp */
+  captureLead?: boolean;
 }
 
 export function WhatsAppButton({
   gymId,
-  gymName,
+  gymName = "this gym",
   size = "md",
   className,
   fullWidth = false,
   label,
+  captureLead = false,
 }: WhatsAppButtonProps) {
+  const [modalOpen, setModalOpen] = useState(false);
   const url = analyticsRedirectUrl(gymId, "WHATSAPP_CLICK");
 
   const defaultLabel = size === "lg" ? "Contact on WhatsApp" : "WhatsApp";
@@ -39,32 +45,56 @@ export function WhatsAppButton({
     lg: "w-5 h-5 shrink-0",
   };
 
+  const buttonClass = cn(
+    "inline-flex items-center justify-center",
+    "font-semibold bg-[#25D366] text-white",
+    "hover:bg-[#1da851] active:scale-[0.97]",
+    "transition-all duration-150 cursor-pointer select-none whitespace-nowrap",
+    sizes[size],
+    fullWidth && "w-full",
+    className
+  );
+
+  function trackGtag() {
+    if (
+      typeof window !== "undefined" &&
+      (window as unknown as Record<string, unknown>).gtag
+    ) {
+      (
+        window as unknown as Record<string, (...args: unknown[]) => void>
+      ).gtag("event", "whatsapp_click", {
+        gym_name: gymName,
+        gym_id: gymId,
+      });
+    }
+  }
+
+  if (captureLead) {
+    return (
+      <>
+        <button
+          type="button"
+          onClick={() => {
+            trackGtag();
+            setModalOpen(true);
+          }}
+          className={buttonClass}
+        >
+          <MessageCircle className={iconSizes[size]} />
+          <span>{displayLabel}</span>
+        </button>
+        <GymWhatsAppLeadModal
+          gymId={gymId}
+          gymName={gymName}
+          open={modalOpen}
+          onClose={() => setModalOpen(false)}
+        />
+      </>
+    );
+  }
+
   return (
-    <a
-      href={url}
-      className={cn(
-        "inline-flex items-center justify-center",
-        "font-semibold bg-[#25D366] text-white",
-        "hover:bg-[#1da851] active:scale-[0.97]",
-        "transition-all duration-150 cursor-pointer select-none whitespace-nowrap",
-        sizes[size],
-        fullWidth && "w-full",
-        className
-      )}
-      onClick={() => {
-        if (
-          typeof window !== "undefined" &&
-          (window as unknown as Record<string, unknown>).gtag
-        ) {
-          (
-            window as unknown as Record<string, (...args: unknown[]) => void>
-          ).gtag("event", "whatsapp_click", {
-            gym_name: gymName,
-            gym_id: gymId,
-          });
-        }
-      }}
-    >
+    <a href={url} className={buttonClass} onClick={trackGtag}>
       <MessageCircle className={iconSizes[size]} />
       <span>{displayLabel}</span>
     </a>

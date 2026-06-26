@@ -14,6 +14,7 @@ import {
   type AnalyticsSummary,
   type DailyAnalyticsPoint,
 } from "@/services/analytics-query.service";
+import { getGymLeadStats, type GymLeadStats } from "@/services/gym-lead.service";
 
 export type OwnerAnalyticsData = {
   gymId: string;
@@ -22,6 +23,7 @@ export type OwnerAnalyticsData = {
   dailySeries: DailyAnalyticsPoint[];
   topPerforming: Awaited<ReturnType<typeof getTopPerformingGymInsights>>;
   hasMultipleGyms: boolean;
+  leads: GymLeadStats;
 };
 
 async function requireOwnerGym() {
@@ -47,11 +49,12 @@ export async function getOwnerAnalytics(
 
   const { ownerId, gym } = await requireOwnerGym();
 
-  const [summary, dailySeries, topPerforming, gymCount] = await Promise.all([
+  const [summary, dailySeries, topPerforming, gymCount, leads] = await Promise.all([
     getAnalyticsSummary(gym.id, period),
     getDailyAnalyticsSeries(gym.id, period),
     getTopPerformingGymInsights(ownerId),
     prisma.gym.count({ where: { ownerId } }),
+    getGymLeadStats(gym.id, period),
   ]);
 
   return {
@@ -61,5 +64,6 @@ export async function getOwnerAnalytics(
     dailySeries,
     topPerforming,
     hasMultipleGyms: gymCount > 1,
+    leads,
   };
 }

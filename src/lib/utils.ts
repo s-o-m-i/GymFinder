@@ -24,16 +24,22 @@ export function formatPriceShort(min: number, max: number): string {
   return `${fmt(min)}–${fmt(max)}/mo`;
 }
 
-export function buildWhatsAppUrl(number: string, gymName?: string): string {
+export function buildWhatsAppUrl(
+  number: string,
+  gymName?: string,
+  customMessage?: string
+): string {
   const cleaned = number.replace(/\D/g, "");
   const withCountry = cleaned.startsWith("92")
     ? cleaned
     : cleaned.startsWith("0")
     ? `92${cleaned.slice(1)}`
     : `92${cleaned}`;
-  const message = gymName
-    ? `Hi, I found ${gymName} on FitnessAdda PK. I want more details about membership.`
-    : WHATSAPP_DEFAULT_MESSAGE;
+  const message =
+    customMessage ??
+    (gymName
+      ? `Hi, I found ${gymName} on FitnessAdda PK. I want more details about membership.`
+      : WHATSAPP_DEFAULT_MESSAGE);
   return `https://wa.me/${withCountry}?text=${encodeURIComponent(message)}`;
 }
 
