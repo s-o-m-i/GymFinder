@@ -13,8 +13,6 @@ export function TrainerProfileProgressBar({
   totalSteps,
   completionPercentage,
 }: TrainerProfileProgressBarProps) {
-  const stepProgress = Math.round(((currentStep + 1) / totalSteps) * 100);
-
   return (
     <div className="mb-6 space-y-3 rounded-xl border border-gray-100 bg-gray-50/80 px-4 py-3">
       <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
@@ -25,19 +23,6 @@ export function TrainerProfileProgressBar({
           Profile{" "}
           <span className="font-semibold text-[#0B2545]">{completionPercentage}%</span> complete
         </span>
-      </div>
-
-      <div className="space-y-1.5">
-        <div className="flex items-center justify-between text-xs text-gray-500">
-          <span>Step progress</span>
-          <span>{stepProgress}%</span>
-        </div>
-        <div className="h-2 overflow-hidden rounded-full bg-gray-200">
-          <div
-            className="h-full rounded-full bg-[#0B2545] transition-all duration-300 ease-out"
-            style={{ width: `${stepProgress}%` }}
-          />
-        </div>
       </div>
 
       <div className="space-y-1.5">
