@@ -80,6 +80,7 @@ export function OwnerPanelShell({ session, children }: OwnerPanelShellProps) {
           size="sm"
           // caption="Owner Portal"
           captionClassName="text-[var(--text-muted)]"
+          darkBackground
         />
       </header>
 

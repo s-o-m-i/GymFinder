@@ -33,8 +33,8 @@ function SidebarContent({
   return (
     <>
       <div className="border-b border-white/10 px-4 py-3">
-        <div className="flex items-center gap-2 text-xs">
-          <UserCircle className="h-3.5 w-3.5 shrink-0 text-[#FF6A3D]" />
+        <div className="flex items-center gap-2.5 px-3 text-xs">
+          <UserCircle className="w-4 h-4 shrink-0 text-[#FF6A3D]" />
           <span className="truncate text-[#8ba0b8]">{roleLabel}</span>
         </div>
       </div>
@@ -121,6 +121,7 @@ export function TrainerPanelShell({
           size="sm"
           // caption="Trainer Portal"
           captionClassName="text-[var(--text-muted)]"
+          darkBackground
         />
       </header>
 
