@@ -78,7 +78,7 @@ export function OwnerPanelShell({ session, children }: OwnerPanelShellProps) {
         <SiteLogoStack
           href="/owner/dashboard"
           size="sm"
-          caption="Owner Portal"
+          // caption="Owner Portal"
           captionClassName="text-[var(--text-muted)]"
         />
       </header>
@@ -103,7 +103,7 @@ export function OwnerPanelShell({ session, children }: OwnerPanelShellProps) {
           <SiteLogoStack
             href="/owner/dashboard"
             size="sm"
-            caption="Owner Portal"
+            // caption="Owner Portal"
             captionClassName="text-[#8ba0b8]"
             onClick={closeMobile}
           />
