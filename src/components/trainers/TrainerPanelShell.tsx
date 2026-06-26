@@ -119,7 +119,7 @@ export function TrainerPanelShell({
         <SiteLogoStack
           href="/trainer/dashboard"
           size="sm"
-          caption="Trainer Portal"
+          // caption="Trainer Portal"
           captionClassName="text-[var(--text-muted)]"
         />
       </header>
@@ -143,7 +143,7 @@ export function TrainerPanelShell({
           <SiteLogoStack
             href="/trainer/dashboard"
             size="sm"
-            caption="Trainer Portal"
+            // caption="Trainer Portal"
             captionClassName="text-[#8ba0b8]"
             onClick={closeMobile}
           />
