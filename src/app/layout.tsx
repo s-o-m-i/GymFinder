@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Manrope, Inter, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import { SITE_NAME, SITE_DESCRIPTION } from "@/lib/constants";
-
+import {GoogleAnalytics} from "@next/third-parties/google"
 const manrope = Manrope({
   subsets: ["latin"],
   variable: "--font-manrope",
@@ -73,7 +73,10 @@ export default function RootLayout({
       data-scroll-behavior="smooth"
       className={`${manrope.variable} ${inter.variable} ${ibmPlexMono.variable}`}
     >
-      <body suppressHydrationWarning>{children}</body>
+      <body suppressHydrationWarning>{children}
+
+        <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID ?? ""} />
+      </body>
     </html>
   );
 }
