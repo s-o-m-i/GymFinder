@@ -37,6 +37,8 @@ import {
 } from "lucide-react";
 import { GymEventsSection } from "../events/GymEventsSection";
 import { GymAboutText } from "./GymAboutText";
+import { GymStatsStrip } from "@/components/gym/GymStatsStrip";
+import { buildGymProfileStats } from "@/lib/gym-stats";
 
 interface GymProfilePageProps {
   slug: string;
@@ -79,6 +81,18 @@ export async function GymProfilePage({ slug }: GymProfilePageProps) {
       : gym.rating;
 
   const galleryImages = getGymGalleryImages(gym);
+
+  const coachCount = gym.staffMembers.filter((m) => m.isCoach).length;
+  const trainerCount = coachCount > 0 ? coachCount : gym.staffMembers.length;
+
+  const gymStats = buildGymProfileStats({
+    createdAt: gym.createdAt,
+    establishedYear: gym.establishedYear,
+    memberCount: gym.memberCount,
+    equipmentRaw: gym.equipment,
+    staffCount: trainerCount,
+    rating: avgRating,
+  });
 
   const structuredData = {
     "@context": "https://schema.org",
@@ -181,6 +195,8 @@ export async function GymProfilePage({ slug }: GymProfilePageProps) {
                   )}
                 </div>
               </div>
+
+              <GymStatsStrip stats={gymStats} />
 
               <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6 min-w-0 overflow-hidden">
                 <h2 className="font-heading font-bold text-lg text-[var(--text)] mb-3">About</h2>

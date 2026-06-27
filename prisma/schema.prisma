@@ -163,6 +163,8 @@ model Gym {
   coverImagePublicId String?
   listingStatus      ListingStatus @default(approved)
   faqsEnabled        Boolean       @default(false)
+  establishedYear    Int?
+  memberCount        Int?
   ownerId            String?       @unique
   createdAt          DateTime     @default(now())
   updatedAt          DateTime     @updatedAt

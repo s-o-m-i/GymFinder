@@ -85,6 +85,8 @@ export default async function OwnerGymPage() {
         priceMax: gym.priceMax.toString(),
         ladiesStatus: gym.ladiesStatus,
         sizeCategory: gym.sizeCategory,
+        establishedYear: gym.establishedYear?.toString() ?? "",
+        memberCount: gym.memberCount?.toString() ?? "",
         whatsappNumber: gym.whatsappNumber,
         openingHours: gym.openingHours ?? "",
         ladiesHours: gym.ladiesHours ?? "",

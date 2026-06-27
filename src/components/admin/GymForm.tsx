@@ -46,6 +46,8 @@ interface GymFormData {
   priceMax: string;
   ladiesStatus: string;
   sizeCategory: string;
+  establishedYear: string;
+  memberCount: string;
   whatsappNumber: string;
   openingHours: string;
   ladiesHours: string;
@@ -139,6 +141,8 @@ export function GymForm({
     priceMax: initialData?.priceMax ?? "",
     ladiesStatus: initialData?.ladiesStatus ?? "mixed",
     sizeCategory: initialData?.sizeCategory ?? "medium",
+    establishedYear: initialData?.establishedYear ?? "",
+    memberCount: initialData?.memberCount ?? "",
     whatsappNumber: initialData?.whatsappNumber ?? "",
     openingHours: initialData?.openingHours ?? "",
     ladiesHours: initialData?.ladiesHours ?? "",
@@ -390,6 +394,8 @@ export function GymForm({
       priceMax: parseInt(form.priceMax),
       ladiesStatus: form.ladiesStatus,
       sizeCategory: form.sizeCategory,
+      establishedYear: form.establishedYear ? parseInt(form.establishedYear, 10) : null,
+      memberCount: form.memberCount ? parseInt(form.memberCount, 10) : null,
       whatsappNumber: form.whatsappNumber,
       openingHours: form.openingHours || null,
       ladiesHours:
@@ -814,6 +820,34 @@ export function GymForm({
               placeholder="03001234567"
               className={inputClass}
             />
+          </div>
+
+          <div>
+            <label className={labelClass}>Established Year (optional)</label>
+            <input
+              type="number"
+              min={1950}
+              max={new Date().getFullYear()}
+              value={form.establishedYear}
+              onChange={(e) => set("establishedYear", e.target.value)}
+              placeholder="2018"
+              className={inputClass}
+            />
+          </div>
+
+          <div>
+            <label className={labelClass}>Member Count (optional)</label>
+            <input
+              type="number"
+              min={0}
+              value={form.memberCount}
+              onChange={(e) => set("memberCount", e.target.value)}
+              placeholder="500"
+              className={inputClass}
+            />
+            <p className="text-xs text-[var(--text-muted)] mt-1">
+              Shown on your public profile as a trust stat (e.g. 500+ Members).
+            </p>
           </div>
 
           {variant === "admin" && (
