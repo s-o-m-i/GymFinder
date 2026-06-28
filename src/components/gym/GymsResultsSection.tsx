@@ -280,13 +280,13 @@ export function GymsResultsSection({ initialGyms, total, page, totalPages }: Gym
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [locationLabel, setLocationLabel] = useState<LocationLabel | null>(null);
   const [activePosition, setActivePosition] = useState<UserPosition | null>(null);
-  const [isLocating, setIsLocating] = useState(false);
+  const [isRefreshingLocation, setIsRefreshingLocation] = useState(false);
 
   const isNearMeActive = nearMeStatus === "active";
 
   const runNearMeSearch = useCallback(
-    async (lat: number, lng: number, r: Radius, accuracy: number) => {
-      setNearMeStatus("loading");
+    async (lat: number, lng: number, r: Radius, accuracy: number, keepActive = false) => {
+      if (!keepActive) setNearMeStatus("loading");
       setFetchError(null);
       setActivePosition({ lat, lng, accuracy });
 
@@ -313,19 +313,22 @@ export function GymsResultsSection({ initialGyms, total, page, totalPages }: Gym
   );
 
   const requestLocation = useCallback(
-    async (r: Radius) => {
-      setIsLocating(true);
-      setNearMeStatus("loading");
+    async (r: Radius, refresh = false) => {
+      if (refresh) {
+        setIsRefreshingLocation(true);
+      } else {
+        setNearMeStatus("loading");
+      }
       setFetchError(null);
 
       try {
         const pos = await getBestUserPosition();
-        await runNearMeSearch(pos.lat, pos.lng, r, pos.accuracy);
+        await runNearMeSearch(pos.lat, pos.lng, r, pos.accuracy, refresh);
       } catch (err) {
         setFetchError(geolocationErrorMessage(err));
         setNearMeStatus("error");
       } finally {
-        setIsLocating(false);
+        setIsRefreshingLocation(false);
       }
     },
     [runNearMeSearch]
@@ -351,7 +354,7 @@ export function GymsResultsSection({ initialGyms, total, page, totalPages }: Gym
     setFetchError(null);
     setLocationLabel(null);
     setActivePosition(null);
-    setIsLocating(false);
+    setIsRefreshingLocation(false);
   }, []);
 
   // ── Render ────────────────────────────────────────────────────────────────
@@ -373,7 +376,7 @@ export function GymsResultsSection({ initialGyms, total, page, totalPages }: Gym
           ) : nearMeStatus === "loading" ? (
             <div className="inline-flex w-full sm:w-auto items-center justify-center gap-2 h-10 px-5 bg-[#0B2545]/80 text-white text-sm font-semibold rounded-xl">
               <Loader2 className="w-4 h-4 animate-spin" />
-              {isLocating ? "Getting GPS fix…" : "Finding nearby gyms…"}
+              Finding gyms near you…
             </div>
           ) : (
             <div className="inline-flex w-full sm:w-auto items-center justify-center gap-2 h-10 px-4 bg-emerald-500/10 text-emerald-700 text-sm font-semibold rounded-xl border border-emerald-200">
@@ -414,8 +417,8 @@ export function GymsResultsSection({ initialGyms, total, page, totalPages }: Gym
               gyms={nearbyGyms}
               radius={radius}
               onClear={handleClear}
-              onRefresh={() => requestLocation(radius)}
-              isRefreshing={isLocating}
+              onRefresh={() => requestLocation(radius, true)}
+              isRefreshing={isRefreshingLocation}
             />
           </div>
         )}

@@ -4,20 +4,20 @@ export interface UserPosition {
   accuracy: number;
 }
 
-const DEFAULT_OPTIONS: PositionOptions = {
-  enableHighAccuracy: true,
-  maximumAge: 0,
-  timeout: 20_000,
-};
+/** Accept a fix at or below this accuracy immediately (meters). */
+const GOOD_ENOUGH_ACCURACY_M = 2_000;
+
+/** After this delay, use the best fix collected so far. */
+const EARLY_ACCEPT_MS = 2_500;
+
+/** Hard stop — never leave the UI waiting longer than this. */
+const MAX_WAIT_MS = 10_000;
 
 /**
- * Collects GPS readings for a short window and returns the most accurate fix.
- * Desktop/Wi‑Fi positioning can be off by several km on the first reading.
+ * Resolves with the user's coordinates as quickly as practical.
+ * Uses cached/network location first, then refines with GPS when available.
  */
-export function getBestUserPosition(
-  maxWaitMs = 12_000,
-  targetAccuracyM = 150
-): Promise<UserPosition> {
+export function getBestUserPosition(): Promise<UserPosition> {
   return new Promise((resolve, reject) => {
     if (typeof window === "undefined" || !navigator.geolocation) {
       reject(new Error("Geolocation is not supported by your browser."));
@@ -34,54 +34,79 @@ export function getBestUserPosition(
       accuracy: pos.coords.accuracy,
     });
 
+    const cleanup = () => {
+      if (watchId != null) {
+        navigator.geolocation.clearWatch(watchId);
+        watchId = null;
+      }
+    };
+
     const finish = (pos: GeolocationPosition) => {
       if (settled) return;
       settled = true;
-      if (watchId != null) navigator.geolocation.clearWatch(watchId);
+      cleanup();
       resolve(toUserPosition(pos));
+    };
+
+    const fail = (err: GeolocationPositionError | Error) => {
+      if (settled) return;
+      if (best) {
+        finish(best);
+        return;
+      }
+      settled = true;
+      cleanup();
+      reject(err);
     };
 
     const consider = (pos: GeolocationPosition) => {
       if (!best || pos.coords.accuracy < best.coords.accuracy) {
         best = pos;
       }
-      if (pos.coords.accuracy <= targetAccuracyM) {
+      if (pos.coords.accuracy <= GOOD_ENOUGH_ACCURACY_M) {
         finish(pos);
       }
     };
 
-    watchId = navigator.geolocation.watchPosition(
-      consider,
-      (err) => {
-        if (settled) return;
-        if (best) {
-          finish(best);
-          return;
-        }
-        settled = true;
-        if (watchId != null) navigator.geolocation.clearWatch(watchId);
-        reject(err);
-      },
-      DEFAULT_OPTIONS
-    );
-
+    // Fast path: cached or network-based location (works well on desktop)
     navigator.geolocation.getCurrentPosition(
       consider,
       () => {
-        // watchPosition handles errors; ignore getCurrentPosition failure
+        // watchPosition / high-accuracy attempt continues below
       },
-      DEFAULT_OPTIONS
+      {
+        enableHighAccuracy: false,
+        maximumAge: 300_000,
+        timeout: 6_000,
+      }
     );
+
+    // Refine with GPS when the device supports it
+    watchId = navigator.geolocation.watchPosition(
+      consider,
+      (err) => fail(err),
+      {
+        enableHighAccuracy: true,
+        maximumAge: 0,
+        timeout: 8_000,
+      }
+    );
+
+    window.setTimeout(() => {
+      if (!settled && best) finish(best);
+    }, EARLY_ACCEPT_MS);
 
     window.setTimeout(() => {
       if (settled) return;
       if (best) finish(best);
       else {
-        settled = true;
-        if (watchId != null) navigator.geolocation.clearWatch(watchId);
-        reject(new Error("Could not get your location in time. Please try again near a window or on mobile."));
+        fail(
+          new Error(
+            "Could not detect your location. Allow location access and try again."
+          )
+        );
       }
-    }, maxWaitMs);
+    }, MAX_WAIT_MS);
   });
 }
 
