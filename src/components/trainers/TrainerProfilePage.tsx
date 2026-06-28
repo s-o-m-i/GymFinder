@@ -239,7 +239,7 @@ export async function TrainerProfilePage({ slug }: TrainerProfilePageProps) {
             </div>
 
             {/* ── Sidebar ── */}
-            <div className="order-2 lg:order-1 space-y-5 lg:sticky lg:top-24 lg:self-start">
+            <div className="order-2 lg:order-1 space-y-5 lg:sticky lg:top-24 lg:self-start lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto lg:overflow-x-hidden lg:overscroll-contain lg:pr-1">
               {/* Desktop: photo + book session card */}
               <div className="hidden lg:block bg-[var(--card)] border border-[var(--border)] rounded-2xl overflow-hidden">
                 <TrainerHeroGallery
