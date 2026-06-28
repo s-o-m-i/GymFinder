@@ -39,6 +39,7 @@ import { GymEventsSection } from "../events/GymEventsSection";
 import { GymAboutText } from "./GymAboutText";
 import { GymStatsStrip } from "@/components/gym/GymStatsStrip";
 import { buildGymProfileStats } from "@/lib/gym-stats";
+import { TransformationGallerySection } from "@/components/transformation/TransformationGallerySection";
 
 interface GymProfilePageProps {
   slug: string;
@@ -242,6 +243,8 @@ export async function GymProfilePage({ slug }: GymProfilePageProps) {
               )}
 
               <GymEquipmentSection equipmentRaw={gym.equipment} />
+
+              <TransformationGallerySection transformationsRaw={gym.transformations} />
 
               <MeetOurTeamSectionLazy members={gym.staffMembers} />
 

@@ -192,6 +192,21 @@ input[type="range"]::-moz-range-thumb {
   pointer-events: none;
 }
 
+/* Transformation gallery — Swiper (slides keep independent height when story expands) */
+.transformation-swiper .swiper-wrapper {
+  align-items: flex-start;
+}
+
+.transformation-swiper .swiper-slide {
+  height: auto;
+  align-self: flex-start;
+}
+
+.transformation-swiper .swiper-button-disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
 /* Explore Center — Swiper */
 .explore-center-swiper {
   overflow: hidden;

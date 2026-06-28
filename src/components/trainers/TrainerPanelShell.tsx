@@ -5,6 +5,7 @@ import Link from "next/link";
 import {
   ExternalLink,
   HelpCircle,
+  Images,
   LayoutDashboard,
   Menu,
   User,
@@ -51,6 +52,12 @@ function SidebarContent({
           href="/trainer/dashboard/profile"
           icon={<User className="w-4 h-4" />}
           label="My Profile"
+          onNavigate={onNavigate}
+        />
+        <TrainerNavLink
+          href="/trainer/dashboard/transformations"
+          icon={<Images className="w-4 h-4" />}
+          label="Transformations"
           onNavigate={onNavigate}
         />
         <TrainerNavLink

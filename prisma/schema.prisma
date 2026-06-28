@@ -159,6 +159,7 @@ model Gym {
   featuredPlan   String?
   coachInfo          String?      @db.Text
   equipment          String?      @db.Text
+  transformations    String?      @db.Text
   coverImage         String?
   coverImagePublicId String?
   listingStatus      ListingStatus @default(approved)
@@ -408,6 +409,7 @@ model Trainer {
 
   certifications  String?  @db.Text
   achievements    String?  @db.Text
+  transformations String? @db.Text
 
   hourlyRate      Int?
 

@@ -9,6 +9,7 @@ import { TrainerCertificationsSection } from "@/components/trainers/TrainerCerti
 import { TrainerAchievementsSection } from "@/components/trainers/TrainerAchievementsSection";
 import { TrainerReviewsSection } from "@/components/trainers/TrainerReviewsSection";
 import { FaqAccordionSection } from "@/components/faq/FaqAccordionSection";
+import { TransformationGallerySection } from "@/components/transformation/TransformationGallerySection";
 import { Badge } from "@/components/ui/Badge";
 import { getTrainerBySlug } from "@/services/trainer/trainer.service";
 import { specializationLabel } from "@/lib/trainer-constants";
@@ -203,6 +204,8 @@ export async function TrainerProfilePage({ slug }: TrainerProfilePageProps) {
                   )}
                 </section>
               )}
+
+              <TransformationGallerySection transformationsRaw={trainer.transformations} />
 
               <TrainerCertificationsSection certifications={certifications} />
               <TrainerAchievementsSection achievements={achievements} />

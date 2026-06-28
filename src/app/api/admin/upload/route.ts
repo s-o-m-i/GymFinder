@@ -13,6 +13,7 @@ const FOLDER_MAP: Record<string, string> = {
   coach_cert:  CLOUDINARY_FOLDERS.coachCerts,
   event_cover: CLOUDINARY_FOLDERS.events,
   equipment: CLOUDINARY_FOLDERS.equipment,
+  transformation: CLOUDINARY_FOLDERS.transformations,
   payment_proof: CLOUDINARY_FOLDERS.payments,
 };
 
