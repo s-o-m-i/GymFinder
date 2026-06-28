@@ -139,35 +139,42 @@ function LocationCard({
           )}
         </div>
 
-        {/* Actions */}
-        <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto sm:shrink-0 sm:justify-end">
+        {/* Actions — stacked full-width on mobile, inline on sm+ */}
+        <div className="flex flex-col gap-2 w-full border-t border-emerald-200/70 pt-3 sm:border-0 sm:pt-0 sm:flex-row sm:flex-wrap sm:items-center sm:w-auto sm:shrink-0 sm:justify-end">
           <button
             type="button"
             onClick={onRefresh}
             disabled={isRefreshing}
-            className="flex flex-1 sm:flex-none items-center justify-center gap-1 px-3 py-1.5 text-xs font-semibold text-emerald-700 border border-emerald-200 rounded-lg hover:bg-emerald-100 transition-colors disabled:opacity-60 min-w-0"
+            className="flex h-10 sm:h-auto w-full sm:w-auto items-center justify-center gap-1.5 px-3 py-2 sm:py-1.5 text-xs font-semibold text-emerald-700 border border-emerald-200 rounded-lg hover:bg-emerald-100 transition-colors disabled:opacity-60"
           >
             {isRefreshing ? (
-              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              <Loader2 className="w-3.5 h-3.5 shrink-0 animate-spin" />
             ) : (
-              <LocateFixed className="w-3.5 h-3.5" />
+              <LocateFixed className="w-3.5 h-3.5 shrink-0" />
             )}
-            Refresh location
+            <span>Refresh location</span>
           </button>
           <button
+            type="button"
             onClick={() => setMapOpen((v) => !v)}
-            className="flex flex-1 sm:flex-none items-center justify-center gap-1 px-3 py-1.5 text-xs font-semibold text-emerald-700 border border-emerald-200 rounded-lg hover:bg-emerald-100 transition-colors min-w-0"
+            className="flex h-10 sm:h-auto w-full sm:w-auto items-center justify-center gap-1.5 px-3 py-2 sm:py-1.5 text-xs font-semibold text-emerald-700 border border-emerald-200 rounded-lg hover:bg-emerald-100 transition-colors"
           >
-            <MapPin className="w-3.5 h-3.5" />
-            {mapOpen ? "Hide map" : "Show map"}
-            {mapOpen ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+            <MapPin className="w-3.5 h-3.5 shrink-0" />
+            <span>{mapOpen ? "Hide map" : "Show map"}</span>
+            {mapOpen ? (
+              <ChevronUp className="w-3 h-3 shrink-0" />
+            ) : (
+              <ChevronDown className="w-3 h-3 shrink-0" />
+            )}
           </button>
           <button
+            type="button"
             onClick={onClear}
-            className="w-8 h-8 flex items-center justify-center text-emerald-600 hover:text-red-600 hover:bg-red-50 border border-emerald-200 hover:border-red-200 rounded-lg transition-all"
+            className="flex h-10 sm:h-8 w-full sm:w-8 items-center justify-center gap-1.5 sm:gap-0 text-emerald-700 sm:text-emerald-600 border border-emerald-200 rounded-lg hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-all sm:shrink-0"
             title="Clear location"
           >
-            <X className="w-4 h-4" />
+            <X className="w-4 h-4 shrink-0" />
+            <span className="text-xs font-semibold sm:hidden">Clear location</span>
           </button>
         </div>
       </div>
