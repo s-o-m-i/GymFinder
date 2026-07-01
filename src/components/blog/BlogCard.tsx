@@ -9,9 +9,11 @@ import { cn } from "@/lib/utils";
 interface BlogCardProps {
   post: BlogPostSummary;
   className?: string;
+  /** Eager-load the first row of listing cards for faster LCP. */
+  priority?: boolean;
 }
 
-export function BlogCard({ post, className }: BlogCardProps) {
+export function BlogCard({ post, className, priority = false }: BlogCardProps) {
   const primaryCategory = post.categories[0];
 
   return (
@@ -29,6 +31,8 @@ export function BlogCard({ post, className }: BlogCardProps) {
             fill
             className="object-cover transition-transform duration-300 group-hover:scale-105"
             sizes="(max-width: 768px) 100vw, 33vw"
+            priority={priority}
+            loading={priority ? undefined : "lazy"}
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[#0B2545] to-[#1a4080]">

@@ -1,4 +1,4 @@
-import { Navbar } from "@/components/layout/Navbar";
+import { NavbarWithSuspense } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { BlogHero } from "@/components/blog/BlogHero";
 import { BlogGrid } from "@/components/blog/BlogGrid";
@@ -80,7 +80,7 @@ export async function BlogListingPage({
 
   return (
     <>
-      <Navbar />
+      <NavbarWithSuspense />
       <main className="min-h-screen bg-[var(--bg)]">
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
           <BlogBreadcrumbs items={breadcrumbItems} className="mb-4" />

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight, FolderOpen } from "lucide-react";
 import type { BlogCategory } from "@/types/wordpress";
 import { getBlogCategoryImage } from "@/lib/blog-category-images";
@@ -32,7 +33,7 @@ export function BlogCategoriesGrid({ categories, className }: BlogCategoriesGrid
         className
       )}
     >
-      {categories.map((category) => {
+      {categories.map((category, index) => {
         const imageSrc = getBlogCategoryImage(category.slug);
 
         return (
@@ -41,10 +42,14 @@ export function BlogCategoriesGrid({ categories, className }: BlogCategoriesGrid
             href={getBlogCategoryPath(category.slug)}
             className="group relative block aspect-4/5 min-h-[260px] w-full overflow-hidden rounded-2xl border border-[var(--border)] bg-[#0B2545] shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-[#FF6A3D]/40 hover:shadow-xl"
           >
-            <div
-              aria-hidden
-              className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
-              style={{ backgroundImage: `url("${imageSrc}")` }}
+            <Image
+              src={imageSrc}
+              alt=""
+              fill
+              className="object-cover transition-transform duration-500 group-hover:scale-105"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              priority={index < 3}
+              loading={index < 3 ? undefined : "lazy"}
             />
 
             <div className="absolute inset-0 bg-gradient-to-t from-[#0B2545]/95 via-[#0B2545]/55 to-[#0B2545]/20 transition-opacity duration-300 group-hover:from-[#0B2545]/90 group-hover:via-[#0B2545]/45" />

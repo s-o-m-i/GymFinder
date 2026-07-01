@@ -60,6 +60,14 @@ export function sanitizeBlogHtml(html: string): string {
         rel: "noopener noreferrer",
         target: "_blank",
       }),
+      img: (_tagName, attribs) => ({
+        tagName: "img",
+        attribs: {
+          ...attribs,
+          loading: "lazy",
+          decoding: "async",
+        },
+      }),
     },
   });
 }

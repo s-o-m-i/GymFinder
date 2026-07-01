@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { AlertCircle } from "lucide-react";
-import { Navbar } from "@/components/layout/Navbar";
+import { NavbarWithSuspense } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { getBlogBasePath } from "@/lib/blogs-routes";
 
@@ -14,7 +14,7 @@ export default function BlogsError({
 }) {
   return (
     <>
-      <Navbar />
+      <NavbarWithSuspense />
       <main className="min-h-screen bg-[var(--bg)]">
         <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6">
           <div className="rounded-2xl border border-red-200 bg-red-50 p-8 text-center">

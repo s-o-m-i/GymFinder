@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { Navbar } from "@/components/layout/Navbar";
+import { NavbarWithSuspense } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { BlogHeader } from "@/components/blog/BlogHeader";
 import { BlogContent } from "@/components/blog/BlogContent";
@@ -53,7 +53,7 @@ export default async function BlogPostPage({ params }: PageProps) {
     <>
       <JsonLd data={buildBlogPostSchema(post)} />
       <BlogReadingProgress />
-      <Navbar />
+      <NavbarWithSuspense />
       <main className="min-h-screen bg-[var(--bg)]">
         <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
           <BlogBreadcrumbs
