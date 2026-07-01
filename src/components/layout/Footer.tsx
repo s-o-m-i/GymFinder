@@ -58,6 +58,7 @@ export function Footer() {
                 { href: "/gyms", label: "All Gyms" },
                 { href: "/trainers", label: "Find Trainers" },
                 { href: "/events", label: "Events" },
+                { href: "/blogs", label: "Blog" },
                 { href: "/gyms/boxing", label: "Boxing Clubs" },
                 { href: "/gyms/mma", label: "MMA Gyms" },
                 { href: "/gyms?ladiesStatus=ladies_only", label: "Ladies Only Gyms" },
