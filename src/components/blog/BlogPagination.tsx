@@ -1,18 +1,21 @@
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { buildBlogQueryPath } from "@/lib/blogs-routes";
 import { cn } from "@/lib/utils";
 
 interface BlogPaginationProps {
   page: number;
   totalPages: number;
   basePath: string;
+  searchQuery?: string;
   className?: string;
 }
 
-function buildPageHref(basePath: string, page: number): string {
-  if (page <= 1) return basePath;
-  const separator = basePath.includes("?") ? "&" : "?";
-  return `${basePath}${separator}page=${page}`;
+function buildPageHref(basePath: string, page: number, searchQuery?: string): string {
+  return buildBlogQueryPath(basePath, {
+    page: page > 1 ? page : undefined,
+    search: searchQuery,
+  });
 }
 
 function getVisiblePages(current: number, total: number): (number | "ellipsis")[] {
@@ -37,7 +40,13 @@ function getVisiblePages(current: number, total: number): (number | "ellipsis")[
   return pages;
 }
 
-export function BlogPagination({ page, totalPages, basePath, className }: BlogPaginationProps) {
+export function BlogPagination({
+  page,
+  totalPages,
+  basePath,
+  searchQuery,
+  className,
+}: BlogPaginationProps) {
   if (totalPages <= 1) return null;
 
   const visiblePages = getVisiblePages(page, totalPages);
@@ -50,7 +59,7 @@ export function BlogPagination({ page, totalPages, basePath, className }: BlogPa
       <div className="flex items-center gap-2">
         {page > 1 ? (
           <Link
-            href={buildPageHref(basePath, page - 1)}
+            href={buildPageHref(basePath, page - 1, searchQuery)}
             className="inline-flex items-center gap-1 rounded-xl border border-[var(--border)] bg-[var(--card)] px-4 py-2 text-sm font-semibold hover:border-[#FF6A3D]/30 transition-colors"
           >
             <ChevronLeft className="h-4 w-4" />
@@ -65,7 +74,7 @@ export function BlogPagination({ page, totalPages, basePath, className }: BlogPa
 
         {page < totalPages ? (
           <Link
-            href={buildPageHref(basePath, page + 1)}
+            href={buildPageHref(basePath, page + 1, searchQuery)}
             className="inline-flex items-center gap-1 rounded-xl border border-[var(--border)] bg-[var(--card)] px-4 py-2 text-sm font-semibold hover:border-[#FF6A3D]/30 transition-colors"
           >
             Next
@@ -88,7 +97,7 @@ export function BlogPagination({ page, totalPages, basePath, className }: BlogPa
           ) : (
             <Link
               key={item}
-              href={buildPageHref(basePath, item)}
+              href={buildPageHref(basePath, item, searchQuery)}
               aria-current={item === page ? "page" : undefined}
               className={cn(
                 "inline-flex h-9 min-w-9 items-center justify-center rounded-lg px-3 text-sm font-semibold transition-colors",

@@ -4,10 +4,15 @@ import { generateBlogCategoriesListingMetadata } from "@/lib/blogs-routes";
 
 export const revalidate = 60;
 
+interface PageProps {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}
+
 export async function generateMetadata(): Promise<Metadata> {
   return generateBlogCategoriesListingMetadata();
 }
 
-export default function BlogsCategoriesRoute() {
-  return <BlogCategoriesPage />;
+export default async function BlogsCategoriesRoute({ searchParams }: PageProps) {
+  const params = await searchParams;
+  return <BlogCategoriesPage searchParams={params} />;
 }

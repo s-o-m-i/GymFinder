@@ -6,16 +6,19 @@ import { BlogSidebar } from "@/components/blog/BlogSidebar";
 import { BlogUnavailable } from "@/components/blog/BlogUnavailable";
 import { BlogPagination } from "@/components/blog/BlogPagination";
 import { BlogBreadcrumbs } from "@/components/blog/BlogBreadcrumbs";
+import { BlogSearchBar } from "@/components/blog/BlogSearchBar";
 import {
   blogCategoryBreadcrumbs,
   blogListingBreadcrumbs,
   getBlogBasePath,
+  parseBlogSearchQuery,
 } from "@/lib/blogs-routes";
 import type { BlogCategory, PaginatedBlogPosts } from "@/types/wordpress";
 import {
   getCategories,
   getPosts,
   getPostsByCategory,
+  searchPosts,
   WordPressUnavailableError,
 } from "@/services/wordpress.service";
 
@@ -37,6 +40,7 @@ export async function BlogListingPage({
     typeof pageParam === "string" && !Number.isNaN(Number(pageParam))
       ? Math.max(1, Number(pageParam))
       : 1;
+  const searchQuery = parseBlogSearchQuery(searchParams);
 
   let categories: BlogCategory[] = [];
   let postsResult: PaginatedBlogPosts | null = null;
@@ -48,7 +52,7 @@ export async function BlogListingPage({
     if (categorySlug) {
       const [cats, categoryData] = await Promise.all([
         categoriesPromise,
-        getPostsByCategory(categorySlug, { page }),
+        getPostsByCategory(categorySlug, { page, search: searchQuery || undefined }),
       ]);
       categories = cats;
       postsResult = categoryData?.result ?? {
@@ -58,6 +62,11 @@ export async function BlogListingPage({
         perPage: 9,
         totalPages: 0,
       };
+    } else if (searchQuery) {
+      [categories, postsResult] = await Promise.all([
+        categoriesPromise,
+        searchPosts(searchQuery, { page }),
+      ]);
     } else {
       [categories, postsResult] = await Promise.all([categoriesPromise, getPosts({ page })]);
     }
@@ -78,6 +87,11 @@ export async function BlogListingPage({
       ? blogCategoryBreadcrumbs({ name: heroTitle, slug: categorySlug })
       : blogListingBreadcrumbs();
 
+  const emptyTitle = searchQuery ? "No articles found" : undefined;
+  const emptyDescription = searchQuery
+    ? `We couldn't find any articles matching "${searchQuery}". Try different keywords.`
+    : undefined;
+
   return (
     <>
       <NavbarWithSuspense />
@@ -85,6 +99,15 @@ export async function BlogListingPage({
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
           <BlogBreadcrumbs items={breadcrumbItems} className="mb-4" />
           <BlogHero title={heroTitle} description={heroDescription} />
+          <BlogSearchBar basePath={basePath} className="mb-8 max-w-xl" />
+
+          {searchQuery && postsResult && !unavailable && (
+            <p className="mb-6 text-sm text-[var(--text-muted)]">
+              {postsResult.total === 1
+                ? `1 result for "${searchQuery}"`
+                : `${postsResult.total} results for "${searchQuery}"`}
+            </p>
+          )}
 
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_280px]">
             <div>
@@ -92,12 +115,17 @@ export async function BlogListingPage({
                 <BlogUnavailable />
               ) : (
                 <>
-                  <BlogGrid posts={postsResult?.posts ?? []} />
+                  <BlogGrid
+                    posts={postsResult?.posts ?? []}
+                    emptyTitle={emptyTitle}
+                    emptyDescription={emptyDescription}
+                  />
                   {postsResult && (
                     <BlogPagination
                       page={postsResult.page}
                       totalPages={postsResult.totalPages}
                       basePath={basePath}
+                      searchQuery={searchQuery || undefined}
                     />
                   )}
                 </>

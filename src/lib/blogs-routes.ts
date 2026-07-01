@@ -39,6 +39,30 @@ export function getBlogCategoriesPath(): string {
   return `${BLOG_BASE_PATH}/categories`;
 }
 
+export const BLOG_SEARCH_PARAM = "search";
+
+export function parseBlogSearchQuery(
+  searchParams: Record<string, string | string[] | undefined>
+): string {
+  const raw = searchParams[BLOG_SEARCH_PARAM];
+  if (typeof raw === "string") return raw.trim();
+  return "";
+}
+
+export function buildBlogQueryPath(
+  basePath: string,
+  options?: { page?: number; search?: string }
+): string {
+  const params = new URLSearchParams();
+  const search = options?.search?.trim();
+
+  if (search) params.set(BLOG_SEARCH_PARAM, search);
+  if (options?.page && options.page > 1) params.set("page", String(options.page));
+
+  const qs = params.toString();
+  return qs ? `${basePath}?${qs}` : basePath;
+}
+
 export function blogListingBreadcrumbs(): BlogBreadcrumbItem[] {
   return [
     { label: "Home", href: "/" },
