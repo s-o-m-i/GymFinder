@@ -8,6 +8,7 @@ import { FeatureHighlightsSection } from "@/components/home/FeatureHighlightsSec
 import { MapPreviewSection } from "@/components/home/MapPreviewSection";
 import { TrendingListingsSection } from "@/components/home/TrendingListingsSection";
 import { EventsPreviewSection } from "@/components/home/EventsPreviewSection";
+import { BlogPreviewSection } from "@/components/home/BlogPreviewSection";
 import { HomePreFooterSection } from "@/components/home/HomePreFooterSection";
 import { prisma } from "@/lib/prisma";
 import { CITIES } from "@/lib/constants";
@@ -21,6 +22,8 @@ import { getGymCoverUrl } from "@/lib/images";
 import { eventTypeLabel } from "@/lib/event-constants";
 import { eventCardSelect } from "@/services/events/event.service";
 import { checkExpiredFeaturedGyms } from "@/services/featured/featured-gym.service";
+import { getPosts, WordPressUnavailableError } from "@/services/wordpress.service";
+import type { BlogPostSummary } from "@/types/wordpress";
 
 async function getHeroStats() {
   try {
@@ -198,12 +201,24 @@ async function getUpcomingEventPreviews(): Promise<HomeEventPreview[]> {
   }
 }
 
+async function getLatestBlogPosts(): Promise<BlogPostSummary[]> {
+  try {
+    const result = await getPosts({ page: 1, perPage: 4 });
+    return result.posts;
+  } catch (error) {
+    if (error instanceof WordPressUnavailableError) return [];
+    throw error;
+  }
+}
+
 export default async function HomePage() {
-  const [stats, featuredGyms, featuredTrainers, upcomingEvents] = await Promise.all([
+  const [stats, featuredGyms, featuredTrainers, upcomingEvents, latestBlogPosts] =
+    await Promise.all([
     getHeroStats(),
     getFeaturedGymListings(),
     getFeaturedTrainerListings(),
     getUpcomingEventPreviews(),
+    getLatestBlogPosts(),
   ]);
 
   return (
@@ -217,6 +232,7 @@ export default async function HomePage() {
         <MapPreviewSection />
         <TrendingListingsSection gyms={featuredGyms} trainers={featuredTrainers} />
         <EventsPreviewSection events={upcomingEvents} />
+        <BlogPreviewSection posts={latestBlogPosts} />
         <HomePreFooterSection stats={stats} />
       </main>
       <Footer />
