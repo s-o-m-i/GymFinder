@@ -8,7 +8,8 @@ export type ClientImageUploadType =
   | "event_cover"
   | "payment_proof"
   | "equipment"
-  | "transformation";
+  | "transformation"
+  | "success_story";
 
 export function uploadImageWithProgress(
   file: File,

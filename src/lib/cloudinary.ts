@@ -7,6 +7,7 @@ export const CLOUDINARY_FOLDERS = {
   gallery: "gymxclubs/gyms/gallery",
   equipment: "gymxclubs/gyms/equipment",
   transformations: "gymxclubs/transformations",
+  successStories: "gymxclubs/success-stories",
   coaches: "gymxclubs/coaches",
   coachCerts: "gymxclubs/coaches/certifications",
   events:  "gymxclubs/events",

@@ -183,6 +183,8 @@ model Gym {
   faqs             GymFAQ[]
   featureRequests  FeatureRequest[]
   leads            GymLead[]
+  publishedStories SuccessStory[] @relation("StoryPublisherGym")
+  linkedStories    SuccessStory[] @relation("StoryLinkedGym")
 
   @@index([city])
   @@index([area])
@@ -433,6 +435,8 @@ model Trainer {
   leadEvents      TrainerLeadEvent[]
   reviews         TrainerReview[]
   faqs            TrainerFAQ[]
+  publishedStories SuccessStory[] @relation("StoryPublisherTrainer")
+  linkedStories    SuccessStory[] @relation("StoryLinkedTrainer")
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -596,5 +600,128 @@ model FeatureRequest {
 
   @@index([gymId])
   @@index([status])
+  @@index([createdAt])
+}
+
+enum SuccessStoryPublisherType {
+  GYM
+  TRAINER
+  USER
+}
+
+enum SuccessStoryStatus {
+  DRAFT
+  PUBLISHED
+}
+
+enum SuccessStoryGoal {
+  WEIGHT_LOSS
+  MUSCLE_GAIN
+  STRENGTH
+  ENDURANCE
+  BOXING
+  MMA
+  GENERAL_FITNESS
+  OTHER
+}
+
+enum SuccessStoryGender {
+  MALE
+  FEMALE
+  OTHER
+  PREFER_NOT_TO_SAY
+}
+
+enum WeightUnit {
+  KG
+  LBS
+}
+
+enum HeightUnit {
+  CM
+  FT
+  IN
+}
+
+model CommunityUser {
+  id              String   @id @default(cuid())
+  email           String   @unique
+  passwordHash    String
+  fullName        String
+  emailVerified   Boolean  @default(false)
+  emailVerifiedAt DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  successStories  SuccessStory[]
+
+  @@index([emailVerified])
+}
+
+model SuccessStory {
+  id        String @id @default(cuid())
+  slug      String @unique
+  title     String
+  clientName String
+  gender    SuccessStoryGender?
+  city      String
+  goal      SuccessStoryGoal
+  duration  String
+  story     String @db.Text
+
+  coverImageUrl      String?
+  coverCloudinaryId  String?
+  beforeImageUrl     String
+  beforeCloudinaryId String?
+  afterImageUrl      String
+  afterCloudinaryId  String?
+  progressImages     String? @db.Text
+
+  startWeight   Float?
+  currentWeight Float?
+  height        Float?
+  weightUnit    WeightUnit @default(KG)
+  heightUnit    HeightUnit @default(CM)
+
+  publisherType      SuccessStoryPublisherType
+  publisherGymId     String?
+  publisherTrainerId String?
+  publisherUserId    String?
+
+  linkedGymId     String?
+  linkedTrainerId String?
+
+  status      SuccessStoryStatus @default(DRAFT)
+  isVerified  Boolean            @default(false)
+  isFeatured  Boolean            @default(false)
+  publishedAt DateTime?
+
+  seoTitle       String?
+  seoDescription String?
+  ogImageUrl     String?
+
+  viewCount Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  publisherGym     Gym?            @relation("StoryPublisherGym", fields: [publisherGymId], references: [id], onDelete: Cascade)
+  publisherTrainer Trainer?        @relation("StoryPublisherTrainer", fields: [publisherTrainerId], references: [id], onDelete: Cascade)
+  publisherUser    CommunityUser?  @relation(fields: [publisherUserId], references: [id], onDelete: Cascade)
+  linkedGym        Gym?            @relation("StoryLinkedGym", fields: [linkedGymId], references: [id], onDelete: SetNull)
+  linkedTrainer    Trainer?        @relation("StoryLinkedTrainer", fields: [linkedTrainerId], references: [id], onDelete: SetNull)
+
+  @@index([slug])
+  @@index([status])
+  @@index([publisherType])
+  @@index([publisherGymId])
+  @@index([publisherTrainerId])
+  @@index([publisherUserId])
+  @@index([linkedGymId])
+  @@index([linkedTrainerId])
+  @@index([city])
+  @@index([goal])
+  @@index([isVerified])
+  @@index([isFeatured])
+  @@index([publishedAt])
   @@index([createdAt])
 }

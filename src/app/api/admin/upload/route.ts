@@ -14,6 +14,7 @@ const FOLDER_MAP: Record<string, string> = {
   event_cover: CLOUDINARY_FOLDERS.events,
   equipment: CLOUDINARY_FOLDERS.equipment,
   transformation: CLOUDINARY_FOLDERS.transformations,
+  success_story: CLOUDINARY_FOLDERS.successStories,
   payment_proof: CLOUDINARY_FOLDERS.payments,
 };
 

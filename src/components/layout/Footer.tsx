@@ -57,6 +57,7 @@ export function Footer() {
               {[
                 { href: "/gyms", label: "All Gyms" },
                 { href: "/trainers", label: "Find Trainers" },
+                { href: "/success-stories", label: "Success Stories" },
                 { href: "/events", label: "Events" },
                 { href: "/blogs", label: "Blog" },
                 { href: "/gyms/boxing", label: "Boxing Clubs" },

@@ -39,6 +39,8 @@ import { GymEventsSection } from "../events/GymEventsSection";
 import { GymAboutText } from "./GymAboutText";
 import { GymStatsStrip } from "@/components/gym/GymStatsStrip";
 import { buildGymProfileStats } from "@/lib/gym-stats";
+import { SuccessStoriesProfileSection } from "@/components/success-stories/SuccessStoriesProfileSection";
+import { getStoriesForGymProfile } from "@/services/success-story/success-story.service";
 import { TransformationGallerySection } from "@/components/transformation/TransformationGallerySection";
 
 interface GymProfilePageProps {
@@ -72,6 +74,7 @@ export async function GymProfilePage({ slug }: GymProfilePageProps) {
   if (gym.listingStatus !== "approved") notFound();
 
   const { upcoming: upcomingEvents, past: pastEvents } = await getGymEvents(gym.id);
+  const successStories = await getStoriesForGymProfile(gym.id);
 
   const disciplineNames = gym.disciplines.map((d) => d.discipline.name);
   const amenityNames = gym.amenities.map((a) => a.amenity.name);
@@ -245,6 +248,11 @@ export async function GymProfilePage({ slug }: GymProfilePageProps) {
               <GymEquipmentSection equipmentRaw={gym.equipment} />
 
               <TransformationGallerySection transformationsRaw={gym.transformations} />
+
+              <SuccessStoriesProfileSection
+                stories={successStories}
+                description="Verified transformations linked to this gym — published by gyms, trainers, and community members."
+              />
 
               <MeetOurTeamSectionLazy members={gym.staffMembers} />
 

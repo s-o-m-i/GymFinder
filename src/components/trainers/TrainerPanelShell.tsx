@@ -8,6 +8,7 @@ import {
   Images,
   LayoutDashboard,
   Menu,
+  Trophy,
   User,
   UserCircle,
   X,
@@ -58,6 +59,12 @@ function SidebarContent({
           href="/trainer/dashboard/transformations"
           icon={<Images className="w-4 h-4" />}
           label="Transformations"
+          onNavigate={onNavigate}
+        />
+        <TrainerNavLink
+          href="/trainer/dashboard/success-stories"
+          icon={<Trophy className="w-4 h-4" />}
+          label="Success Stories"
           onNavigate={onNavigate}
         />
         <TrainerNavLink

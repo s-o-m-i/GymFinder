@@ -11,6 +11,8 @@ import { TrainerAchievementsSection } from "@/components/trainers/TrainerAchieve
 import { TrainerReviewsSection } from "@/components/trainers/TrainerReviewsSection";
 import { FaqAccordionSection } from "@/components/faq/FaqAccordionSection";
 import { TransformationGallerySection } from "@/components/transformation/TransformationGallerySection";
+import { SuccessStoriesProfileSection } from "@/components/success-stories/SuccessStoriesProfileSection";
+import { getStoriesForTrainerProfile } from "@/services/success-story/success-story.service";
 import { Badge } from "@/components/ui/Badge";
 import { getTrainerBySlug } from "@/services/trainer/trainer.service";
 import { specializationLabel } from "@/lib/trainer-constants";
@@ -43,6 +45,8 @@ interface TrainerProfilePageProps {
 export async function TrainerProfilePage({ slug }: TrainerProfilePageProps) {
   const trainer = await getTrainerBySlug(slug);
   if (!trainer || !trainer.isPublished) notFound();
+
+  const successStories = await getStoriesForTrainerProfile(trainer.id);
 
   const certifications = parseCertifications(trainer.certifications);
   const achievements = parseAchievements(trainer.achievements);
@@ -207,6 +211,11 @@ export async function TrainerProfilePage({ slug }: TrainerProfilePageProps) {
               )}
 
               <TransformationGallerySection transformationsRaw={trainer.transformations} />
+
+              <SuccessStoriesProfileSection
+                stories={successStories}
+                description="Verified transformations linked to this trainer — published by gyms, trainers, and community members."
+              />
 
               <TrainerCertificationsSection certifications={certifications} />
               <TrainerAchievementsSection achievements={achievements} />
