@@ -431,9 +431,6 @@ export function AboutPageSections({ stats }: AboutPageSectionsProps) {
                       <div className={cn(index % 2 === 0 && "sm:hidden")}>
                         <RoadmapCard item={item} align="left" />
                       </div>
-                      <div className={cn(index % 2 !== 0 && "hidden sm:block")}>
-                        {index % 2 !== 0 && <RoadmapCard item={item} align="left" />}
-                      </div>
                     </div>
                   </li>
                 </FadeInView>

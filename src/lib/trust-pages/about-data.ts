@@ -249,17 +249,17 @@ export const ROADMAP_ITEMS: {
   {
     title: "Success Stories",
     description: "Community transformation journeys and before/after galleries.",
-    status: "current",
+    status: "completed",
   },
   {
     title: "Events",
     description: "Fight nights, workshops, and fitness events calendar.",
-    status: "current",
+    status: "completed",
   },
   {
     title: "Blogs",
     description: "Fitness content hub with expert articles and guides.",
-    status: "current",
+    status: "completed",
   },
   {
     title: "Fitness Community",
