@@ -71,12 +71,12 @@ export function ContactForm({ defaultSubject, formId = "contact-form" }: Contact
       {submitState === "success" && (
         <div
           role="status"
-          className="mb-6 flex items-start gap-3 rounded-xl border border-green-200 bg-green-50 p-4 text-sm text-green-800 dark:border-green-900/40 dark:bg-green-950/30 dark:text-green-300"
+          className="mb-6 flex items-start gap-3 rounded-xl border border-emerald-300 bg-emerald-50 p-4 text-sm shadow-sm"
         >
-          <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0" />
+          <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600" aria-hidden />
           <div>
-            <p className="font-semibold">Message sent successfully!</p>
-            <p className="mt-1 text-green-700 dark:text-green-400">
+            <p className="font-semibold text-emerald-950">Message sent successfully!</p>
+            <p className="mt-1 text-emerald-800">
               We&apos;ll get back to you within 1–2 business days.
             </p>
           </div>
@@ -86,9 +86,9 @@ export function ContactForm({ defaultSubject, formId = "contact-form" }: Contact
       {submitState === "error" && errorMessage && (
         <div
           role="alert"
-          className="mb-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800"
+          className="mb-6 flex items-start gap-3 rounded-xl border border-red-300 bg-red-50 p-4 text-sm shadow-sm"
         >
-          {errorMessage}
+          <p className="font-medium text-red-950">{errorMessage}</p>
         </div>
       )}
 

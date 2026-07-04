@@ -14,6 +14,12 @@ export const DISCOVER_LINKS: NavLinkItem[] = [
     description: "Boxing, MMA & martial arts",
   },
   { href: "/trainers", label: "Trainers", emoji: "👨‍🏫", description: "Certified coaches" },
+  {
+    href: "/ai-gym-finder",
+    label: "AI Gym Search",
+    emoji: "✨",
+    description: "Smart gym recommendations",
+  },
 ];
 
 export const RESOURCES_LINKS: NavLinkItem[] = [
