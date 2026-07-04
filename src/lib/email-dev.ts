@@ -41,3 +41,18 @@ export function logDevEmailLink(label: string, url: string) {
   if (!isDevEmailLinksEnabled()) return;
   console.log(`\n[dev email] ${label}:\n${url}\n`);
 }
+
+/** Resend test mode only delivers to verified/account emails — redirect in development. */
+export function resolveDevAwareEmailRecipient(intended: string): string {
+  const override = process.env.CONTACT_FORM_TO_EMAIL?.trim();
+  if (override) return override;
+
+  if (
+    process.env.NODE_ENV === "development" &&
+    process.env.RESEND_DEV_RECIPIENT_EMAIL?.trim()
+  ) {
+    return process.env.RESEND_DEV_RECIPIENT_EMAIL.trim();
+  }
+
+  return intended;
+}
