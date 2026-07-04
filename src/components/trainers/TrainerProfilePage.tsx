@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { TrainerContactButtons } from "@/components/trainers/TrainerContactButtons";
+import { TrainerMobileStickyBar } from "@/components/trainers/TrainerMobileStickyBar";
 import { TrainerHeroGallery } from "@/components/trainers/TrainerHeroGallery";
 import { TrainerQuickStats } from "@/components/trainers/TrainerQuickStats";
 import { TrainerCertificationsSection } from "@/components/trainers/TrainerCertificationsSection";
@@ -219,23 +220,6 @@ export async function TrainerProfilePage({ slug }: TrainerProfilePageProps) {
                 reviews={trainer.reviews}
                 avgRating={avgRating}
               />
-
-              {/* Mobile contact CTA */}
-              {trainer.whatsappNumber && (
-                <div className="lg:hidden bg-[#0B2545] rounded-2xl p-6 text-white">
-                  <h2 className="font-heading font-bold text-lg mb-2">Ready to train?</h2>
-                  <p className="text-white/80 text-sm mb-4">
-                    Contact {trainer.fullName} to discuss goals, schedule, and pricing.
-                  </p>
-                  <TrainerContactButtons
-                    trainerId={trainer.id}
-                    trainerName={trainer.fullName}
-                    whatsappNumber={trainer.whatsappNumber}
-                    email={trainer.email}
-                    size="lg"
-                  />
-                </div>
-              )}
             </div>
 
             {/* ── Sidebar ── */}
@@ -281,7 +265,8 @@ export async function TrainerProfilePage({ slug }: TrainerProfilePageProps) {
                     trainerName={trainer.fullName}
                     whatsappNumber={trainer.whatsappNumber}
                     email={trainer.email}
-                    size="lg"
+                    size="md"
+                    layout="compact"
                   />
                 </div>
               )}
@@ -359,7 +344,12 @@ export async function TrainerProfilePage({ slug }: TrainerProfilePageProps) {
           </div>
         </div>
       </main>
-      <Footer />
+      {trainer.whatsappNumber && (
+        <TrainerMobileStickyBar trainerId={trainer.id} trainerName={trainer.fullName} />
+      )}
+      <div className={trainer.whatsappNumber ? "pb-24 lg:pb-0" : undefined}>
+        <Footer />
+      </div>
     </>
   );
 }

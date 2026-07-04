@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { AlertCircle, ChevronLeft, ChevronRight, Loader2, Rocket } from "lucide-react";
@@ -82,6 +82,12 @@ export function TrainerProfileWizard({ trainer, accountEmail }: TrainerProfileWi
   const [validatingStep, setValidatingStep] = useState(false);
   const [stepError, setStepError] = useState<string | null>(null);
   const [animKey, setAnimKey] = useState(0);
+  const currentStepRef = useRef(currentStep);
+  const blockSubmitRef = useRef(false);
+
+  useEffect(() => {
+    currentStepRef.current = currentStep;
+  }, [currentStep]);
 
   const { restoreDraft, scheduleSave, saveLabel } = useTrainerProfileDraft({
     accountEmail,
@@ -176,7 +182,16 @@ export function TrainerProfileWizard({ trainer, accountEmail }: TrainerProfileWi
     const valid = await validateCurrentStep();
     setValidatingStep(false);
     if (!valid) return;
-    setCurrentStep((s) => Math.min(s + 1, WIZARD_STEPS.length - 1));
+
+    const nextStep = Math.min(currentStepRef.current + 1, WIZARD_STEPS.length - 1);
+    if (nextStep === WIZARD_STEPS.length - 1) {
+      blockSubmitRef.current = true;
+      window.setTimeout(() => {
+        blockSubmitRef.current = false;
+      }, 500);
+    }
+
+    setCurrentStep(nextStep);
     setAnimKey((k) => k + 1);
     scrollToTop();
   }
@@ -191,6 +206,9 @@ export function TrainerProfileWizard({ trainer, accountEmail }: TrainerProfileWi
   }
 
   async function onSubmit() {
+    if (blockSubmitRef.current) return;
+    if (currentStepRef.current !== WIZARD_STEPS.length - 1) return;
+
     setSubmitting(true);
     setSubmitError(null);
     setStepError(null);
@@ -226,8 +244,21 @@ export function TrainerProfileWizard({ trainer, accountEmail }: TrainerProfileWi
   const isFirstStep = currentStep === 0;
   const isLastStep = currentStep === WIZARD_STEPS.length - 1;
 
+  function handleFormKeyDown(event: React.KeyboardEvent<HTMLFormElement>) {
+    if (event.key !== "Enter" || isLastStep) return;
+    if (event.target instanceof HTMLTextAreaElement) return;
+    event.preventDefault();
+  }
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="min-w-0">
+    <form
+      onSubmit={(event) => {
+        event.preventDefault();
+        void handleSubmit(onSubmit)();
+      }}
+      onKeyDown={handleFormKeyDown}
+      className="min-w-0"
+    >
       <div className="mb-6">
         <div className="mb-2 flex justify-end">
           <DraftSavedIndicator label={saveLabel} />
@@ -299,7 +330,8 @@ export function TrainerProfileWizard({ trainer, accountEmail }: TrainerProfileWi
 
         {isLastStep ? (
           <button
-            type="submit"
+            type="button"
+            onClick={() => void handleSubmit(onSubmit)()}
             disabled={submitting}
             className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#FF6A3D] text-white font-semibold text-sm rounded-xl hover:bg-[#e85528] disabled:opacity-70 transition-colors"
           >
