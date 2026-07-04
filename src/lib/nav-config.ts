@@ -17,12 +17,12 @@ export const DISCOVER_LINKS: NavLinkItem[] = [
 ];
 
 export const RESOURCES_LINKS: NavLinkItem[] = [
+  { href: "/about", label: "About", description: "Our mission" },
   { href: "/blogs", label: "Blog", description: "Latest articles & news" },
   { href: "/blogs/category/fitness-tips", label: "Fitness Tips", description: "Training advice" },
   { href: "/blogs/category/nutrition", label: "Nutrition", description: "Diet & meal guidance" },
   { href: "/blogs/category/workout", label: "Workout Guides", description: "Programmes & routines" },
   { href: "/resources/faqs", label: "FAQs", description: "Common questions" },
-  { href: "/about", label: "About", description: "Our mission" },
   { href: "/contact", label: "Contact", description: "Get in touch" },
 ];
 
