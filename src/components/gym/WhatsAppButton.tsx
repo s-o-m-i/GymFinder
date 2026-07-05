@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { MessageCircle } from "lucide-react";
 import { analyticsRedirectUrl } from "@/lib/analytics-urls";
+import { GA_EVENTS, trackGAEvent } from "@/lib/google-analytics";
 import { GymWhatsAppLeadModal } from "@/components/gym/GymWhatsAppLeadModal";
 import { cn } from "@/lib/utils";
 
@@ -55,18 +56,13 @@ export function WhatsAppButton({
     className
   );
 
-  function trackGtag() {
-    if (
-      typeof window !== "undefined" &&
-      (window as unknown as Record<string, unknown>).gtag
-    ) {
-      (
-        window as unknown as Record<string, (...args: unknown[]) => void>
-      ).gtag("event", "whatsapp_click", {
-        gym_name: gymName,
-        gym_id: gymId,
-      });
-    }
+  function trackWhatsAppClick() {
+    trackGAEvent(GA_EVENTS.whatsapp_click, {
+      entity_type: "gym",
+      entity_id: gymId,
+      entity_name: gymName,
+      page_type: "profile",
+    });
   }
 
   if (captureLead) {
@@ -75,7 +71,7 @@ export function WhatsAppButton({
         <button
           type="button"
           onClick={() => {
-            trackGtag();
+            trackWhatsAppClick();
             setModalOpen(true);
           }}
           className={buttonClass}
@@ -94,7 +90,7 @@ export function WhatsAppButton({
   }
 
   return (
-    <a href={url} className={buttonClass} onClick={trackGtag}>
+    <a href={url} className={buttonClass} onClick={trackWhatsAppClick}>
       <MessageCircle className={iconSizes[size]} />
       <span>{displayLabel}</span>
     </a>

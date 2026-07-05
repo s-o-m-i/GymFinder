@@ -7,6 +7,7 @@ import { Search } from "lucide-react";
 import { EVENT_TYPES, EVENT_TIME_OF_DAY_OPTIONS } from "@/lib/event-constants";
 import { CITIES } from "@/lib/constants";
 import { cn } from "@/lib/utils";
+import { trackFilterUsed } from "@/lib/google-analytics";
 
 export interface EventFilterGym {
   id: string;
@@ -42,6 +43,9 @@ export function EventsFilters({ basePath, fixedCity, gyms }: EventsFiltersProps)
     if (searchInput === urlSearch) return;
 
     const timer = window.setTimeout(() => {
+      trackFilterUsed("events", {
+        search: searchInput.trim() || undefined,
+      });
       const params = new URLSearchParams(searchParams.toString());
       const trimmed = searchInput.trim();
       if (trimmed) params.set("search", trimmed);
@@ -55,6 +59,9 @@ export function EventsFilters({ basePath, fixedCity, gyms }: EventsFiltersProps)
   }, [searchInput, urlSearch, basePath, router, searchParams]);
 
   function updateParam(key: string, value: string) {
+    trackFilterUsed("events", {
+      [key]: value || undefined,
+    });
     const params = new URLSearchParams(searchParams.toString());
     if (value) params.set(key, value);
     else params.delete(key);
@@ -64,6 +71,9 @@ export function EventsFilters({ basePath, fixedCity, gyms }: EventsFiltersProps)
   }
 
   function toggleFeatured() {
+    trackFilterUsed("events", {
+      featured: featured ? undefined : "true",
+    });
     const params = new URLSearchParams(searchParams.toString());
     if (featured) params.delete("featured");
     else params.set("featured", "1");

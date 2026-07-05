@@ -2,10 +2,12 @@
 
 import { Phone } from "lucide-react";
 import { analyticsRedirectUrl } from "@/lib/analytics-urls";
+import { GA_EVENTS, trackGAEvent } from "@/lib/google-analytics";
 import { cn } from "@/lib/utils";
 
 interface CallGymButtonProps {
   gymId: string;
+  gymName?: string;
   size?: "sm" | "md" | "lg";
   className?: string;
   fullWidth?: boolean;
@@ -14,12 +16,22 @@ interface CallGymButtonProps {
 
 export function CallGymButton({
   gymId,
+  gymName,
   size = "md",
   className,
   fullWidth = false,
   label = "Call Gym",
 }: CallGymButtonProps) {
   const url = analyticsRedirectUrl(gymId, "PHONE_CLICK");
+
+  function trackPhoneClick() {
+    trackGAEvent(GA_EVENTS.phone_click, {
+      entity_type: "gym",
+      entity_id: gymId,
+      entity_name: gymName,
+      page_type: "profile",
+    });
+  }
 
   const sizes = {
     sm: "h-9 px-3 text-xs gap-1.5 rounded-xl",
@@ -36,6 +48,7 @@ export function CallGymButton({
   return (
     <a
       href={url}
+      onClick={trackPhoneClick}
       className={cn(
         "inline-flex items-center justify-center",
         "font-semibold bg-[#0B2545] text-white",

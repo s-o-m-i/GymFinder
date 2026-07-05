@@ -6,6 +6,7 @@ import Link from "next/link";
 import { User, Mail, Phone, AlertCircle, Loader2, Eye, EyeOff } from "lucide-react";
 import { LegalTermsCheckbox } from "@/components/legal/LegalTermsCheckbox";
 import { ACCEPT_TERMS_MESSAGE } from "@/lib/validations/legal";
+import { GA_EVENTS, trackGAEvent } from "@/lib/google-analytics";
 
 const glassCard =
   "relative w-full max-w-lg rounded-3xl overflow-hidden border border-white/20 bg-white/10 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.35)]";
@@ -80,6 +81,9 @@ export function TrainerRegisterForm() {
       if (data.devOtpCode) {
         sessionStorage.setItem("trainer_dev_otp", data.devOtpCode);
       }
+      trackGAEvent(GA_EVENTS.trainer_registered, {
+        method: "email",
+      });
       router.push(
         `/trainer/verify-email?email=${encodeURIComponent(data.email ?? form.email)}&pending=1`
       );

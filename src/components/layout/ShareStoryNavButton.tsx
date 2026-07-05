@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AUTH_PATHS } from "@/lib/nav-config";
+import { GA_EVENTS, trackGAEvent } from "@/lib/google-analytics";
 
 interface ShareStoryNavButtonProps {
   isHero?: boolean;
@@ -33,7 +34,13 @@ export function ShareStoryNavButton({
   return (
     <Link
       href={href}
-      onClick={onNavigate}
+      onClick={() => {
+        trackGAEvent(GA_EVENTS.share_story, {
+          action: "nav_click",
+          destination: href,
+        });
+        onNavigate?.();
+      }}
       className={cn(
         "inline-flex items-center gap-1 whitespace-nowrap rounded-xl px-3 py-2 text-sm font-semibold transition-colors",
         isHero

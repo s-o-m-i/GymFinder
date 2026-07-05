@@ -13,6 +13,7 @@ import {
 } from "@/lib/trainer-constants";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
+import { trackFilterUsed } from "@/lib/google-analytics";
 
 interface TrainerFiltersProps {
   basePath?: string;
@@ -138,6 +139,18 @@ export function TrainerFilters({ basePath = "/trainers", fixedCity }: TrainerFil
     (updated: Partial<FilterState>) => {
       const next = { ...filters, ...updated };
       setFilters(next);
+      trackFilterUsed("trainers", {
+        search: next.search || undefined,
+        city: next.city || undefined,
+        specialization: next.specialization || undefined,
+        experience: next.experience || undefined,
+        rate: next.rate || undefined,
+        gender: next.gender || undefined,
+        rating: next.rating || undefined,
+        featured: next.featured ? "true" : undefined,
+        verified: next.verified ? "true" : undefined,
+        sort: next.sort !== "featured" ? next.sort : undefined,
+      });
       startTransition(() => {
         router.push(buildFilterUrl(next), { scroll: false });
       });

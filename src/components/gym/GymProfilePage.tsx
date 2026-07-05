@@ -359,7 +359,7 @@ export async function GymProfilePage({ slug }: GymProfilePageProps) {
                     captureLead
                     label="WhatsApp Gym"
                   />
-                  <CallGymButton gymId={gym.id} size="lg" fullWidth />
+                  <CallGymButton gymId={gym.id} gymName={gym.name} size="lg" fullWidth />
                 </div>
               </div>
 

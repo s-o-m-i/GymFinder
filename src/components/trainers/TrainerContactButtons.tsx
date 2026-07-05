@@ -2,6 +2,7 @@
 
 import { MessageCircle, Phone } from "lucide-react";
 import { trainerAnalyticsRedirectUrl } from "@/lib/trainer-analytics-urls";
+import { GA_EVENTS, trackGAEvent } from "@/lib/google-analytics";
 import { cn } from "@/lib/utils";
 
 interface TrainerContactButtonsProps {
@@ -16,7 +17,7 @@ interface TrainerContactButtonsProps {
 
 export function TrainerContactButtons({
   trainerId,
-  trainerName: _trainerName,
+  trainerName,
   whatsappNumber: _whatsappNumber,
   email,
   size = "md",
@@ -28,6 +29,24 @@ export function TrainerContactButtons({
   const emailHref = email
     ? trainerAnalyticsRedirectUrl(trainerId, "CONTACT_CLICK")
     : null;
+
+  function trackWhatsAppClick() {
+    trackGAEvent(GA_EVENTS.whatsapp_click, {
+      entity_type: "trainer",
+      entity_id: trainerId,
+      entity_name: trainerName,
+      page_type: "profile",
+    });
+  }
+
+  function trackPhoneClick() {
+    trackGAEvent(GA_EVENTS.phone_click, {
+      entity_type: "trainer",
+      entity_id: trainerId,
+      entity_name: trainerName,
+      page_type: "profile",
+    });
+  }
 
   const sizes = {
     sm: "h-9 min-h-9 px-3 text-xs gap-1.5 rounded-xl",
@@ -49,6 +68,7 @@ export function TrainerContactButtons({
           href={whatsappUrl}
           target="_blank"
           rel="noopener noreferrer"
+          onClick={trackWhatsAppClick}
           className={cn(
             "inline-flex flex-1 min-w-0 items-center justify-center font-semibold transition-all active:scale-[0.98]",
             "bg-[#25D366] text-white hover:bg-[#1da851]",
@@ -60,6 +80,7 @@ export function TrainerContactButtons({
         </a>
         <a
           href={phoneHref}
+          onClick={trackPhoneClick}
           className={cn(
             "inline-flex flex-1 min-w-0 items-center justify-center font-semibold transition-all active:scale-[0.98]",
             "bg-[#0B2545] text-white hover:bg-[#071832]",

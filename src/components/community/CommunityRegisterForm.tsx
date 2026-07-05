@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Mail, Lock, User, Eye, EyeOff, AlertCircle, Loader2 } from "lucide-react";
+import { GA_EVENTS, trackGAEvent } from "@/lib/google-analytics";
 
 const glassCard =
   "relative w-full max-w-md rounded-3xl overflow-hidden border border-white/20 bg-white/10 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.35)]";
@@ -40,6 +41,9 @@ export function CommunityRegisterForm() {
         setError(data.error ?? "Registration failed.");
         return;
       }
+      trackGAEvent(GA_EVENTS.share_story, {
+        action: "community_register",
+      });
       router.push("/user/dashboard/success-stories");
       router.refresh();
     } catch {

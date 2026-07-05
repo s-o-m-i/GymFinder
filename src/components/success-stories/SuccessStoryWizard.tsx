@@ -25,6 +25,7 @@ import {
 } from "@/app/actions/success-story/stories";
 import { plainStoryLength } from "@/lib/success-stories/utils";
 import { cn } from "@/lib/utils";
+import { GA_EVENTS, trackGAEvent } from "@/lib/google-analytics";
 
 const STEPS = ["Basic Info", "Transformation", "Journey", "Connect", "Preview"] as const;
 
@@ -164,6 +165,14 @@ export function SuccessStoryWizard({
       setError(result.error ?? "Something went wrong.");
       return;
     }
+
+    if (publish) {
+      trackGAEvent(GA_EVENTS.share_story, {
+        action: "story_published",
+        story_id: result.storyId,
+      });
+    }
+
     router.push(dashboardPath);
     router.refresh();
   }

@@ -5,6 +5,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { TrackEventView } from "@/components/events/TrackEventView";
+import { EventRegisterButton } from "@/components/events/EventRegisterButton";
 import { getEventBySlug } from "@/services/events/event.service";
 import { getEventStatus } from "@/lib/event-status";
 import {
@@ -22,7 +23,6 @@ import {
   MapPin,
   Building2,
   ExternalLink,
-  MessageCircle,
   Sparkles,
 } from "lucide-react";
 
@@ -184,15 +184,11 @@ export async function EventDetailPage({ slug }: EventDetailPageProps) {
                 </p>
 
                 {whatsappNumber ? (
-                  <a
+                  <EventRegisterButton
                     href={buildWhatsAppUrl(whatsappNumber, contactMessage)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2 w-full py-3 bg-[#25D366] text-white font-semibold text-sm rounded-xl hover:bg-[#1da851] transition-colors"
-                  >
-                    <MessageCircle className="w-4 h-4" />
-                    Contact on WhatsApp
-                  </a>
+                    eventId={event.id}
+                    eventTitle={event.title}
+                  />
                 ) : (
                   <p className="text-sm text-[var(--text-muted)]">
                     Contact details will be shared by the organizer.

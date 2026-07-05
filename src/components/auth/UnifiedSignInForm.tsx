@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { AlertCircle, Loader2, Lock, Mail } from "lucide-react";
 import { AuthPageLayout } from "@/components/auth/AuthPageLayout";
+import { GA_EVENTS, trackGAEvent } from "@/lib/google-analytics";
 
 const glassCard =
   "relative w-full max-w-md rounded-3xl overflow-hidden border border-white/20 bg-white/10 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.35)]";
@@ -113,7 +114,15 @@ function SignInFormInner() {
         <div className="mt-6 space-y-2 text-center text-sm text-white/70">
           <p>
             New here?{" "}
-            <Link href="/user/register" className="font-semibold text-[#FF6A3D] hover:underline">
+            <Link
+              href="/user/register"
+              onClick={() =>
+                trackGAEvent(GA_EVENTS.share_story, {
+                  action: "sign_in_page_link",
+                })
+              }
+              className="font-semibold text-[#FF6A3D] hover:underline"
+            >
               Share a story
             </Link>
             {" · "}

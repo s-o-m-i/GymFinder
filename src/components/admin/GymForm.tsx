@@ -30,6 +30,7 @@ import {
 } from "@/lib/owner-constants";
 import type { BusinessCategory } from "@prisma/client";
 import type { Discipline, Amenity } from "@prisma/client";
+import { GA_EVENTS, trackGAEvent } from "@/lib/google-analytics";
 
 interface GymFormData {
   name: string;
@@ -436,6 +437,14 @@ export function GymForm({
       if (!res.ok) {
         setError(data.error ?? "Something went wrong");
         return;
+      }
+
+      if (isOwner && mode === "create") {
+        trackGAEvent(GA_EVENTS.profile_created, {
+          profile_type: "gym",
+          entity_id: data.data?.id,
+          entity_name: form.name,
+        });
       }
 
       router.push(successPath ?? (isOwner ? "/owner/dashboard" : "/admin"));

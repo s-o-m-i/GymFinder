@@ -8,6 +8,7 @@ import { GymTypeIcon } from "@/components/ui/GymTypeIcon";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 import { getGymsBasePath, parseCityFromPath, parseTypeFromPath } from "@/lib/gyms-routes";
+import { trackFilterUsed } from "@/lib/google-analytics";
 import type { City } from "@/lib/constants";
 
 interface FilterState {
@@ -115,6 +116,9 @@ export function GymFilters({
         if (trimmed) params.set("search", trimmed);
         else params.delete("search");
       });
+      trackFilterUsed("gyms", {
+        search: searchDraft.trim() || undefined,
+      });
       setFilters((prev) => ({ ...prev, search: searchDraft }));
     }, SEARCH_DEBOUNCE_MS);
 
@@ -150,6 +154,17 @@ export function GymFilters({
     (updated: Partial<FilterState>) => {
       setFilters((prev) => {
         const next = { ...prev, ...updated };
+        trackFilterUsed("gyms", {
+          search: next.search || undefined,
+          city: next.city || undefined,
+          area: next.area || undefined,
+          type: next.type || undefined,
+          ladies_status: next.ladiesStatus || undefined,
+          discipline: next.discipline || undefined,
+          amenity: next.amenity || undefined,
+          rating: next.rating || undefined,
+          sort: next.sort !== "featured" ? next.sort : undefined,
+        });
         startTransition(() => {
           router.replace(buildFilterUrl(next), { scroll: false });
           router.refresh();

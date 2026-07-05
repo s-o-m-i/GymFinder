@@ -2,6 +2,7 @@
 
 import { MessageCircle, Phone } from "lucide-react";
 import { trainerAnalyticsRedirectUrl } from "@/lib/trainer-analytics-urls";
+import { GA_EVENTS, trackGAEvent } from "@/lib/google-analytics";
 import { cn } from "@/lib/utils";
 
 interface TrainerMobileStickyBarProps {
@@ -26,6 +27,15 @@ export function TrainerMobileStickyBar({ trainerId, trainerName }: TrainerMobile
           href={whatsappUrl}
           target="_blank"
           rel="noopener noreferrer"
+          onClick={() =>
+            trackGAEvent(GA_EVENTS.whatsapp_click, {
+              entity_type: "trainer",
+              entity_id: trainerId,
+              entity_name: trainerName,
+              page_type: "profile",
+              placement: "mobile_sticky",
+            })
+          }
           className={cn(buttonClass, "bg-[#25D366] text-white hover:bg-[#1da851]")}
         >
           <MessageCircle className="h-4 w-4 shrink-0" />
@@ -33,6 +43,15 @@ export function TrainerMobileStickyBar({ trainerId, trainerName }: TrainerMobile
         </a>
         <a
           href={phoneUrl}
+          onClick={() =>
+            trackGAEvent(GA_EVENTS.phone_click, {
+              entity_type: "trainer",
+              entity_id: trainerId,
+              entity_name: trainerName,
+              page_type: "profile",
+              placement: "mobile_sticky",
+            })
+          }
           className={cn(buttonClass, "bg-[#0B2545] text-white hover:bg-[#071832]")}
         >
           <Phone className="h-4 w-4 shrink-0" />

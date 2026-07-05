@@ -33,6 +33,7 @@ import { CertificationsStep } from "@/components/trainers/profile-wizard/steps/C
 import { AvailabilityStep } from "@/components/trainers/profile-wizard/steps/AvailabilityStep";
 import { ReviewStep } from "@/components/trainers/profile-wizard/steps/ReviewStep";
 import { cn } from "@/lib/utils";
+import { GA_EVENTS, trackGAEvent } from "@/lib/google-analytics";
 
 interface TrainerProfileWizardProps {
   trainer: Trainer | null;
@@ -234,6 +235,14 @@ export function TrainerProfileWizard({ trainer, accountEmail }: TrainerProfileWi
     if (!result.success) {
       setSubmitError(result.error);
       return;
+    }
+
+    const isFirstProfile = !trainer;
+    if (isFirstProfile) {
+      trackGAEvent(GA_EVENTS.profile_created, {
+        profile_type: "trainer",
+        entity_name: payload.fullName,
+      });
     }
 
     clearTrainerProfileDraft(accountEmail);
