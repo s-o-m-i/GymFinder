@@ -533,6 +533,62 @@ input[type="range"]::-moz-range-thumb {
   animation: wizard-step-enter 0.28s ease-out;
 }
 
+@keyframes ecosystem-flow {
+  0% {
+    stroke-dashoffset: 152;
+    opacity: 0.25;
+  }
+  45% {
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0.25;
+  }
+}
+
+@keyframes ecosystem-line-pulse {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes ecosystem-node-ring {
+  0% {
+    opacity: 0.45;
+    transform: scale(0.88);
+    transform-origin: center;
+  }
+  70% {
+    opacity: 0;
+    transform: scale(1.45);
+    transform-origin: center;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.45);
+    transform-origin: center;
+  }
+}
+
+.ecosystem-network-flow {
+  animation: ecosystem-flow 4.2s linear infinite;
+}
+
+.ecosystem-network-line {
+  animation: ecosystem-line-pulse 3s ease-in-out infinite;
+}
+
+.ecosystem-node-pulse {
+  animation: ecosystem-node-ring 2.8s ease-out infinite;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

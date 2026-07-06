@@ -26,6 +26,7 @@ export function HomeMotionProvider({ children }: HomeMotionProviderProps) {
         initExploreParallax,
       } = await import("@/lib/motion/interactions");
       const { initPakistanMapMotion } = await import("@/lib/motion/pakistan-map");
+      const { initEcosystemNetworkMotion } = await import("@/lib/motion/ecosystem-network");
       const { initSuccessStoriesMotion } = await import("@/lib/motion/success-stories");
 
       const gsap = await loadGsap();
@@ -43,10 +44,6 @@ export function HomeMotionProvider({ children }: HomeMotionProviderProps) {
 
         initScrollReveals(gsap, ScrollTrigger, scope, isReduced);
         initStaggerChildren(gsap, ScrollTrigger, scope, "[data-stagger]", isReduced);
-        initStaggerChildren(gsap, ScrollTrigger, scope, "[data-stagger-features]", isReduced, {
-          stagger: 0.1,
-          y: MOTION.y.md,
-        });
         initStaggerChildren(gsap, ScrollTrigger, scope, "[data-stagger-events]", isReduced, {
           stagger: 0.08,
         });
@@ -59,6 +56,7 @@ export function HomeMotionProvider({ children }: HomeMotionProviderProps) {
         });
         initCounters(gsap, ScrollTrigger, scope, isReduced);
         const mapCleanup = initPakistanMapMotion(gsap, ScrollTrigger, scope, isReduced);
+        initEcosystemNetworkMotion(gsap, ScrollTrigger, scope, isReduced);
         initListingCards(gsap, ScrollTrigger, scope, isReduced);
         initExploreParallax(gsap, ScrollTrigger, scope, isReduced);
         initSectionParallax(gsap, ScrollTrigger, scope, isReduced);

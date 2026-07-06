@@ -4,7 +4,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { HeroSection } from "@/components/home/HeroSection";
 import { ExploreCenterSection } from "@/components/home/ExploreCenterSection";
-import { FeatureHighlightsSection } from "@/components/home/FeatureHighlightsSection";
+import { AnimatedNetworkSection } from "@/components/home/AnimatedNetworkSection";
 import { MapPreviewSection } from "@/components/home/MapPreviewSection";
 import { TrendingListingsSection } from "@/components/home/TrendingListingsSection";
 import { EventsPreviewSection } from "@/components/home/EventsPreviewSection";
@@ -234,11 +234,11 @@ export default async function HomePage() {
           <HomeSuccessStoriesSection />
 
           <ExploreCenterSection />
+          <AnimatedNetworkSection />
           <TrendingListingsSection gyms={featuredGyms} trainers={featuredTrainers} />
           <MapPreviewSection />
           <EventsPreviewSection events={upcomingEvents} />
           <BlogPreviewSection posts={latestBlogPosts} />
-          <FeatureHighlightsSection />
           <HomePreFooterSection stats={stats} />
         </main>
         <Footer />
