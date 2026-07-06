@@ -9,9 +9,9 @@ interface EventsPreviewSectionProps {
 
 export function EventsPreviewSection({ events }: EventsPreviewSectionProps) {
   return (
-    <section id="upcoming-events" className="bg-[#0B2545] py-14 sm:py-16 lg:py-20">
+    <section id="upcoming-events" data-section="events" className="bg-[#0B2545] py-14 sm:py-16 lg:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mb-8 flex flex-col gap-4 sm:mb-10 sm:flex-row sm:items-end sm:justify-between">
+        <div data-reveal className="mb-8 flex flex-col gap-4 sm:mb-10 sm:flex-row sm:items-end sm:justify-between">
           <div className="max-w-xl">
             <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#FF6A3D]">
               Fitness Events Pakistan
@@ -33,7 +33,7 @@ export function EventsPreviewSection({ events }: EventsPreviewSectionProps) {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4 xl:gap-6">
+        <div data-stagger-events className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4 xl:gap-6">
           {events.slice(0, 4).map((event) => (
             <HomeEventCard key={event.id} event={event} />
           ))}

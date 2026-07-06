@@ -321,3 +321,73 @@ export async function notifyBlogPublished(params: {
     priority: "LOW",
   });
 }
+
+export async function notifyAdminGymClaimRequest(params: {
+  claimId: string;
+  gymName: string;
+  applicantName: string;
+}) {
+  return NotificationService.create({
+    ...adminRecipient(),
+    type: "SYSTEM",
+    title: "New Gym Claim Request",
+    message: `${params.applicantName} wants to claim ${params.gymName}.`,
+    actionUrl: `/admin/claims/${params.claimId}`,
+    entityType: "GYM",
+    entityId: params.claimId,
+    priority: "HIGH",
+  });
+}
+
+export async function notifyOwnerClaimSubmitted(params: {
+  ownerId: string;
+  gymName: string;
+  claimId: string;
+}) {
+  return NotificationService.create({
+    recipientId: params.ownerId,
+    recipientRole: "OWNER",
+    type: "PROFILE_CLAIM_SUBMITTED",
+    title: "Claim Submitted",
+    message: `Your claim for ${params.gymName} is under review.`,
+    actionUrl: "/dashboard/notifications",
+    entityType: "GYM",
+    entityId: params.claimId,
+  });
+}
+
+export async function notifyOwnerClaimApproved(params: {
+  ownerId: string;
+  gymName: string;
+  gymSlug: string;
+}) {
+  return NotificationService.create({
+    recipientId: params.ownerId,
+    recipientRole: "OWNER",
+    type: "PROFILE_CLAIM_APPROVED",
+    title: "Claim Approved",
+    message: `You now manage ${params.gymName}.`,
+    actionUrl: "/owner/dashboard",
+    entityType: "GYM",
+    priority: "HIGH",
+  });
+}
+
+export async function notifyOwnerClaimRejected(params: {
+  ownerId: string;
+  gymName: string;
+  reason?: string;
+}) {
+  return NotificationService.create({
+    recipientId: params.ownerId,
+    recipientRole: "OWNER",
+    type: "PROFILE_CLAIM_REJECTED",
+    title: "Claim Rejected",
+    message: params.reason
+      ? `Your claim for ${params.gymName} was not approved: ${params.reason}`
+      : `Your claim for ${params.gymName} was not approved.`,
+    actionUrl: "/dashboard/notifications",
+    entityType: "GYM",
+    priority: "HIGH",
+  });
+}

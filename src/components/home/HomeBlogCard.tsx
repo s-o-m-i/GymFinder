@@ -18,6 +18,7 @@ export function HomeBlogCard({ post, className, priority = false }: HomeBlogCard
 
   return (
     <article
+      data-stagger-item
       className={cn(
         "group relative aspect-4/5 overflow-hidden rounded-[20px] bg-[#1c1c1c] ring-1 ring-[var(--border)] shadow-[0_8px_30px_rgba(11,37,69,0.08)] transition-all duration-300 hover:-translate-y-1 hover:ring-[#FF6A3D]/45 hover:shadow-[0_16px_40px_rgba(11,37,69,0.14)] sm:rounded-[22px]",
         className

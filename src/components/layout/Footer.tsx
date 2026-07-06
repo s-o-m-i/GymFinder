@@ -19,11 +19,11 @@ const FEATURED_CITIES = ["Karachi", "Lahore", "Islamabad", "Rawalpindi", "Faisal
 
 export function Footer() {
   return (
-    <footer className="bg-[#0B2545] text-[#EAF0F6]">
+    <footer data-section="footer" className="bg-[#0B2545] text-[#EAF0F6]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
           {/* Brand */}
-          <div>
+          <div data-footer-item>
             <div className="mb-4">
               <SiteLogo size="lg" />
             </div>
@@ -36,6 +36,7 @@ export function Footer() {
               {socialItems.map(({ label, href, Icon }) => (
                 <a
                   key={label}
+                  data-footer-item
                   href={href}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -49,7 +50,7 @@ export function Footer() {
           </div>
 
           {/* Discover */}
-          <div>
+          <div data-footer-item>
             <h4 className="font-heading font-semibold text-sm uppercase tracking-widest text-[#8ba0b8] mb-4">
               Discover
             </h4>
@@ -78,7 +79,7 @@ export function Footer() {
           </div>
 
           {/* Cities */}
-          <div>
+          <div data-footer-item>
             <h4 className="font-heading font-semibold text-sm uppercase tracking-widest text-[#8ba0b8] mb-4">
               Browse by City
             </h4>
@@ -108,7 +109,7 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-12 pt-6 border-t border-white/10 flex flex-col gap-4 sm:gap-0 sm:flex-row sm:justify-between sm:items-center text-xs text-[#8ba0b8]">
+        <div data-footer-item className="mt-12 pt-6 border-t border-white/10 flex flex-col gap-4 sm:gap-0 sm:flex-row sm:justify-between sm:items-center text-xs text-[#8ba0b8]">
           <span>© {new Date().getFullYear()} {SITE_NAME}. All rights reserved.</span>
           <nav className="flex flex-wrap items-center gap-x-4 gap-y-2" aria-label="Legal">
             <Link href="/legal" className="hover:text-[#FF6A3D] transition-colors">

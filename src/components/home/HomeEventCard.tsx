@@ -17,8 +17,9 @@ export function HomeEventCard({ event, className }: HomeEventCardProps) {
 
   return (
     <article
+      data-stagger-item
       className={cn(
-        "group relative aspect-[4/5] overflow-hidden rounded-[20px] bg-[#1c1c1c] ring-1 ring-white/5 transition-all duration-300 hover:ring-[#FF6A3D]/45 sm:rounded-[22px]",
+        "group relative aspect-[4/5] overflow-hidden rounded-[20px] bg-[#1c1c1c] ring-1 ring-white/5 transition-all duration-300 hover:ring-[#FF6A3D]/45 hover:-translate-y-1 sm:rounded-[22px]",
         className
       )}
     >
@@ -59,8 +60,8 @@ export function HomeEventCard({ event, className }: HomeEventCardProps) {
           )}
         </div>
 
-        <span className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-lg bg-black/55 px-2 py-1 text-[11px] font-semibold text-white backdrop-blur-sm sm:right-4 sm:top-4 sm:text-xs">
-          <Calendar className="h-3.5 w-3.5 text-[#FF6A3D]" aria-hidden />
+        <span className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-lg bg-black/55 px-2 py-1 text-[11px] font-semibold text-white backdrop-blur-sm sm:right-4 sm:top-4 sm:text-xs motion-safe:animate-none">
+          <Calendar className="h-3.5 w-3.5 text-[#FF6A3D] motion-safe:group-hover:scale-110 transition-transform" aria-hidden />
           {event.date}
         </span>
 

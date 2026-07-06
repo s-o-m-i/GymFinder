@@ -42,6 +42,7 @@ import { buildGymProfileStats } from "@/lib/gym-stats";
 import { SuccessStoriesProfileSection } from "@/components/success-stories/SuccessStoriesProfileSection";
 import { getStoriesForGymProfile } from "@/services/success-story/success-story.service";
 import { TransformationGallerySection } from "@/components/transformation/TransformationGallerySection";
+import { ClaimGymBanner } from "@/components/gym-claim/ClaimGymBanner";
 
 interface GymProfilePageProps {
   slug: string;
@@ -326,6 +327,8 @@ export async function GymProfilePage({ slug }: GymProfilePageProps) {
             </div>
 
             <div className="space-y-5">
+              <ClaimGymBanner gymSlug={gym.slug} claimed={gym.claimed || !!gym.ownerId} />
+
               <TaleOfTheTape
                 priceMin={gym.priceMin}
                 priceMax={gym.priceMax}

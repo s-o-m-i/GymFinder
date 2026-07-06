@@ -123,6 +123,7 @@ export function Navbar({ variant }: { variant?: "default" | "hero" }) {
   return (
     <>
       <header
+        data-hero-nav={isHero ? "" : undefined}
         className={cn(
           "z-50",
           isHero
@@ -137,7 +138,9 @@ export function Navbar({ variant }: { variant?: "default" | "hero" }) {
       >
         <nav className="mx-auto w-full max-w-[100rem] px-4 sm:px-6 lg:px-8 xl:px-10">
           <div className="flex h-18 items-center gap-2 sm:h-20 lg:gap-3">
-            <SiteLogo size="lg" priority darkBackground={!isHero} className="shrink-0" />
+            <span data-hero-nav-logo={isHero ? "" : undefined} className="shrink-0">
+              <SiteLogo size="lg" priority darkBackground={!isHero} />
+            </span>
 
             {/* Primary discovery links — desktop only */}
             <div className="hidden min-w-0 flex-1 items-center gap-0.5 lg:flex xl:gap-1">
@@ -145,6 +148,7 @@ export function Navbar({ variant }: { variant?: "default" | "hero" }) {
                 <Link
                   key={item.href}
                   href={item.href}
+                  data-hero-nav-link={isHero ? "" : undefined}
                   className={navLinkClass(isHero, checkActive(item.href))}
                 >
                   {item.label}
@@ -154,12 +158,16 @@ export function Navbar({ variant }: { variant?: "default" | "hero" }) {
 
             {/* Right actions */}
             <div className="ml-auto flex shrink-0 items-center gap-1.5 sm:gap-2">
-              <ShareStoryNavButton isHero={isHero} className="hidden sm:inline-flex" />
+              <span data-hero-nav-action={isHero ? "" : undefined} className="hidden sm:contents">
+                <ShareStoryNavButton isHero={isHero} className="hidden sm:inline-flex" />
+              </span>
 
               {BUSINESS_CTA_LINKS.map((item, index) => (
                 <Link
                   key={item.href}
                   href={item.href}
+                  data-hero-nav-action={isHero ? "" : undefined}
+                  data-magnetic={index === 0 ? "" : undefined}
                   className={cn(
                     businessCtaClass(isHero, index === 0),
                     "hidden md:inline-flex"

@@ -2,6 +2,7 @@ export interface HeroStats {
   gyms: number;
   trainers: number;
   clubs: number;
+  users: number;
   cities: number;
 }
 
@@ -41,6 +42,7 @@ export const HERO_DISCIPLINES: Omit<DisciplineCardData, "listings">[] = [
 ];
 
 export function formatHeroStatCount(n: number): string {
+  if (n >= 1000) return `${n.toLocaleString("en-US")}+`;
   if (n >= 100) return `${Math.floor(n / 10) * 10}+`;
   if (n >= 10) return `${n}+`;
   return String(n);

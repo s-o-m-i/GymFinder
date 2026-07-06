@@ -34,6 +34,7 @@ export function ShareStoryNavButton({
   return (
     <Link
       href={href}
+      data-magnetic={isHero ? "" : undefined}
       onClick={() => {
         trackGAEvent(GA_EVENTS.share_story, {
           action: "nav_click",

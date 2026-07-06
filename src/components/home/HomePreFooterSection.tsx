@@ -34,19 +34,22 @@ interface HomePreFooterSectionProps {
 
 export function HomePreFooterSection({ stats }: HomePreFooterSectionProps) {
   const networkStats = [
-    { value: formatHeroStatCount(stats.gyms), label: "Gyms Listed" },
-    { value: formatHeroStatCount(stats.trainers), label: "Trainers" },
-    { value: formatHeroStatCount(stats.cities), label: "Cities Covered" },
+    { raw: stats.gyms, value: formatHeroStatCount(stats.gyms), label: "Gyms Listed", suffix: "+" },
+    { raw: stats.trainers, value: formatHeroStatCount(stats.trainers), label: "Trainers", suffix: "+" },
+    { raw: stats.cities, value: String(stats.cities), label: "Cities Covered", suffix: "" },
   ];
 
   return (
     <section
       id="home-pre-footer"
+      data-section="cta"
       className="relative overflow-hidden bg-[#0B2545] py-14 sm:py-16 lg:py-20"
       aria-label="Gym owners, network stats, and popular searches"
     >
       {/* Decorative accents */}
       <div
+        data-parallax
+        data-parallax-speed="-8"
         className="pointer-events-none absolute -bottom-24 left-[4%] h-48 w-48 rounded-full border border-white/[0.06] opacity-40"
         aria-hidden
       />
@@ -78,12 +81,14 @@ export function HomePreFooterSection({ stats }: HomePreFooterSectionProps) {
               <div className="mt-6 flex flex-wrap gap-3">
                 <Link
                   href="/owner/register"
+                  data-magnetic
                   className="inline-flex items-center justify-center rounded-full bg-[#FF6A3D] px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-[#FF6A3D]/25 transition-colors hover:bg-[#e85528]"
                 >
                   Register Your Gym
                 </Link>
                 <Link
                   href="/trainer/register"
+                  data-magnetic
                   className="inline-flex items-center justify-center rounded-full border border-white/20 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:border-white/35 hover:bg-white/5"
                 >
                   List as Trainer
@@ -108,11 +113,15 @@ export function HomePreFooterSection({ stats }: HomePreFooterSectionProps) {
               Growing Fitness Network
             </h2>
 
-            <div className="mt-6 flex items-center gap-5 sm:gap-6">
+            <div data-reveal data-counter-group className="mt-6 flex items-center gap-5 sm:gap-6">
               <ul className="shrink-0 space-y-4 sm:space-y-5">
                 {networkStats.map((stat) => (
                   <li key={stat.label}>
-                    <div className="font-heading text-3xl font-bold leading-none text-[#FF6A3D] sm:text-4xl">
+                    <div
+                      data-counter={stat.raw}
+                      data-counter-suffix={stat.suffix}
+                      className="font-heading text-3xl font-bold leading-none text-[#FF6A3D] sm:text-4xl"
+                    >
                       {stat.value}
                     </div>
                     <div className="mt-1 text-xs font-medium text-white/50 sm:text-sm">

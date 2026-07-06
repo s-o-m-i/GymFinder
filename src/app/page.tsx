@@ -8,8 +8,10 @@ import { FeatureHighlightsSection } from "@/components/home/FeatureHighlightsSec
 import { MapPreviewSection } from "@/components/home/MapPreviewSection";
 import { TrendingListingsSection } from "@/components/home/TrendingListingsSection";
 import { EventsPreviewSection } from "@/components/home/EventsPreviewSection";
+import { HomeSuccessStoriesSection } from "@/components/home/success-stories/HomeSuccessStoriesSection";
 import { BlogPreviewSection } from "@/components/home/BlogPreviewSection";
 import { HomePreFooterSection } from "@/components/home/HomePreFooterSection";
+import { HomeMotionProvider } from "@/components/home/motion/HomeMotionProvider";
 import { prisma } from "@/lib/prisma";
 import { CITIES } from "@/lib/constants";
 import {
@@ -29,7 +31,7 @@ async function getHeroStats() {
   try {
     const approved = { listingStatus: "approved" as const };
 
-    const [gyms, trainers, clubs, gymCities, trainerCities] = await Promise.all([
+    const [gyms, trainers, clubs, users, gymCities, trainerCities] = await Promise.all([
       prisma.gym.count({ where: approved }),
       prisma.trainer.count({ where: { isPublished: true } }),
       prisma.gym.count({
@@ -38,6 +40,7 @@ async function getHeroStats() {
           type: { in: ["boxing", "mma", "muay_thai", "kickboxing", "martial_arts"] },
         },
       }),
+      prisma.communityUser.count(),
       prisma.gym.groupBy({ by: ["city"], where: approved }),
       prisma.trainer.groupBy({ by: ["city"], where: { isPublished: true } }),
     ]);
@@ -51,10 +54,11 @@ async function getHeroStats() {
       gyms,
       trainers,
       clubs,
+      users,
       cities: Math.max(citySet.size, CITIES.length),
     };
   } catch {
-    return { gyms: 50, trainers: 25, clubs: 20, cities: CITIES.length };
+    return { gyms: 50, trainers: 25, clubs: 20, users: 120, cities: CITIES.length };
   }
 }
 
@@ -222,20 +226,23 @@ export default async function HomePage() {
   ]);
 
   return (
-    <>
-      <Navbar variant="hero" />
-      <main>
-        <HeroSection stats={stats} />
+    <HomeMotionProvider>
+      <div data-home-motion>
+        <Navbar variant="hero" />
+        <main>
+          <HeroSection stats={stats} />
 
-        <ExploreCenterSection />
-        <FeatureHighlightsSection />
-        <MapPreviewSection />
-        <TrendingListingsSection gyms={featuredGyms} trainers={featuredTrainers} />
-        <EventsPreviewSection events={upcomingEvents} />
-        <BlogPreviewSection posts={latestBlogPosts} />
-        <HomePreFooterSection stats={stats} />
-      </main>
-      <Footer />
-    </>
+          <ExploreCenterSection />
+          <FeatureHighlightsSection />
+          <MapPreviewSection />
+          <TrendingListingsSection gyms={featuredGyms} trainers={featuredTrainers} />
+          <EventsPreviewSection events={upcomingEvents} />
+          <HomeSuccessStoriesSection />
+          <BlogPreviewSection posts={latestBlogPosts} />
+          <HomePreFooterSection stats={stats} />
+        </main>
+        <Footer />
+      </div>
+    </HomeMotionProvider>
   );
 }

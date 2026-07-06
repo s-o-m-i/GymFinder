@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { LayoutDashboard, PlusCircle, Users, BarChart3, UserRound, Sparkles } from "lucide-react";
+import { LayoutDashboard, PlusCircle, Users, BarChart3, UserRound, Sparkles, Building2 } from "lucide-react";
 import { LogoutButton } from "@/components/admin/LogoutButton";
 import { SiteLogoStack } from "@/components/layout/SiteLogo";
 
@@ -58,6 +58,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           >
             <Sparkles className="w-4 h-4" />
             Featured Requests
+          </Link>
+          <Link
+            href="/admin/claims"
+            className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 transition-colors"
+          >
+            <Building2 className="w-4 h-4" />
+            Profile Claims
           </Link>
           <Link
             href="/admin/analytics"

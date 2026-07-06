@@ -9,8 +9,11 @@ export function FeatureCard({ feature }: FeatureCardProps) {
   const Icon = feature.icon;
 
   return (
-    <article className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 card-shadow transition-shadow hover:shadow-md">
-      <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-[#FF6A3D]/10 text-[#FF6A3D]">
+    <article
+      data-stagger-item
+      className="group rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 card-shadow transition-shadow hover:shadow-md hover:border-[#FF6A3D]/30 hover:-translate-y-1"
+    >
+      <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-[#FF6A3D]/10 text-[#FF6A3D] transition-transform duration-300 group-hover:rotate-6">
         <Icon className="h-5 w-5" />
       </div>
 

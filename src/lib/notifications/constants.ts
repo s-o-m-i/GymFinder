@@ -24,6 +24,9 @@ export const NOTIFICATION_TYPE_META: Record<
   EMAIL_VERIFIED: { icon: "✉️", priority: "NORMAL" },
   SYSTEM: { icon: "⚙️", priority: "NORMAL" },
   PROMOTION: { icon: "🎁", priority: "LOW" },
+  PROFILE_CLAIM_SUBMITTED: { icon: "📋", priority: "NORMAL" },
+  PROFILE_CLAIM_APPROVED: { icon: "✅", priority: "HIGH" },
+  PROFILE_CLAIM_REJECTED: { icon: "❌", priority: "HIGH" },
 };
 
 export const NOTIFICATION_TYPE_LABELS: Record<NotificationType, string> = {
@@ -42,4 +45,7 @@ export const NOTIFICATION_TYPE_LABELS: Record<NotificationType, string> = {
   EMAIL_VERIFIED: "Email Verified",
   SYSTEM: "System",
   PROMOTION: "Promotion",
+  PROFILE_CLAIM_SUBMITTED: "Claim Submitted",
+  PROFILE_CLAIM_APPROVED: "Claim Approved",
+  PROFILE_CLAIM_REJECTED: "Claim Rejected",
 };

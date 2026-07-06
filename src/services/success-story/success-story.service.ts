@@ -5,7 +5,11 @@ import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/utils";
 import { SUCCESS_STORIES_PAGE_SIZE } from "@/lib/success-stories-routes";
 import type { SuccessStoryFormInput, SuccessStoryStats } from "@/lib/success-stories/types";
-import { parseProgressImages, serializeProgressImages } from "@/lib/success-stories/utils";
+import {
+  calculateWeightLost,
+  parseProgressImages,
+  serializeProgressImages,
+} from "@/lib/success-stories/utils";
 import type { SuccessStoryListingQuery } from "@/lib/validations/success-story";
 
 export const successStoryCardSelect = {
@@ -61,8 +65,87 @@ export const successStoryDetailSelect = {
   },
 } satisfies Prisma.SuccessStorySelect;
 
+export const homeSuccessStorySelect = {
+  ...successStoryCardSelect,
+  gender: true,
+  story: true,
+  startWeight: true,
+  currentWeight: true,
+  weightUnit: true,
+  viewCount: true,
+  linkedGym: {
+    select: { id: true, name: true, slug: true, coverImage: true },
+  },
+  linkedTrainer: {
+    select: { id: true, fullName: true, slug: true, profileImage: true },
+  },
+} satisfies Prisma.SuccessStorySelect;
+
 export type SuccessStoryCard = Prisma.SuccessStoryGetPayload<{ select: typeof successStoryCardSelect }>;
+export type HomeSuccessStory = Prisma.SuccessStoryGetPayload<{ select: typeof homeSuccessStorySelect }>;
 export type SuccessStoryDetail = Prisma.SuccessStoryGetPayload<{ select: typeof successStoryDetailSelect }>;
+
+export type HomeSuccessStoryCommunityStats = {
+  stories: number;
+  verifiedTrainers: number;
+  partnerGyms: number;
+  weightLostKg: number;
+  cities: number;
+};
+
+export async function getHomepageSuccessStories(): Promise<{
+  featured: HomeSuccessStory | null;
+  grid: HomeSuccessStory[];
+}> {
+  const stories = await prisma.successStory.findMany({
+    where: { status: "PUBLISHED" },
+    select: homeSuccessStorySelect,
+    orderBy: [{ isFeatured: "desc" }, { publishedAt: "desc" }, { createdAt: "desc" }],
+    take: 24,
+  });
+
+  if (stories.length === 0) {
+    return { featured: null, grid: [] };
+  }
+
+  const featured = stories.find((s) => s.isFeatured) ?? stories[0];
+  const grid = stories.filter((s) => s.id !== featured.id);
+
+  return { featured, grid };
+}
+
+export async function getHomepageSuccessStoryCommunityStats(): Promise<HomeSuccessStoryCommunityStats> {
+  const publishedWhere = { status: "PUBLISHED" as const };
+
+  const [storyCount, verifiedTrainers, partnerGyms, cityGroups, weightStories] = await Promise.all([
+    prisma.successStory.count({ where: publishedWhere }),
+    prisma.trainer.count({ where: { isPublished: true, isVerified: true } }),
+    prisma.gym.count({ where: { listingStatus: "approved" } }),
+    prisma.successStory.groupBy({ by: ["city"], where: publishedWhere }),
+    prisma.successStory.findMany({
+      where: {
+        ...publishedWhere,
+        startWeight: { not: null },
+        currentWeight: { not: null },
+      },
+      select: { startWeight: true, currentWeight: true, weightUnit: true },
+    }),
+  ]);
+
+  const weightLostKg = weightStories.reduce((sum, story) => {
+    const lost = calculateWeightLost(story.startWeight, story.currentWeight) ?? 0;
+    const kg = story.weightUnit === "LBS" ? lost * 0.453592 : lost;
+    return sum + kg;
+  }, 0);
+
+  return {
+    stories: storyCount,
+    verifiedTrainers,
+    partnerGyms,
+    weightLostKg: Math.round(weightLostKg),
+    cities: cityGroups.length,
+  };
+}
 
 export async function generateUniqueSuccessStorySlug(title: string): Promise<string> {
   const base = slugify(title).slice(0, 80) || "success-story";

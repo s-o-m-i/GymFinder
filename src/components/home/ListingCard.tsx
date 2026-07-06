@@ -14,10 +14,11 @@ export function ListingCard({ item }: ListingCardProps) {
   const ratingLabel = item.rating != null ? item.rating.toFixed(1) : "New";
 
   return (
-    <article className="group relative aspect-[4/5] overflow-hidden rounded-[20px] bg-[#1c1c1c] ring-1 ring-white/5 transition-all duration-300 hover:ring-[#FF6A3D]/45 sm:rounded-[22px]">
+    <article data-listing-card className="group relative aspect-[4/5] overflow-hidden rounded-[20px] bg-[#1c1c1c] ring-1 ring-white/5 transition-all duration-300 hover:ring-[#FF6A3D]/45 hover:-translate-y-1 hover:shadow-2xl hover:shadow-black/40 sm:rounded-[22px]">
       <Link href={href} className="absolute inset-0 block">
         {image ? (
           <Image
+            data-listing-image
             src={image}
             alt={item.name}
             fill
@@ -38,7 +39,7 @@ export function ListingCard({ item }: ListingCardProps) {
         />
 
         {item.rating != null && (
-          <span className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-lg bg-black/55 px-2 py-1 text-xs font-semibold text-white backdrop-blur-sm sm:right-4 sm:top-4">
+          <span data-listing-badge className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-lg bg-black/55 px-2 py-1 text-xs font-semibold text-white backdrop-blur-sm sm:right-4 sm:top-4">
             <Star className="h-3.5 w-3.5 fill-[#FF6A3D] text-[#FF6A3D]" aria-hidden />
             {ratingLabel}
           </span>

@@ -3,9 +3,9 @@ import { HOME_FEATURES } from "@/lib/home-data";
 
 export function FeatureHighlightsSection() {
   return (
-    <section className="border-y border-[var(--border)] bg-[var(--card)] py-16 sm:py-20">
+    <section data-section="features" className="border-y border-[var(--border)] bg-[var(--card)] py-16 sm:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto mb-10 max-w-2xl text-center">
+        <div data-reveal className="mx-auto mb-10 max-w-2xl text-center">
           <h2 className="font-heading mb-4 text-2xl font-bold text-[var(--text)] sm:text-3xl">
             Everything You Need in One Platform
           </h2>
@@ -15,7 +15,7 @@ export function FeatureHighlightsSection() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
+        <div data-stagger-features className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
           {HOME_FEATURES.map((feature) => (
             <FeatureCard key={feature.title} feature={feature} />
           ))}

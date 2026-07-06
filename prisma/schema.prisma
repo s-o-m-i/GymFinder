@@ -114,6 +114,7 @@ model GymOwner {
   gym              Gym?
   authTokens       OwnerAuthToken[]
   events           Event[]
+  claimRequests    GymClaimRequest[]
 
   @@index([businessCategory])
   @@index([emailVerified])
@@ -167,10 +168,13 @@ model Gym {
   establishedYear    Int?
   memberCount        Int?
   ownerId            String?       @unique
+  claimed            Boolean       @default(false)
+  claimedAt          DateTime?
   createdAt          DateTime     @default(now())
   updatedAt          DateTime     @updatedAt
 
   owner         GymOwner?     @relation(fields: [ownerId], references: [id], onDelete: SetNull)
+  claimRequests GymClaimRequest[]
   disciplines   GymDiscipline[]
   amenities     GymAmenity[]
   galleryImages    GymImage[]
@@ -726,6 +730,52 @@ model SuccessStory {
   @@index([createdAt])
 }
 
+// ─── Gym Profile Claims ─────────────────────────────────────────────────────
+
+enum GymClaimStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum GymClaimPosition {
+  OWNER
+  MANAGER
+  PARTNER
+  MARKETING_MANAGER
+  OTHER
+}
+
+model GymClaimRequest {
+  id               String           @id @default(cuid())
+  gymId            String
+  /// Maps to spec claimantUserId — GymOwner id when logged in.
+  claimantOwnerId  String?
+  fullName         String
+  email            String
+  phone            String
+  whatsapp         String
+  position         GymClaimPosition
+  instagramUrl     String?
+  facebookUrl      String?
+  message          String?          @db.Text
+  status           GymClaimStatus   @default(PENDING)
+  submittedAt      DateTime         @default(now())
+  reviewedAt       DateTime?
+  reviewedBy       String?
+  adminNotes       String?          @db.Text
+  rejectionReason  String?          @db.Text
+
+  gym       Gym       @relation(fields: [gymId], references: [id], onDelete: Cascade)
+  claimant  GymOwner? @relation(fields: [claimantOwnerId], references: [id], onDelete: SetNull)
+
+  @@index([gymId])
+  @@index([status])
+  @@index([claimantOwnerId])
+  @@index([submittedAt])
+  @@index([email])
+}
+
 // ─── Platform Notifications ─────────────────────────────────────────────────
 
 enum NotificationType {
@@ -744,6 +794,9 @@ enum NotificationType {
   EMAIL_VERIFIED
   SYSTEM
   PROMOTION
+  PROFILE_CLAIM_SUBMITTED
+  PROFILE_CLAIM_APPROVED
+  PROFILE_CLAIM_REJECTED
 }
 
 enum NotificationPriority {

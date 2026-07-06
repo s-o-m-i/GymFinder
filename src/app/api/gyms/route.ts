@@ -101,6 +101,7 @@ export async function POST(req: NextRequest) {
       data: {
         ...gymData,
         slug: finalSlug,
+        claimed: false,
         disciplines: disciplineIds.length
           ? {
               create: disciplineIds.map((disciplineId: string) => ({

@@ -1,38 +1,75 @@
 "use client";
 
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   Search,
   MapPin,
   ChevronDown,
-  Dumbbell,
-  Swords,
-  Flower2,
-  Users,
-  Target,
-  Sparkles,
+  ShieldCheck,
   CalendarDays,
-  Trophy,
+  Users,
+  Flame,
 } from "lucide-react";
 import { CITIES, cityNameToSlug } from "@/lib/constants";
 import { formatHeroStatCount, type HeroStats } from "@/lib/hero-data";
 import { cn } from "@/lib/utils";
 
-const QUICK_LINKS = [
-  { label: "AI Gym Search", icon: Sparkles, href: "/ai-gym-finder" },
-  { label: "Events", icon: CalendarDays, href: "/events" },
-  { label: "Fighting Clubs", icon: Trophy, href: "/gyms/fighting-clubs" },
+type HeroCategory = "all" | "gyms" | "trainers" | "fighting-clubs" | "events";
+
+const CATEGORY_PILLS: { id: HeroCategory; label: string; href?: string }[] = [
+  { id: "all", label: "All" },
+  { id: "gyms", label: "Gyms", href: "/gyms" },
+  { id: "trainers", label: "Trainers", href: "/trainers" },
+  { id: "fighting-clubs", label: "Fighting Clubs", href: "/gyms/fighting-clubs" },
+  { id: "events", label: "Events", href: "/events" },
+];
+
+const MORE_LINKS = [
+  { label: "Success Stories", href: "/success-stories" },
+  { label: "AI Gym Search", href: "/ai-gym-finder" },
+  { label: "Blog", href: "/blogs" },
 ] as const;
 
-const CATEGORY_PILLS = [
-  { label: "Weightlifting", icon: Dumbbell, href: "/gyms?type=gym" },
-  { label: "MMA", icon: Swords, href: "/gyms/mma" },
-  { label: "Yoga", icon: Flower2, href: "/gyms?search=yoga" },
-  { label: "Personal Training", icon: Users, href: "/gyms?search=personal+training" },
-  { label: "Boxing", icon: Target, href: "/gyms/boxing" },
+const FEATURE_ITEMS = [
+  {
+    icon: ShieldCheck,
+    title: "Verified Listings",
+    description: "100% verified businesses",
+  },
+  {
+    icon: CalendarDays,
+    title: "Easy Booking",
+    description: "Book & connect instantly",
+  },
+  {
+    icon: Users,
+    title: "Trusted Community",
+    description: "Real reviews & ratings",
+  },
+  {
+    icon: Flame,
+    title: "Best Experience",
+    description: "Built for fitness lovers",
+  },
 ] as const;
+
+const CATEGORY_SEARCH_PATH: Record<HeroCategory, string> = {
+  all: "/gyms",
+  gyms: "/gyms",
+  trainers: "/trainers",
+  "fighting-clubs": "/gyms/fighting-clubs",
+  events: "/events",
+};
+
+/** Search bar — slightly lighter charcoal */
+const HERO_SEARCH_SURFACE =
+  "rounded-2xl border border-[rgba(255, 255, 255, 0.16)]  bg-[#1c1c1c] shadow-[0_8px_32px_rgba(0,0,0,0.35)] complete-bar";
+
+/** Pills & stat cards — darker near-black with independent subtle borders */
+const HERO_CHIP_SURFACE =
+  "rounded-xl  chip-card";
 
 interface HeroSectionProps {
   stats: HeroStats;
@@ -42,185 +79,291 @@ export function HeroSection({ stats }: HeroSectionProps) {
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [locationOpen, setLocationOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
   const [selectedCity, setSelectedCity] = useState("");
+  const [activeCategory, setActiveCategory] = useState<HeroCategory>("all");
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
+    const basePath = CATEGORY_SEARCH_PATH[activeCategory];
     const params = new URLSearchParams();
     if (query.trim()) params.set("search", query.trim());
-    router.push(`/gyms?${params.toString()}`);
+    const qs = params.toString();
+    router.push(qs ? `${basePath}?${qs}` : basePath);
   };
 
   const statItems = [
-    { value: formatHeroStatCount(stats.gyms), label: "Gyms" },
-    { value: formatHeroStatCount(stats.trainers), label: "Trainers" },
-    { value: formatHeroStatCount(stats.clubs), label: "Clubs" },
-    { value: String(stats.cities), label: "Cities" },
+    { value: stats.gyms, display: formatHeroStatCount(stats.gyms), label: "Gyms", suffix: "+" },
+    { value: stats.trainers, display: formatHeroStatCount(stats.trainers), label: "Trainers", suffix: "+" },
+    { value: stats.clubs, display: formatHeroStatCount(stats.clubs), label: "Clubs", suffix: "+" },
+    { value: stats.users, display: formatHeroStatCount(stats.users), label: "Users", suffix: "+" },
   ];
 
   return (
-    <section className="relative min-h-[88vh] overflow-hidden">
-      {/* Background */}
+    <section className="relative flex min-h-screen flex-col overflow-hidden bg-black" data-hero>
       <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: "url(/images/Hero_Bg.jpg)" }}
+        className="absolute inset-0 bg-cover bg-no-repeat [background-position:65%_center] lg:[background-position:right_center]"
+        style={{ backgroundImage: "url(/images/NewHeroSectionBGImage.png)" }}
         aria-hidden
       />
-      <div className="absolute inset-0 bg-[#050d18]/55" aria-hidden />
       <div
-        className="absolute inset-0 opacity-30"
-        style={{
-          backgroundImage:
-            "linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)",
-          backgroundSize: "48px 48px",
-        }}
+        className="absolute inset-0 bg-gradient-to-r from-black via-black/90 to-black/25 lg:from-black lg:via-black/75 lg:to-transparent"
         aria-hidden
       />
-      {/* Ambient glows */}
-      <div className="absolute top-1/3 left-1/4 w-72 h-72 bg-[#FF6A3D]/10 rounded-full blur-3xl pointer-events-none" aria-hidden />
-      <div className="absolute top-1/2 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" aria-hidden />
+      <div
+        className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/40"
+        aria-hidden
+      />
+      <div
+        data-hero-glow
+        className="pointer-events-none absolute right-0 top-1/3 h-80 w-80 rounded-full bg-[#FF6A3D]/15 blur-3xl"
+        aria-hidden
+      />
 
-      <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-12 sm:pt-32 sm:pb-16">
-        {/* Headline */}
-        <div className="text-center mb-10 sm:mb-12">
-          <h1 className="font-heading font-bold text-3xl sm:text-5xl lg:text-[3.25rem] text-white leading-[1.15] tracking-tight max-w-4xl mx-auto">
-            Find Your Perfect{" "}
-            <span className="text-[#FF6A3D]">Gym</span>,{" "}
-            <span className="text-[#FF6A3D]">Trainer</span>,{" "}
-            <span className="text-[#FF6A3D]">Event</span>, or{" "}
-            <span className="text-[#FF6A3D]">Fighting Club</span>
-          </h1>
-          <p className="mt-4 text-sm sm:text-base text-white/60 max-w-2xl mx-auto">
-            Discover fitness gyms, personal trainers, and upcoming events across Pakistan.
-          </p>
-        </div>
+      <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-1 flex-col px-4 pb-6 pt-28 sm:px-6 sm:pt-32 lg:px-8">
+        <div className="grid flex-1 items-center gap-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-6">
+          <div className="max-w-xl lg:max-w-none">
+            <p
+              data-hero-label
+              className="mb-4 text-[11px] font-bold uppercase tracking-[0.28em] text-[#FF6A3D] sm:text-xs"
+            >
+              Discover. Connect. Transform.
+            </p>
 
-        {/* Glass search card */}
-        <form
-          onSubmit={handleSearch}
-          className={cn("relative max-w-3xl mx-auto mb-10", locationOpen ? "z-50" : "z-30")}
-        >
-          <div className="overflow-visible rounded-2xl border border-white/10 bg-white/[0.06] backdrop-blur-xl p-4 sm:p-5 shadow-[0_8px_40px_rgba(0,0,0,0.35)]">
-            <div className="flex flex-col sm:flex-row gap-3 mb-4">
-              <div className="relative flex-1">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40 pointer-events-none" />
+            <h1
+              data-hero-headline
+              className="font-heading text-left text-[2rem] font-bold leading-[1.12] tracking-tight text-white sm:text-5xl lg:text-[3.35rem]"
+            >
+              <span data-hero-line className="block">
+                Find Your Perfect
+              </span>
+              <span data-hero-line className="mt-1 block sm:mt-2">
+                <span data-hero-accent className="text-[#FF6A3D]">
+                  Gym, Trainer, Event, or Club
+                </span>
+              </span>
+            </h1>
+
+            <p
+              data-hero-sub
+              className="mt-4 max-w-md text-left text-sm leading-relaxed text-white/55 sm:text-base"
+            >
+              Discover fitness gyms, personal trainers, and upcoming events across Pakistan.
+            </p>
+
+            <form
+              onSubmit={handleSearch}
+              className={cn("relative mt-8 space-y-3", locationOpen || moreOpen ? "z-50" : "z-30")}
+            >
+              {/* Search — independent bordered bar, not connected to pills below */}
+              <div
+                data-hero-search
+                className={cn("flex h-14 items-center gap-3 px-4 sm:h-[3.75rem] sm:px-5", HERO_SEARCH_SURFACE)}
+              >
+                <Search
+                  data-hero-search-icon
+                  className="pointer-events-none h-4 w-4 shrink-0 text-white/35"
+                />
                 <input
+                  data-hero-search-input
                   type="text"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Search gyms by name, area, or city"
-                  className="w-full h-12 pl-11 pr-4 rounded-xl border border-white/10 bg-white/[0.06] text-sm text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-[#FF6A3D]/50 focus:border-[#FF6A3D]/40"
+                  className="min-w-0 flex-1 bg-transparent text-sm text-white placeholder:text-white/35 focus:outline-none"
                 />
+
+                <div className="h-8 w-px shrink-0 bg-white/12" />
+
+                <div className={cn("relative shrink-0", locationOpen && "z-50")}>
+                  <button
+                    type="button"
+                    onClick={() => setLocationOpen((v) => !v)}
+                    className="flex h-10 cursor-pointer items-center gap-2 rounded-lg px-2 text-sm text-white/85 transition-colors hover:bg-white/5 sm:px-3"
+                  >
+                    <MapPin className="h-4 w-4 shrink-0 text-[#FF6A3D]" />
+                    <span className="max-w-28 truncate">{selectedCity || "All Pakistan"}</span>
+                    <ChevronDown
+                      className={cn(
+                        "h-4 w-4 shrink-0 text-white/45 transition-transform",
+                        locationOpen && "rotate-180"
+                      )}
+                    />
+                  </button>
+                  {locationOpen && (
+                    <>
+                      <div
+                        className="fixed inset-0 z-40"
+                        onClick={() => setLocationOpen(false)}
+                        aria-hidden
+                      />
+                      <div className="absolute right-0 top-full z-50 mt-2 max-h-64 w-56 overflow-y-auto rounded-xl border border-white/10 bg-[#111111]/95 py-1 shadow-xl backdrop-blur-xl">
+                        <Link
+                          href="/gyms"
+                          onClick={() => {
+                            setSelectedCity("");
+                            setLocationOpen(false);
+                          }}
+                          className="block border-b border-white/10 px-4 py-2.5 text-sm text-white/90 transition-colors hover:bg-white/10"
+                        >
+                          All Pakistan
+                        </Link>
+                        {CITIES.map((city) => {
+                          const slug = cityNameToSlug(city);
+                          return (
+                            <Link
+                              key={city}
+                              href={slug ? `/gyms/${slug}` : `/gyms?city=${encodeURIComponent(city)}`}
+                              onClick={() => {
+                                setSelectedCity(city);
+                                setLocationOpen(false);
+                              }}
+                              className="block px-4 py-2.5 text-sm text-white/90 transition-colors hover:bg-white/10"
+                            >
+                              {city}
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
 
-              <div className={cn("relative sm:w-56 shrink-0", locationOpen && "z-50")}>
-                <button
-                  type="button"
-                  onClick={() => setLocationOpen((v) => !v)}
-                  className="w-full h-12 flex items-center justify-between gap-2 px-4 rounded-xl border border-white/10 bg-white/[0.06] text-sm text-white/90 hover:bg-white/10 transition-colors cursor-pointer"
-                >
-                  <span className="flex items-center gap-2 min-w-0">
-                    <MapPin className="w-4 h-4 text-[#FF6A3D] shrink-0" />
-                    <span className="truncate">
-                      {selectedCity || "All Pakistan"}
-                    </span>
-                  </span>
-                  <ChevronDown
+              {/* Category pills — separate row, each with its own border */}
+              <div className="flex flex-wrap gap-2">
+                {CATEGORY_PILLS.map(({ id, label, href }) => (
+                  <button
+                    key={id}
+                    type="button"
+                    data-hero-chip
+                    onClick={() => {
+                      setActiveCategory(id);
+                      if (href && id !== "all") router.push(href);
+                    }}
                     className={cn(
-                      "w-4 h-4 text-white/50 shrink-0 transition-transform",
-                      locationOpen && "rotate-180"
+                      "inline-flex items-center rounded-full px-4 py-2 text-xs font-semibold transition-all sm:text-sm",
+                      activeCategory === id
+                        ? " text-white shadow-[0_4px_16px_rgba(255,106,61,0.35)]"
+                        : cn(HERO_CHIP_SURFACE, "text-white/80 hover:border-white/20 hover:text-white")
                     )}
-                  />
-                </button>
-                {locationOpen && (
-                  <>
-                    <div
-                      className="fixed inset-0 z-40"
-                      onClick={() => setLocationOpen(false)}
-                      aria-hidden
+                  >
+                    {label}
+                  </button>
+                ))}
+
+                <div className="relative">
+                  <button
+                    type="button"
+                    data-hero-chip
+                    onClick={() => setMoreOpen((v) => !v)}
+                    className={cn(
+                      "inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-semibold text-white/80 transition-all hover:border-white/20 hover:text-white sm:text-sm",
+                      HERO_CHIP_SURFACE
+                    )}
+                  >
+                    More
+                    <ChevronDown
+                      className={cn(
+                        "h-3.5 w-3.5 text-white/45 transition-transform",
+                        moreOpen && "rotate-180"
+                      )}
                     />
-                    <div className="absolute top-full left-0 right-0 mt-2 z-50 rounded-xl border border-white/10 bg-[#0B2545]/95 backdrop-blur-xl py-1 shadow-xl max-h-64 overflow-y-auto">
-                      <Link
-                        href="/gyms"
-                        onClick={() => {
-                          setSelectedCity("");
-                          setLocationOpen(false);
-                        }}
-                        className="block px-4 py-2.5 text-sm text-white/90 hover:bg-white/10 transition-colors border-b border-white/10"
-                      >
-                        All Pakistan
-                      </Link>
-                      {CITIES.map((city) => {
-                        const slug = cityNameToSlug(city);
-                        return (
+                  </button>
+                  {moreOpen && (
+                    <>
+                      <div
+                        className="fixed inset-0 z-40"
+                        onClick={() => setMoreOpen(false)}
+                        aria-hidden
+                      />
+                      <div className="absolute left-0 top-full z-50 mt-2 w-44 rounded-xl border border-white/10 bg-[#111111]/95 py-1 shadow-xl backdrop-blur-xl">
+                        {MORE_LINKS.map((link) => (
                           <Link
-                            key={city}
-                            href={slug ? `/gyms/${slug}` : `/gyms?city=${encodeURIComponent(city)}`}
-                            onClick={() => {
-                              setSelectedCity(city);
-                              setLocationOpen(false);
-                            }}
-                            className="block px-4 py-2.5 text-sm text-white/90 hover:bg-white/10 transition-colors"
+                            key={link.href}
+                            href={link.href}
+                            onClick={() => setMoreOpen(false)}
+                            className="block px-4 py-2.5 text-sm text-white/90 transition-colors hover:bg-white/10"
                           >
-                            {city}
+                            {link.label}
                           </Link>
-                        );
-                      })}
-                    </div>
-                  </>
-                )}
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
+            </form>
+
+            {/* Stats — same independent bordered card style as inactive pills */}
+            <div className="mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-4 sm:gap-3">
+              {statItems.map((stat) => (
+                <div
+                  key={stat.label}
+                  data-hero-stat
+                  data-stat-value={stat.value}
+                  data-stat-suffix={stat.suffix}
+                  className={cn("px-3 py-4 text-center sm:px-4 sm:py-5", HERO_CHIP_SURFACE)}
+                >
+                  <div
+                    data-hero-stat-value
+                    className="font-heading text-xl font-bold text-[#FF6A3D] sm:text-2xl"
+                  >
+                    {stat.display}
+                  </div>
+                  <div className="mt-1 text-xs text-white/45 sm:text-sm">{stat.label}</div>
+                </div>
+              ))}
             </div>
 
-            <div className="flex flex-wrap gap-2">
-              {QUICK_LINKS.map(({ label, icon: Icon, href }) => (
-                <Link
-                  key={href}
-                  href={href}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[#FF6A3D]/40 bg-[#FF6A3D]/10 text-xs sm:text-sm text-white hover:bg-[#FF6A3D]/20 hover:border-[#FF6A3D]/60 transition-all"
-                >
-                  <Icon className="w-3.5 h-3.5 text-[#FF6A3D]" />
-                  {label}
-                </Link>
-              ))}
-              {CATEGORY_PILLS.map(({ label, icon: Icon, href }) => (
-                <Link
-                  key={href}
-                  href={href}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-white/10 bg-white/[0.04] text-xs sm:text-sm text-white/75 hover:text-white hover:bg-white/10 hover:border-white/20 transition-all"
-                >
-                  <Icon className="w-3.5 h-3.5 text-white/50" />
-                  {label}
-                </Link>
-              ))}
+            {/* Scroll — horizontal, no border */}
+            <div data-hero-scroll className="mt-6 flex justify-end sm:mt-8">
+              <a
+                href="#explore-center"
+                className="inline-flex items-center gap-2.5 text-white/45 transition-colors hover:text-white/70"
+              >
+                <span className="flex h-8 w-[18px] items-start justify-center rounded-full border-2 border-white/45 pt-1">
+                  <span className="h-1.5 w-0.5 animate-bounce rounded-full bg-white/70" />
+                </span>
+                <span className="text-sm font-medium">Scroll to explore</span>
+              </a>
             </div>
           </div>
-        </form>
 
-        {/* Stats */}
-        <div className="relative z-0 max-w-3xl mx-auto grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-          {statItems.map((stat) => (
-            <div
-              key={stat.label}
-              className="rounded-xl border border-white/10 bg-white/[0.04] backdrop-blur-sm py-4 px-3 sm:px-4 text-center"
-            >
-              <div className="font-heading font-bold text-2xl sm:text-3xl text-white">
-                {stat.value}
-              </div>
-              <div className="text-xs sm:text-sm text-white/45 mt-0.5">{stat.label}</div>
-            </div>
-          ))}
+          <div className="hidden min-h-[320px] lg:block" aria-hidden />
         </div>
 
-        {/* Scroll hint */}
-        <div className="flex justify-center mt-12 sm:mt-14">
-          <a
-            href="#explore-categories"
-            className="inline-flex flex-col items-center gap-1 text-xs text-white/35 hover:text-white/60 transition-colors"
+        {/* Trusted bar — centered rounded container with vertical dividers */}
+        <div className="mx-auto mt-8 w-full max-w-5xl sm:mt-10 lg:mt-12">
+          <div
+            className={cn(
+              "flex flex-col overflow-hidden rounded-[22px] sm:flex-row",
+              " bg-[#0A0D10] backdrop-blur-sm chip-card"
+            )}
           >
-            Scroll Down
-            <ChevronDown className="w-4 h-4 animate-bounce" />
-          </a>
+            {FEATURE_ITEMS.map(({ icon: Icon, title, description }, index) => (
+              <Fragment key={title}>
+                {index > 0 && (
+                  <>
+                    <div className="mx-5 h-px bg-white/[0.08] sm:hidden" aria-hidden />
+                    <div
+                      className="mx-1 hidden h-10 w-px shrink-0 self-center bg-white/[0.1] sm:block"
+                      aria-hidden
+                    />
+                  </>
+                )}
+                <div className="flex flex-1 items-center gap-3 px-5 py-5 sm:gap-4 sm:px-6 sm:py-6">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#0a0a0a] ring-1 ring-white/[0.06]">
+                    <Icon className="h-5 w-5 text-[#FF6A3D]" strokeWidth={1.75} />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-white">{title}</p>
+                    <p className="mt-0.5 text-xs text-white/40 sm:text-[13px]">{description}</p>
+                  </div>
+                </div>
+              </Fragment>
+            ))}
+          </div>
         </div>
       </div>
     </section>

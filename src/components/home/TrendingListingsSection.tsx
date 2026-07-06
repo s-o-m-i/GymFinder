@@ -21,10 +21,11 @@ export function TrendingListingsSection({ gyms, trainers }: TrendingListingsSect
   return (
     <section
       id="featured-listings"
+      data-section="listings"
       className="bg-[#0B2545] py-14 sm:py-16 lg:py-20"
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mb-8 flex flex-col items-center gap-5 text-center sm:mb-10">
+        <div data-reveal className="mb-8 flex flex-col items-center gap-5 text-center sm:mb-10">
           <div>
             <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#FF6A3D]">
               Top picks
@@ -81,6 +82,7 @@ export function TrendingListingsSection({ gyms, trainers }: TrendingListingsSect
         <div className="mt-8 text-center sm:mt-10">
           <Link
             href={tab === "gyms" ? "/gyms" : "/trainers"}
+            data-magnetic
             className="inline-flex items-center gap-2 rounded-full bg-[#FF6A3D] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-[#FF6A3D]/25 transition-colors hover:bg-[#e85528]"
           >
             View all {tab === "gyms" ? "gyms" : "trainers"}

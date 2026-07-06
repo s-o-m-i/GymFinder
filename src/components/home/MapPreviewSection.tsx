@@ -4,10 +4,10 @@ import { HOME_MAP_CITIES, HOME_MAP_PINS } from "@/lib/home-data";
 
 export function MapPreviewSection() {
   return (
-    <section className="bg-[var(--bg)] py-16 sm:py-20">
+    <section data-section="map" className="bg-[var(--bg)] py-16 sm:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-14">
-          <div>
+          <div data-reveal>
             <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-[#FF6A3D]">
               Near Me Discovery
             </p>
@@ -35,6 +35,7 @@ export function MapPreviewSection() {
 
             <Link
               href="/gyms"
+              data-magnetic
               className="inline-flex items-center gap-2 rounded-2xl bg-[#FF6A3D] px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-[#FF6A3D]/20 transition-colors hover:bg-[#e85528]"
             >
               <MapPin className="h-4 w-4" />
@@ -42,8 +43,9 @@ export function MapPreviewSection() {
             </Link>
           </div>
 
-          <div className="relative overflow-hidden rounded-3xl border border-[var(--border)] bg-[#0B2545] p-4 shadow-xl">
+          <div data-reveal data-reveal-delay="0.1" className="relative overflow-hidden rounded-3xl border border-[var(--border)] bg-[#0B2545] p-4 shadow-xl">
             <div
+              data-map-grid
               className="relative aspect-[4/3] overflow-hidden rounded-2xl"
               style={{
                 backgroundImage:
@@ -62,11 +64,12 @@ export function MapPreviewSection() {
               {HOME_MAP_PINS.map((pin) => (
                 <div
                   key={pin.label}
+                  data-map-pin
                   className="absolute -translate-x-1/2 -translate-y-full"
                   style={{ top: pin.top, left: pin.left }}
                 >
                   <div className="relative">
-                    <span className="absolute -inset-2 animate-ping rounded-full bg-[#FF6A3D]/30" />
+                    <span className="absolute -inset-2 rounded-full bg-[#FF6A3D]/30 opacity-0 motion-safe:group-hover:opacity-100 transition-opacity" />
                     <span className="relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-[#FF6A3D] shadow-lg">
                       <MapPin className="h-4 w-4 text-white" />
                     </span>

@@ -73,6 +73,8 @@ export async function POST(req: NextRequest) {
         featured:      false,
         rating:        null,
         listingStatus: "pending",
+        claimed:       true,
+        claimedAt:     new Date(),
         ownerId:       session.ownerId,
         disciplines: disciplineIds.length
           ? { create: disciplineIds.map((id: string) => ({ discipline: { connect: { id } } })) }

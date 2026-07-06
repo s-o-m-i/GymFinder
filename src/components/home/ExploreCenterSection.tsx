@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -22,16 +22,18 @@ function ExploreCenterCard({
   href,
   image,
   icon: Icon,
-}: (typeof EXPLORE_CENTER_ITEMS)[number]) {
+  onImageLoad,
+}: (typeof EXPLORE_CENTER_ITEMS)[number] & { onImageLoad?: () => void }) {
   return (
     <Link
       href={href}
-      className="group explore-center-card relative block w-full overflow-hidden rounded-2xl sm:rounded-[18px]"
+      className="group explore-center-card relative block aspect-[3/4] w-full overflow-hidden rounded-2xl sm:rounded-[18px]"
     >
       <Image
         src={image}
         alt={title}
         fill
+        onLoad={onImageLoad}
         className="object-cover transition-transform duration-500 group-hover:scale-105"
         sizes="(max-width: 480px) 78vw, (max-width: 768px) 45vw, (max-width: 1024px) 32vw, 260px"
       />
@@ -54,21 +56,38 @@ export function ExploreCenterSection() {
   const showNavigation = EXPLORE_CENTER_ITEMS.length > 1;
   const [canGoPrev, setCanGoPrev] = useState(false);
   const [canGoNext, setCanGoNext] = useState(true);
+  const swiperRef = useRef<SwiperType | null>(null);
 
   function syncNavVisibility(swiper: SwiperType) {
     setCanGoPrev(!swiper.isBeginning);
     setCanGoNext(!swiper.isEnd);
   }
 
+  const refreshSwiper = useCallback(() => {
+    const swiper = swiperRef.current;
+    if (!swiper) return;
+    swiper.update();
+    syncNavVisibility(swiper);
+  }, []);
+
+  function handleSwiperInit(swiper: SwiperType) {
+    swiperRef.current = swiper;
+    syncNavVisibility(swiper);
+    refreshSwiper();
+    requestAnimationFrame(refreshSwiper);
+    window.setTimeout(refreshSwiper, 200);
+    window.setTimeout(refreshSwiper, 600);
+  }
+
   return (
-    <section id="explore-center" className="overflow-x-clip bg-[#f3f4f6] py-12 sm:py-16 lg:py-20">
+    <section id="explore-center" data-section="explore" className="bg-[#f3f4f6] py-12 sm:py-16 lg:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <h2 className="font-heading text-center text-2xl font-bold text-[#0B2545] sm:text-3xl">
+        <h2 data-reveal className="font-heading text-center text-2xl font-bold text-[#0B2545] sm:text-3xl">
           Explore Center
         </h2>
       </div>
 
-      <div className="relative mx-auto mt-8 max-w-7xl sm:mt-10">
+      <div className="relative mx-auto mt-10 max-w-7xl sm:mt-12">
         <div className="relative px-4 sm:px-6 lg:px-8">
           {showNavigation && (
             <>
@@ -101,9 +120,10 @@ export function ExploreCenterSection() {
             </>
           )}
 
-          <Swiper
+          <div className="explore-center-track">
+            <Swiper
             modules={[Navigation, Pagination, A11y]}
-            onSwiper={syncNavVisibility}
+            onSwiper={handleSwiperInit}
             onSlideChange={syncNavVisibility}
             onResize={syncNavVisibility}
             navigation={
@@ -129,14 +149,17 @@ export function ExploreCenterSection() {
               1280: { spaceBetween: 22 },
             }}
             watchOverflow
+            observer
+            observeParents
             className="explore-center-swiper"
           >
             {EXPLORE_CENTER_ITEMS.map((item) => (
               <SwiperSlide key={item.href} className="explore-center-slide">
-                <ExploreCenterCard {...item} />
+                <ExploreCenterCard {...item} onImageLoad={refreshSwiper} />
               </SwiperSlide>
             ))}
-          </Swiper>
+            </Swiper>
+          </div>
         </div>
       </div>
     </section>
