@@ -5,52 +5,73 @@ export type NavLinkItem = {
   description?: string;
 };
 
-export const DISCOVER_LINKS: NavLinkItem[] = [
-  { href: "/gyms", label: "Gyms", emoji: "🏋", description: "Find gyms near you" },
-  {
-    href: "/gyms/fighting-clubs",
-    label: "Fighting Clubs",
-    emoji: "🥊",
-    description: "Boxing, MMA & martial arts",
-  },
-  { href: "/trainers", label: "Trainers", emoji: "👨‍🏫", description: "Certified coaches" },
-  {
-    href: "/ai-gym-finder",
-    label: "AI Gym Search",
-    emoji: "✨",
-    description: "Smart gym recommendations",
-  },
+export type NavSidebarSection = {
+  title: string;
+  items: NavLinkItem[];
+};
+
+/** Main discovery links — shown directly in the navbar on desktop */
+export const PRIMARY_NAV_LINKS: NavLinkItem[] = [
+  { href: "/gyms", label: "Gyms" },
+  { href: "/trainers", label: "Trainers" },
+  { href: "/gyms/fighting-clubs", label: "Fighting Clubs" },
+  { href: "/success-stories", label: "Success Stories" },
+  { href: "/events", label: "Events" },
 ];
 
-export const RESOURCES_LINKS: NavLinkItem[] = [
-  { href: "/about", label: "About", description: "Our mission" },
-  { href: "/blogs", label: "Blog", description: "Latest articles & news" },
-  { href: "/blogs/category/fitness-tips", label: "Fitness Tips", description: "Training advice" },
-  { href: "/blogs/category/nutrition", label: "Nutrition", description: "Diet & meal guidance" },
-  { href: "/blogs/category/workout", label: "Workout Guides", description: "Programmes & routines" },
-  { href: "/resources/faqs", label: "FAQs", description: "Common questions" },
-  { href: "/contact", label: "Contact", description: "Get in touch" },
+/** Prominent business CTAs — visible in the navbar (replaces For Businesses dropdown) */
+export const BUSINESS_CTA_LINKS: NavLinkItem[] = [
+  { href: "/owner/register", label: "List Your Gym" },
+  { href: "/trainer/register", label: "Join as Trainer" },
 ];
 
-export const FOR_BUSINESS_LINKS: NavLinkItem[] = [
-  { href: "/owner/register", label: "List Your Gym", description: "Reach new members" },
-  { href: "/trainer/register", label: "Register Trainer", description: "Build your client base" },
+/** Secondary links — hamburger sidebar (desktop) + full menu (mobile) */
+export const SIDEBAR_MENU_SECTIONS: NavSidebarSection[] = [
   {
-    href: "/owner/register?type=fighting-club",
-    label: "List Fighting Club",
-    description: "Showcase your club",
+    title: "Resources",
+    items: [
+      { href: "/about", label: "About" },
+      { href: "/blogs", label: "Blog" },
+      { href: "/blogs/category/fitness-tips", label: "Fitness Tips" },
+      { href: "/blogs/category/nutrition", label: "Nutrition" },
+      { href: "/blogs/category/workout", label: "Workout Guides" },
+      { href: "/resources/faqs", label: "FAQs" },
+      { href: "/contact", label: "Contact" },
+    ],
   },
-  { href: "/for-businesses#pricing", label: "Pricing", description: "Plans & promotion" },
-  { href: "/for-businesses#why-join", label: "Why Join?", description: "Grow with FitnessAdda" },
+  {
+    title: "For Businesses",
+    items: [
+      { href: "/owner/register?type=fighting-club", label: "List Fighting Club" },
+      { href: "/for-businesses#why-join", label: "Why Join?" },
+    ],
+  },
+  {
+    title: "Tools",
+    items: [{ href: "/ai-gym-finder", label: "AI Gym Search" }],
+  },
 ];
-
-export const TOP_LEVEL_NAV = {
-  successStories: { href: "/success-stories", label: "Success Stories" },
-  events: { href: "/events", label: "Events" },
-} as const;
 
 export const AUTH_PATHS = {
   signIn: "/sign-in",
   shareStory: "/user/register",
   shareStoryDashboard: "/user/dashboard/success-stories",
+} as const;
+
+/** @deprecated Use PRIMARY_NAV_LINKS */
+export const DISCOVER_LINKS = PRIMARY_NAV_LINKS;
+
+/** @deprecated Use SIDEBAR_MENU_SECTIONS */
+export const RESOURCES_LINKS = SIDEBAR_MENU_SECTIONS[0].items;
+
+/** @deprecated Use BUSINESS_CTA_LINKS + SIDEBAR_MENU_SECTIONS */
+export const FOR_BUSINESS_LINKS = [
+  ...BUSINESS_CTA_LINKS,
+  ...SIDEBAR_MENU_SECTIONS[1].items,
+];
+
+/** @deprecated Included in PRIMARY_NAV_LINKS */
+export const TOP_LEVEL_NAV = {
+  successStories: { href: "/success-stories", label: "Success Stories" },
+  events: { href: "/events", label: "Events" },
 } as const;
