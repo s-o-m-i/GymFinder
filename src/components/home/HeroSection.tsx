@@ -312,22 +312,27 @@ export function HeroSection({ stats }: HeroSectionProps) {
                 </div>
               ))}
             </div>
-
-            {/* Scroll — horizontal, no border */}
-            <div data-hero-scroll className="mt-6 flex justify-end sm:mt-8">
-              <a
-                href="#explore-center"
-                className="inline-flex items-center gap-2.5 text-white/45 transition-colors hover:text-white/70"
-              >
-                <span className="flex h-8 w-[18px] items-start justify-center rounded-full border-2 border-white/45 pt-1">
-                  <span className="h-1.5 w-0.5 animate-bounce rounded-full bg-white/70" />
-                </span>
-                <span className="text-sm font-medium">Scroll to explore</span>
-              </a>
-            </div>
           </div>
 
           <div className="hidden min-h-[320px] lg:block" aria-hidden />
+        </div>
+
+        {/* Scroll hint — full-width row so it doesn't collide with stat cards on mobile */}
+        <div data-hero-scroll className="mt-5 flex w-full justify-center sm:mt-6 lg:mt-4 lg:justify-end">
+          <a
+            href="#explore-center"
+            className="inline-flex flex-col items-center gap-2 text-white/45 transition-colors hover:text-white/70 sm:flex-row sm:gap-2.5"
+          >
+            <span className="hidden h-8 w-[18px] items-start justify-center rounded-full border-2 border-white/45 pt-1 sm:flex">
+              <span className="h-1.5 w-0.5 animate-bounce rounded-full bg-white/70" />
+            </span>
+            <ChevronDown
+              className="h-5 w-5 animate-bounce text-white/55 sm:hidden"
+              strokeWidth={2}
+              aria-hidden
+            />
+            <span className="text-xs font-medium sm:text-sm">Scroll to explore</span>
+          </a>
         </div>
 
         {/* Trusted bar — centered rounded container with vertical dividers */}
