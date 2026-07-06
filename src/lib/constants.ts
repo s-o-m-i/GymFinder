@@ -104,10 +104,10 @@ export const SITE_DESCRIPTION =
   "Discover the best gyms, fighting clubs, and personal trainers across Pakistan. Compare prices, facilities, and contact directly on WhatsApp.";
 
 export const SOCIAL_LINKS = {
-  instagram: "https://instagram.com/gymfinderpk",
-  facebook:  "https://facebook.com/gymfinderpk",
-  twitter:   "https://twitter.com/gymfinderpk",
-  tiktok:    "https://tiktok.com/@gymfinderpk",
+  instagram: "https://www.instagram.com/fitnessadda.pk/",
+  facebook:  "https://facebook.com/fitnessadda.pk",
+  twitter:   "https://twitter.com/fitnessadda.pk",
+  tiktok:    "https://tiktok.com/@fitnessadda.pk",
 } as const;
 
 export const PRICE_RANGE = { min: 0, max: 15000 };

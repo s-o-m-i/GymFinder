@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Calendar, Clock, User } from "lucide-react";
 import type { BlogPostSummary } from "@/types/wordpress";
-import { formatBlogDate, getBlogPostPath } from "@/lib/blogs-routes";
+import { formatBlogDate, getBlogCategoryPath, getBlogPostPath } from "@/lib/blogs-routes";
 import { formatReadingTime } from "@/utils/readingTime";
 import { cn } from "@/lib/utils";
 
@@ -39,14 +39,17 @@ export function BlogCard({ post, className, priority = false }: BlogCardProps) {
             <span className="font-heading text-lg font-bold text-white/30">Blog</span>
           </div>
         )}
-        {primaryCategory && (
-          <span className="absolute left-3 top-3 rounded-full bg-[#0B2545]/85 px-2.5 py-1 text-xs font-semibold text-white backdrop-blur-sm">
-            {primaryCategory.name}
-          </span>
-        )}
       </Link>
 
       <div className="flex flex-1 flex-col p-5">
+        {primaryCategory && (
+          <Link
+            href={getBlogCategoryPath(primaryCategory.slug)}
+            className="mb-3 inline-flex w-fit rounded-full bg-[#0B2545]/10 px-2.5 py-1 text-xs font-semibold text-[#0B2545] transition-colors hover:bg-[#FF6A3D]/10 hover:text-[#FF6A3D]"
+          >
+            {primaryCategory.name}
+          </Link>
+        )}
         <div className="mb-3 flex flex-wrap items-center gap-3 text-xs text-[var(--text-muted)]">
           <span className="inline-flex items-center gap-1">
             <Calendar className="h-3.5 w-3.5" />
