@@ -1,195 +1,235 @@
+import Image from "next/image";
 import Link from "next/link";
 import {
-  Dumbbell,
-  MapPin,
-  Shield,
-  Sparkles,
-  Swords,
-  Trophy,
-  Users,
+  ArrowRight,
+  ArrowUpRight,
+  ChevronRight,
+  Play,
+  Star,
+  UserRound,
 } from "lucide-react";
 import type { HeroStats } from "@/lib/hero-data";
-import { formatHeroStatCount } from "@/lib/hero-data";
-
-const POPULAR_SEARCHES = [
-  { label: "Martial Arts", href: "/gyms/martial-arts", icon: Trophy },
-  { label: "Group Fitness", href: "/gyms?search=group+fitness", icon: Users },
-  { label: "MMA Clubs", href: "/gyms/mma", icon: Swords },
-  { label: "Fighting Clubs", href: "/gyms/fighting-clubs", icon: Shield },
-  { label: "Fitness Trainers", href: "/trainers", icon: Dumbbell },
-  { label: "Upcoming Events", href: "/events", icon: Sparkles },
-] as const;
-
-const MAP_PINS = [
-  { top: "22%", left: "28%" },
-  { top: "38%", left: "52%" },
-  { top: "55%", left: "35%" },
-  { top: "48%", left: "68%" },
-  { top: "68%", left: "58%" },
-] as const;
+import {
+  buildHomeCtaStats,
+  HOME_CTA_ACTION_CARDS,
+  HOME_CTA_REVIEW_AVATARS,
+  HOME_CTA_TRUST_ITEMS,
+} from "@/lib/home-cta-data";
 
 interface HomePreFooterSectionProps {
   stats: HeroStats;
+  eventsCount?: number;
 }
 
-export function HomePreFooterSection({ stats }: HomePreFooterSectionProps) {
-  const networkStats = [
-    { raw: stats.gyms, value: formatHeroStatCount(stats.gyms), label: "Gyms Listed", suffix: "+" },
-    { raw: stats.trainers, value: formatHeroStatCount(stats.trainers), label: "Trainers", suffix: "+" },
-    { raw: stats.cities, value: String(stats.cities), label: "Cities Covered", suffix: "" },
-  ];
+export function HomePreFooterSection({ stats, eventsCount = 500 }: HomePreFooterSectionProps) {
+  const ctaStats = buildHomeCtaStats(stats, eventsCount);
 
   return (
     <section
-      id="home-pre-footer"
+      id="home-join-cta"
       data-section="cta"
-      className="relative overflow-hidden bg-[#0B2545] py-14 sm:py-16 lg:py-20"
-      aria-label="Gym owners, network stats, and popular searches"
+      className="relative overflow-hidden bg-white py-16 sm:py-20 lg:py-24"
+      aria-label="Join FitnessAdda call to action"
     >
-      {/* Decorative accents */}
       <div
-        data-parallax
-        data-parallax-speed="-8"
-        className="pointer-events-none absolute -bottom-24 left-[4%] h-48 w-48 rounded-full border border-white/[0.06] opacity-40"
-        aria-hidden
-      />
-      <div
-        className="pointer-events-none absolute -right-8 bottom-0 h-56 w-56 opacity-[0.07]"
-        aria-hidden
+        className="pointer-events-none absolute inset-0 opacity-70"
         style={{
           backgroundImage:
-            "radial-gradient(circle at center, #FF6A3D 0%, transparent 70%)",
+            "radial-gradient(circle at 78% 22%, rgba(255,106,61,0.06), transparent 34%), radial-gradient(circle at 10% 90%, rgba(11,37,69,0.04), transparent 28%)",
         }}
-      />
-      <Sparkles
-        className="pointer-events-none absolute bottom-16 right-[18%] hidden h-24 w-24 text-white/[0.04] lg:block"
         aria-hidden
       />
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 gap-10 lg:grid-cols-3 lg:gap-0 lg:divide-x lg:divide-white/10">
-          {/* Column 1 — Own a Gym CTA */}
-          <div className="relative flex flex-col justify-between border-b border-white/10 pb-10 lg:border-b-0 lg:pb-0 lg:px-8 lg:pr-10 xl:pr-12">
-            <div>
-              <h2 className="font-heading text-xl font-bold text-white sm:text-2xl">
-                Own a Gym?
-              </h2>
-              <p className="mt-3 max-w-sm text-sm leading-relaxed text-white/60">
-                List your gym or training center on Pakistan&apos;s fitness marketplace. Get
-                discovered by customers searching in Lahore, Karachi, Islamabad, and beyond.
+        {/* Hero */}
+        <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)] lg:gap-12 xl:gap-16">
+          <div data-reveal>
+            <div className="mb-5 flex items-center gap-3">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[#FF6A3D] sm:text-xs">
+                Join FitnessAdda
               </p>
-              <div className="mt-6 flex flex-wrap gap-3">
-                <Link
-                  href="/owner/register"
-                  data-magnetic
-                  className="inline-flex items-center justify-center rounded-full bg-[#FF6A3D] px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-[#FF6A3D]/25 transition-colors hover:bg-[#e85528]"
-                >
-                  Register Your Gym
-                </Link>
-                <Link
-                  href="/trainer/register"
-                  data-magnetic
-                  className="inline-flex items-center justify-center rounded-full border border-white/20 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:border-white/35 hover:bg-white/5"
-                >
-                  List as Trainer
-                </Link>
-              </div>
+              <span className="h-px w-12 bg-gradient-to-r from-[#FF6A3D]/80 to-transparent sm:w-16" />
             </div>
 
-            <div
-              className="pointer-events-none mt-10 hidden h-28 w-28 opacity-[0.08] sm:block"
-              aria-hidden
-              style={{
-                backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='none' stroke='white' stroke-width='0.5'/%3E%3Ccircle cx='50' cy='50' r='35' fill='none' stroke='white' stroke-width='0.5'/%3E%3Ccircle cx='50' cy='50' r='25' fill='none' stroke='white' stroke-width='0.5'/%3E%3Cpath d='M50 5 L50 95 M5 50 L95 50 M15 15 L85 85 M85 15 L15 85' stroke='white' stroke-width='0.3'/%3E%3C/svg%3E")`,
-                backgroundSize: "contain",
-                backgroundRepeat: "no-repeat",
-              }}
+            <h2 className="font-heading max-w-xl text-[1.85rem] font-bold leading-[1.12] text-[#0B2545] sm:text-4xl lg:text-[2.65rem]">
+              Be Part of Pakistan&apos;s Largest{" "}
+              <span className="text-[#FF6A3D]">Fitness Network</span>
+            </h2>
+
+            <p className="mt-4 max-w-xl text-sm leading-relaxed text-[#5a6b7d] sm:text-base">
+              List your gym, grow your brand, connect with more members, and be part of a community
+              that&apos;s transforming lives across Pakistan.
+            </p>
+
+            <div className="mt-7 flex flex-wrap items-center gap-3 sm:mt-8">
+              <Link
+                href="/owner/register"
+                data-magnetic
+                className="inline-flex items-center gap-2.5 rounded-xl bg-[#FF6A3D] px-5 py-3.5 text-sm font-semibold text-white shadow-[0_12px_32px_rgba(255,106,61,0.25)] transition-colors hover:bg-[#e85528]"
+              >
+                <UserRound className="h-4 w-4" strokeWidth={2.2} />
+                Get Started Now
+                <ChevronRight className="h-4 w-4" />
+              </Link>
+              <Link
+                href="/for-businesses"
+                className="inline-flex items-center gap-2.5 rounded-xl border border-[#0B2545]/12 bg-white px-5 py-3.5 text-sm font-semibold text-[#0B2545] shadow-sm transition-colors hover:border-[#FF6A3D]/30 hover:text-[#FF6A3D]"
+              >
+                <span className="flex h-7 w-7 items-center justify-center rounded-full border border-[#0B2545]/12 bg-[#F8FAFC]">
+                  <Play className="h-3 w-3 fill-[#0B2545] text-[#0B2545]" />
+                </span>
+                Learn More
+              </Link>
+            </div>
+          </div>
+
+          <div
+            data-reveal
+            data-reveal-delay="0.08"
+            className="relative mx-auto w-full max-w-[560px] lg:mx-0 lg:ml-auto lg:max-w-none"
+          >
+            <Image
+              src="/images/CTA.png"
+              alt="Fitness professionals on FitnessAdda"
+              width={1536}
+              height={1024}
+              className="h-auto w-full max-h-[280px] object-contain object-center sm:max-h-[340px] lg:max-h-[420px] lg:object-right"
+              sizes="(max-width: 1024px) 100vw, 560px"
             />
           </div>
+        </div>
 
-          {/* Column 2 — Growing Fitness Network */}
-          <div className="border-b border-white/10 pb-10 lg:border-b-0 lg:pb-0 lg:px-8 xl:px-10">
-            <h2 className="font-heading text-xl font-bold text-white sm:text-2xl">
-              Growing Fitness Network
-            </h2>
-
-            <div data-reveal data-counter-group className="mt-6 flex items-center gap-5 sm:gap-6">
-              <ul className="shrink-0 space-y-4 sm:space-y-5">
-                {networkStats.map((stat) => (
-                  <li key={stat.label}>
-                    <div
-                      data-counter={stat.raw}
-                      data-counter-suffix={stat.suffix}
-                      className="font-heading text-3xl font-bold leading-none text-[#FF6A3D] sm:text-4xl"
-                    >
-                      {stat.value}
-                    </div>
-                    <div className="mt-1 text-xs font-medium text-white/50 sm:text-sm">
-                      {stat.label}
-                    </div>
-                  </li>
-                ))}
-              </ul>
-
-              <div className="relative min-h-[180px] flex-1 overflow-hidden rounded-2xl border border-white/10 bg-[#081c33] sm:min-h-[200px]">
-                <div className="absolute inset-0 bg-gradient-to-br from-[#0a2240] via-[#0B2545] to-[#12345f]" />
+        {/* Stats bar */}
+        <div
+          data-reveal
+          data-reveal-delay="0.06"
+          className="mt-12 rounded-[22px] border border-[#0B2545]/10 bg-white px-4 py-5 shadow-[0_8px_30px_rgba(11,37,69,0.08)] sm:mt-14 sm:px-6 sm:py-6"
+        >
+          <div className="grid grid-cols-2 gap-y-6 lg:grid-cols-4 lg:gap-y-0">
+            {ctaStats.map((stat, index) => {
+              const Icon = stat.icon;
+              return (
                 <div
-                  className="absolute inset-0 opacity-30"
-                  style={{
-                    backgroundImage:
-                      "linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)",
-                    backgroundSize: "24px 24px",
-                  }}
-                  aria-hidden
-                />
-                {/* Simplified map silhouette */}
-                <svg
-                  viewBox="0 0 120 140"
-                  className="absolute inset-0 h-full w-full p-3 text-white/[0.12]"
-                  aria-hidden
+                  key={stat.id}
+                  className="relative flex items-center gap-3 px-2 sm:gap-4 sm:px-3"
                 >
-                  <path
-                    fill="currentColor"
-                    d="M62 8c-8 6-18 8-26 14-6 5-10 14-8 22 2 10 10 18 12 28 1 8-2 16-8 22-4 5-10 8-14 14-2 3-2 8 0 11 4 6 14 10 22 12 8 2 18 0 26-4 8-4 14-12 16-20 2-10-2-20-6-30-4-12-6-24-4-36 1-8 4-16 10-22 4-4 10-8 12-14 2-6-2-12-8-14-4-2-10-2-14-1z"
-                  />
-                </svg>
-                {MAP_PINS.map((pin, i) => (
-                  <span
-                    key={i}
-                    className="absolute flex h-3 w-3 -translate-x-1/2 -translate-y-full items-end justify-center"
-                    style={{ top: pin.top, left: pin.left }}
-                    aria-hidden
-                  >
-                    <MapPin className="h-5 w-5 fill-[#FF6A3D] text-[#FF6A3D] drop-shadow-sm" />
+                  {index > 0 && (
+                    <span className="absolute left-0 top-1/2 hidden h-10 w-px -translate-y-1/2 bg-[#0B2545]/10 lg:block" />
+                  )}
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#FF6A3D]/10 text-[#FF6A3D]">
+                    <Icon className="h-5 w-5" strokeWidth={2} />
                   </span>
-                ))}
-              </div>
-            </div>
+                  <span>
+                    <span className="font-heading block text-2xl font-bold leading-none text-[#0B2545] sm:text-[1.65rem]">
+                      {stat.display}
+                    </span>
+                    <span className="mt-1 block text-xs text-[#5a6b7d] sm:text-sm">{stat.label}</span>
+                  </span>
+                </div>
+              );
+            })}
           </div>
+        </div>
 
-          {/* Column 3 — Popular Searches */}
-          <div className="relative lg:pl-8 xl:pl-10">
-            <h2 className="font-heading text-xl font-bold text-white sm:text-2xl">
-              Popular Searches
-            </h2>
+        {/* Action cards */}
+        <div
+          data-stagger-cta-cards
+          className="mt-8 grid grid-cols-1 gap-4 sm:mt-10 md:grid-cols-2 xl:grid-cols-4 xl:gap-5"
+        >
+          {HOME_CTA_ACTION_CARDS.map((card) => {
+            const Icon = card.icon;
+            return (
+              <Link
+                key={card.id}
+                href={card.href}
+                aria-label={`${card.title}: ${card.linkLabel}`}
+                className="group relative flex min-h-[260px] flex-col overflow-hidden rounded-[22px] border border-[#0B2545]/10 bg-white p-5 shadow-[0_8px_30px_rgba(11,37,69,0.06)] transition-[transform,box-shadow,border-color] duration-500 ease-out motion-safe:hover:-translate-y-1.5 hover:border-[#FF6A3D]/35 hover:shadow-[0_20px_48px_rgba(255,106,61,0.16)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF6A3D]/60 focus-visible:ring-offset-2 active:scale-[0.99] sm:p-6"
+              >
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute inset-0 rounded-[22px] bg-[radial-gradient(circle_at_50%_0%,rgba(255,106,61,0.1),transparent_72%)] opacity-0 transition-opacity duration-500 ease-out group-hover:opacity-100"
+                />
 
-            <nav className="mt-6" aria-label="Popular fitness searches">
-              <ul className="space-y-3 sm:space-y-3.5">
-                {POPULAR_SEARCHES.map(({ label, href, icon: Icon }) => (
-                  <li key={href}>
-                    <Link
-                      href={href}
-                      className="group flex items-center gap-3 text-sm font-medium text-white/75 transition-colors hover:text-white"
-                    >
-                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/[0.06] text-white/80 transition-colors group-hover:bg-[#FF6A3D]/15 group-hover:text-[#FF6A3D]">
-                        <Icon className="h-4 w-4" strokeWidth={1.75} />
-                      </span>
-                      {label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </nav>
+                <span className="relative mb-5 inline-flex h-12 w-12 items-center justify-center rounded-full border border-[#FF6A3D]/20 bg-[#FF6A3D]/10 text-[#FF6A3D] transition-[transform,background-color,border-color] duration-500 ease-out motion-safe:group-hover:scale-110 group-hover:border-[#FF6A3D]/35 group-hover:bg-[#FF6A3D]/15">
+                  <Icon className="h-5 w-5 transition-transform duration-500 ease-out motion-safe:group-hover:scale-105" strokeWidth={2} />
+                </span>
+
+                <p className="relative text-[10px] font-semibold uppercase tracking-[0.18em] text-[#FF6A3D] sm:text-[11px]">
+                  {card.eyebrow}
+                </p>
+                <h3 className="font-heading relative mt-2 text-lg font-bold text-[#0B2545] transition-colors duration-300 ease-out group-hover:text-[#FF6A3D] sm:text-xl">
+                  {card.title}
+                </h3>
+                <p className="relative mt-2 flex-1 text-sm leading-relaxed text-[#5a6b7d] transition-colors duration-300 ease-out group-hover:text-[#4a5a6b]">
+                  {card.description}
+                </p>
+
+                <div className="relative mt-5 flex items-end justify-between gap-3">
+                  <span className="inline-flex items-center gap-1 text-sm font-semibold text-[#FF6A3D] transition-colors duration-300 ease-out group-hover:text-[#e85528]">
+                    {card.linkLabel}
+                    <ArrowRight className="h-4 w-4 transition-transform duration-500 ease-out motion-safe:group-hover:translate-x-1" />
+                  </span>
+
+                  <span
+                    aria-hidden
+                    className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#FF6A3D] text-white shadow-[0_8px_20px_rgba(255,106,61,0.25)] transition-[transform,box-shadow,background-color] duration-500 ease-out motion-safe:group-hover:scale-110 group-hover:bg-[#e85528] group-hover:shadow-[0_14px_32px_rgba(255,106,61,0.38)]"
+                  >
+                    <ArrowUpRight
+                      className="h-4 w-4 transition-transform duration-500 ease-out motion-safe:group-hover:translate-x-0.5 motion-safe:group-hover:-translate-y-0.5"
+                      strokeWidth={2.2}
+                    />
+                  </span>
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+
+        {/* Trust bar */}
+        <div
+          data-reveal
+          data-reveal-delay="0.1"
+          className="mt-8 grid grid-cols-1 gap-4 rounded-[22px] border border-[#0B2545]/10 bg-white px-4 py-5 shadow-[0_8px_30px_rgba(11,37,69,0.06)] sm:mt-10 sm:px-6 sm:py-6 lg:grid-cols-[1fr_1fr_1.05fr] lg:gap-6"
+        >
+          {HOME_CTA_TRUST_ITEMS.map((item) => {
+            const Icon = item.icon;
+            return (
+              <div key={item.id} className="flex items-start gap-3 sm:items-center">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#FF6A3D]/10 text-[#FF6A3D]">
+                  <Icon className="h-5 w-5" strokeWidth={2} />
+                </span>
+                <span>
+                  <p className="text-sm font-bold text-[#0B2545] sm:text-base">{item.title}</p>
+                  <p className="mt-0.5 text-xs leading-relaxed text-[#5a6b7d] sm:text-sm">
+                    {item.description}
+                  </p>
+                </span>
+              </div>
+            );
+          })}
+
+          <div className="flex items-center gap-4 lg:justify-end">
+            <div className="flex -space-x-2.5">
+              {HOME_CTA_REVIEW_AVATARS.map((avatar) => (
+                <span
+                  key={avatar.initials}
+                  className={`inline-flex h-9 w-9 items-center justify-center rounded-full border-2 border-white text-[10px] font-bold text-white shadow-sm ${avatar.className}`}
+                >
+                  {avatar.initials}
+                </span>
+              ))}
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="font-heading text-lg font-bold text-[#FF6A3D]">4.9/5</span>
+                <span className="inline-flex items-center gap-0.5 text-[#FF6A3D]">
+                  {Array.from({ length: 5 }).map((_, index) => (
+                    <Star key={index} className="h-3.5 w-3.5 fill-current" strokeWidth={0} />
+                  ))}
+                </span>
+              </div>
+              <p className="mt-0.5 text-xs text-[#5a6b7d] sm:text-sm">From 2,500+ reviews</p>
+            </div>
           </div>
         </div>
       </div>

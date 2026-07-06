@@ -55,6 +55,10 @@ export function HomeMotionProvider({ children }: HomeMotionProviderProps) {
           stagger: 0.07,
           y: MOTION.y.md,
         });
+        initStaggerChildren(gsap, ScrollTrigger, scope, "[data-stagger-cta-cards]", isReduced, {
+          stagger: 0.08,
+          y: MOTION.y.md,
+        });
         initCounters(gsap, ScrollTrigger, scope, isReduced);
         const mapCleanup = initPakistanMapMotion(gsap, ScrollTrigger, scope, isReduced);
         initEcosystemNetworkMotion(gsap, ScrollTrigger, scope, isReduced);

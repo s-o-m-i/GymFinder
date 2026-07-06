@@ -216,14 +216,23 @@ async function getLatestBlogPosts(): Promise<BlogPostSummary[]> {
   }
 }
 
+async function getEventsCount(): Promise<number> {
+  try {
+    return await prisma.event.count();
+  } catch {
+    return 500;
+  }
+}
+
 export default async function HomePage() {
-  const [stats, featuredGyms, featuredTrainers, upcomingEvents, latestBlogPosts] =
+  const [stats, featuredGyms, featuredTrainers, upcomingEvents, latestBlogPosts, eventsCount] =
     await Promise.all([
     getHeroStats(),
     getFeaturedGymListings(),
     getFeaturedTrainerListings(),
     getUpcomingEventPreviews(),
     getLatestBlogPosts(),
+    getEventsCount(),
   ]);
 
   return (
@@ -241,7 +250,7 @@ export default async function HomePage() {
           <MapPreviewSection />
           <EventsPreviewSection events={upcomingEvents} />
           <BlogPreviewSection posts={latestBlogPosts} />
-          <HomePreFooterSection stats={stats} />
+          <HomePreFooterSection stats={stats} eventsCount={eventsCount} />
         </main>
         <Footer />
       </div>
