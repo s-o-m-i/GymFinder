@@ -27,6 +27,7 @@ export function HomeMotionProvider({ children }: HomeMotionProviderProps) {
       } = await import("@/lib/motion/interactions");
       const { initPakistanMapMotion } = await import("@/lib/motion/pakistan-map");
       const { initEcosystemNetworkMotion } = await import("@/lib/motion/ecosystem-network");
+      const { initTrustedPartnersMotion } = await import("@/lib/motion/trusted-partners");
       const { initSuccessStoriesMotion } = await import("@/lib/motion/success-stories");
 
       const gsap = await loadGsap();
@@ -57,6 +58,7 @@ export function HomeMotionProvider({ children }: HomeMotionProviderProps) {
         initCounters(gsap, ScrollTrigger, scope, isReduced);
         const mapCleanup = initPakistanMapMotion(gsap, ScrollTrigger, scope, isReduced);
         initEcosystemNetworkMotion(gsap, ScrollTrigger, scope, isReduced);
+        const trustedCleanup = initTrustedPartnersMotion(gsap, ScrollTrigger, scope, isReduced);
         initListingCards(gsap, ScrollTrigger, scope, isReduced);
         initExploreParallax(gsap, ScrollTrigger, scope, isReduced);
         initSectionParallax(gsap, ScrollTrigger, scope, isReduced);
@@ -99,6 +101,7 @@ export function HomeMotionProvider({ children }: HomeMotionProviderProps) {
 
         return () => {
           mapCleanup?.();
+          trustedCleanup?.();
           magneticCleanup?.();
         };
       }, scope);
