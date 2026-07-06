@@ -76,6 +76,12 @@ export async function submitFeatureRequest(
     });
 
     revalidateFeaturedPaths(gym.slug);
+
+    const { notifyAdminFeatureRequest } = await import(
+      "@/services/notification/notification.dispatch"
+    );
+    void notifyAdminFeatureRequest({ requestId: created.id, gymName: gym.name });
+
     return { success: true, data: { id: created.id } };
   } catch (err) {
     if (err instanceof Error && err.message === "UNAUTHORIZED") {

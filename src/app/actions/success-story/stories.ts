@@ -130,8 +130,64 @@ export async function publishSuccessStory(input: unknown, storyId?: string) {
   const story = await prisma.successStory.update({
     where: { id: draft.storyId },
     data: { status: "PUBLISHED", publishedAt: new Date() },
+    select: {
+      id: true,
+      slug: true,
+      title: true,
+      publisherType: true,
+      publisherGymId: true,
+      publisherTrainerId: true,
+      publisherUserId: true,
+    },
   });
   revalidateStoryPaths(story.slug);
+
+  const {
+    notifySuccessStoryPublished,
+    notifyAdminSuccessStorySubmission,
+  } = await import("@/services/notification/notification.dispatch");
+
+  let recipientId: string | null = null;
+  let recipientRole: "OWNER" | "TRAINER" | "COMMUNITY" | null = null;
+
+  if (story.publisherUserId) {
+    recipientId = story.publisherUserId;
+    recipientRole = "COMMUNITY";
+  } else if (story.publisherTrainerId) {
+    const trainer = await prisma.trainer.findUnique({
+      where: { id: story.publisherTrainerId },
+      select: { accountId: true },
+    });
+    if (trainer?.accountId) {
+      recipientId = trainer.accountId;
+      recipientRole = "TRAINER";
+    }
+  } else if (story.publisherGymId) {
+    const gym = await prisma.gym.findUnique({
+      where: { id: story.publisherGymId },
+      select: { ownerId: true },
+    });
+    if (gym?.ownerId) {
+      recipientId = gym.ownerId;
+      recipientRole = "OWNER";
+    }
+  }
+
+  if (recipientId && recipientRole) {
+    void notifySuccessStoryPublished({
+      recipientId,
+      recipientRole,
+      storyId: story.id,
+      storySlug: story.slug,
+      storyTitle: story.title,
+    });
+  }
+
+  void notifyAdminSuccessStorySubmission({
+    storyId: story.id,
+    storyTitle: story.title,
+  });
+
   return { success: true as const, storyId: story.id, slug: story.slug };
 }
 

@@ -12,7 +12,7 @@ export async function checkExpiredFeaturedGyms(now = new Date()) {
       featured: true,
       featuredUntil: { lt: now },
     },
-    select: { id: true, slug: true },
+    select: { id: true, slug: true, ownerId: true, name: true },
   });
 
   if (expired.length === 0) return { expiredCount: 0 };
@@ -27,6 +27,17 @@ export async function checkExpiredFeaturedGyms(now = new Date()) {
       featuredPlan: null,
     },
   });
+
+  const { notifyFeaturedExpired } = await import("@/services/notification/notification.dispatch");
+  for (const gym of expired) {
+    if (gym.ownerId) {
+      void notifyFeaturedExpired({
+        ownerId: gym.ownerId,
+        gymId: gym.id,
+        gymName: gym.name,
+      });
+    }
+  }
 
   return { expiredCount: expired.length, slugs: expired.map((g) => g.slug) };
 }
@@ -89,6 +100,20 @@ export async function approveFeatureRequest(requestId: string, reviewedBy = "adm
       },
     }),
   ]);
+
+  const gymDetails = await prisma.gym.findUnique({
+    where: { id: request.gymId },
+    select: { ownerId: true, slug: true, name: true },
+  });
+  if (gymDetails?.ownerId) {
+    const { notifyFeaturedEnabled } = await import("@/services/notification/notification.dispatch");
+    void notifyFeaturedEnabled({
+      ownerId: gymDetails.ownerId,
+      gymId: request.gymId,
+      gymSlug: gymDetails.slug,
+      gymName: gymDetails.name,
+    });
+  }
 
   return { gymSlug: request.gym.slug };
 }

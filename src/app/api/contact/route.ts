@@ -15,6 +15,12 @@ export async function POST(request: Request) {
 
     await sendContactFormEmail(parsed.data);
 
+    const { notifyContactInquiry } = await import("@/services/notification/notification.dispatch");
+    void notifyContactInquiry({
+      name: parsed.data.fullName,
+      subject: parsed.data.subject,
+    });
+
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("[contact]", error);

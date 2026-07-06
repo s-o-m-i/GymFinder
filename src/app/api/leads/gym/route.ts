@@ -66,13 +66,16 @@ export async function POST(request: NextRequest) {
       userAgent: request.headers.get("user-agent"),
     });
 
+    const goalLabel = resolveLeadGoalLabel(goal, customGoal);
+    const { notifyGymLeadInquiry } = await import("@/services/notification/notification.dispatch");
+    void notifyGymLeadInquiry({ gymId, leadName: name, goal: goalLabel });
+
     try {
       await trackClickWithContext(gymId, "WHATSAPP_CLICK", context);
     } catch {
       // Lead is saved even if analytics tracking fails
     }
 
-    const goalLabel = resolveLeadGoalLabel(goal, customGoal);
     const message = buildGymLeadWhatsAppMessage(gym.name, name, goalLabel);
     const redirectUrl = buildWhatsAppUrl(gym.whatsappNumber, gym.name, message);
 

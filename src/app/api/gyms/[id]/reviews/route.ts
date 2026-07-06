@@ -51,6 +51,9 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       data:  { rating: agg._avg.rating ?? rating },
     });
 
+    const { notifyNewGymReview } = await import("@/services/notification/notification.dispatch");
+    void notifyNewGymReview({ gymId: gym.id, author, rating });
+
     return NextResponse.json({ data: review }, { status: 201 });
   } catch (error) {
     console.error("POST /api/gyms/[id]/reviews error:", error);

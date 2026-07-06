@@ -24,7 +24,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
 
     const trainer = await prisma.trainer.findFirst({
       where: { OR: [{ id }, { slug: id }], isPublished: true },
-      select: { id: true },
+      select: { id: true, accountId: true, slug: true, fullName: true },
     });
 
     if (!trainer) {
@@ -53,6 +53,9 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
         totalReviews: agg._count._all,
       },
     });
+
+    const { notifyNewTrainerReview } = await import("@/services/notification/notification.dispatch");
+    void notifyNewTrainerReview({ trainerId: trainer.id, author, rating });
 
     return NextResponse.json({ data: review }, { status: 201 });
   } catch (error) {

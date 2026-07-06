@@ -86,6 +86,16 @@ export async function POST(req: NextRequest) {
     await syncGymImages(gym.id, coverImage, galleryImages);
 
     const full = await prisma.gym.findUnique({ where: { id: gym.id }, include: GYM_INCLUDE });
+
+    const { notifyAdminNewGymRegistration } = await import(
+      "@/services/notification/notification.dispatch"
+    );
+    void notifyAdminNewGymRegistration({
+      gymId: gym.id,
+      gymName: gym.name,
+      ownerId: session.ownerId,
+    });
+
     return NextResponse.json({ data: full }, { status: 201 });
   } catch (error) {
     console.error("POST /api/owner/gym error:", error);

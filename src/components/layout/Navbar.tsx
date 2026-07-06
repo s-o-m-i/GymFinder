@@ -9,6 +9,7 @@ import { SiteLogo } from "@/components/layout/SiteLogo";
 import { NavbarSidebar } from "@/components/layout/NavbarSidebar";
 import { ShareStoryNavButton } from "@/components/layout/ShareStoryNavButton";
 import { SignInNavButton } from "@/components/layout/SignInNavButton";
+import { NotificationBell } from "@/components/notifications/NotificationBell";
 import {
   BUSINESS_CTA_LINKS,
   PRIMARY_NAV_LINKS,
@@ -99,6 +100,9 @@ export function Navbar({ variant }: { variant?: "default" | "hero" }) {
 
   const sidebarFooter = (
     <>
+      <div className="flex justify-center">
+        <NotificationBell isHero={isHero} />
+      </div>
       <ShareStoryNavButton isHero={isHero} onNavigate={closeSidebar} className="w-full justify-center" />
       <div className="grid grid-cols-2 gap-2">
         {BUSINESS_CTA_LINKS.map((item, index) => (
@@ -166,6 +170,8 @@ export function Navbar({ variant }: { variant?: "default" | "hero" }) {
               ))}
 
               <SignInNavButton isHero={isHero} className="hidden md:inline-flex" />
+
+              <NotificationBell isHero={isHero} />
 
               <button
                 type="button"

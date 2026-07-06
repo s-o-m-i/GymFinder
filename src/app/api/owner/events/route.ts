@@ -67,6 +67,20 @@ export async function POST(req: NextRequest) {
       createdByOwnerId: session.ownerId,
     });
 
+    const { notifyEventCreated, notifyAdminEventSubmission } = await import(
+      "@/services/notification/notification.dispatch"
+    );
+    void notifyEventCreated({
+      ownerId: session.ownerId,
+      eventId: event.id,
+      eventSlug: event.slug,
+      eventTitle: event.title,
+    });
+    void notifyAdminEventSubmission({
+      eventId: event.id,
+      eventTitle: event.title,
+    });
+
     return NextResponse.json({ event }, { status: 201 });
   } catch (error) {
     console.error("POST /api/owner/events error:", error);

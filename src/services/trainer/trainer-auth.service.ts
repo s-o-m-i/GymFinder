@@ -81,6 +81,14 @@ export async function registerTrainerAccount(input: {
     throw emailError;
   }
 
+  const { notifyAdminNewTrainerRegistration } = await import(
+    "@/services/notification/notification.dispatch"
+  );
+  void notifyAdminNewTrainerRegistration({
+    accountId: account.id,
+    trainerName: account.name ?? "Trainer",
+  });
+
   return { ok: true as const, email: account.email };
 }
 

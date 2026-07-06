@@ -50,6 +50,15 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       ...gymData
     } = body;
 
+    const existing = await prisma.gym.findUnique({
+      where: { id },
+      select: { listingStatus: true, ownerId: true, slug: true, name: true },
+    });
+
+    if (!existing) {
+      return NextResponse.json({ error: "Gym not found" }, { status: 404 });
+    }
+
     const disciplineIds =
       disciplines !== undefined
         ? await resolveDisciplineIds(
@@ -108,6 +117,24 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       where: { id: gym.id },
       include: GYM_FULL_INCLUDE,
     });
+
+    if (
+      gymData.listingStatus &&
+      gymData.listingStatus !== existing.listingStatus &&
+      existing.ownerId &&
+      (gymData.listingStatus === "approved" || gymData.listingStatus === "rejected")
+    ) {
+      const { notifyGymListingStatusChange } = await import(
+        "@/services/notification/notification.dispatch"
+      );
+      void notifyGymListingStatusChange({
+        ownerId: existing.ownerId,
+        gymId: gym.id,
+        gymSlug: gym.slug,
+        gymName: gym.name,
+        status: gymData.listingStatus,
+      });
+    }
 
     return NextResponse.json({ data: full });
   } catch (error) {

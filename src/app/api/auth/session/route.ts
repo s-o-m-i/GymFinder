@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { getCommunitySession } from "@/lib/community-auth";
 import { getOwnerSession } from "@/lib/owner-auth";
 import { getTrainerSession } from "@/lib/trainer-auth";
+import { getAdminSession } from "@/lib/auth";
+import { NOTIFICATIONS_PAGE_PATH } from "@/lib/notifications/constants";
 
 export async function GET() {
   const owner = await getOwnerSession();
@@ -11,6 +13,9 @@ export async function GET() {
       role: "owner",
       label: "Dashboard",
       redirect: "/owner/dashboard",
+      notificationsPath: NOTIFICATIONS_PAGE_PATH,
+      recipientId: owner.ownerId,
+      recipientRole: "OWNER",
     });
   }
 
@@ -21,6 +26,9 @@ export async function GET() {
       role: "trainer",
       label: "Dashboard",
       redirect: trainer.trainerId ? "/trainer/dashboard" : "/trainer/dashboard/profile",
+      notificationsPath: NOTIFICATIONS_PAGE_PATH,
+      recipientId: trainer.accountId,
+      recipientRole: "TRAINER",
     });
   }
 
@@ -31,6 +39,22 @@ export async function GET() {
       role: "user",
       label: "Dashboard",
       redirect: "/user/dashboard/success-stories",
+      notificationsPath: NOTIFICATIONS_PAGE_PATH,
+      recipientId: community.userId,
+      recipientRole: "COMMUNITY",
+    });
+  }
+
+  const isAdmin = await getAdminSession();
+  if (isAdmin) {
+    return NextResponse.json({
+      authenticated: true,
+      role: "admin",
+      label: "Admin",
+      redirect: "/admin",
+      notificationsPath: NOTIFICATIONS_PAGE_PATH,
+      recipientId: "platform-admin",
+      recipientRole: "ADMIN",
     });
   }
 

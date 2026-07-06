@@ -725,3 +725,96 @@ model SuccessStory {
   @@index([publishedAt])
   @@index([createdAt])
 }
+
+// ─── Platform Notifications ─────────────────────────────────────────────────
+
+enum NotificationType {
+  PROFILE_APPROVED
+  PROFILE_REJECTED
+  NEW_REVIEW
+  NEW_INQUIRY
+  NEW_EVENT_BOOKING
+  SUCCESS_STORY_APPROVED
+  SUCCESS_STORY_REJECTED
+  FEATURED_ENABLED
+  FEATURED_EXPIRED
+  ADMIN_MESSAGE
+  BLOG_PUBLISHED
+  PASSWORD_CHANGED
+  EMAIL_VERIFIED
+  SYSTEM
+  PROMOTION
+}
+
+enum NotificationPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+enum NotificationStatus {
+  UNREAD
+  READ
+  ARCHIVED
+}
+
+enum NotificationEntityType {
+  GYM
+  TRAINER
+  SUCCESS_STORY
+  EVENT
+  BLOG
+  USER
+  SYSTEM
+}
+
+enum NotificationRecipientRole {
+  OWNER
+  TRAINER
+  COMMUNITY
+  ADMIN
+}
+
+model Notification {
+  id              String                    @id @default(cuid())
+  recipientUserId String
+  recipientRole   NotificationRecipientRole
+  senderUserId    String?
+  senderRole      NotificationRecipientRole?
+  type            NotificationType
+  title           String
+  message         String
+  icon            String?
+  image           String?
+  actionUrl       String?
+  entityType      NotificationEntityType?
+  entityId        String?
+  priority        NotificationPriority      @default(NORMAL)
+  status          NotificationStatus        @default(UNREAD)
+  readAt          DateTime?
+  createdAt       DateTime                  @default(now())
+  updatedAt       DateTime                  @updatedAt
+
+  @@index([recipientUserId, recipientRole])
+  @@index([recipientUserId, recipientRole, status])
+  @@index([status])
+  @@index([createdAt])
+  @@index([type])
+}
+
+model NotificationPreference {
+  id              String                    @id @default(cuid())
+  recipientUserId String
+  recipientRole   NotificationRecipientRole
+  emailEnabled    Boolean                   @default(true)
+  browserEnabled  Boolean                   @default(false)
+  smsEnabled      Boolean                   @default(false)
+  whatsappEnabled Boolean                   @default(false)
+  inAppEnabled    Boolean                   @default(true)
+  typeOverrides   Json?
+  createdAt       DateTime                  @default(now())
+  updatedAt       DateTime                  @updatedAt
+
+  @@unique([recipientUserId, recipientRole])
+}

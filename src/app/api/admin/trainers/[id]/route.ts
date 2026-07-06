@@ -96,6 +96,29 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
 
     const trainer = await updateTrainerStatusByAdmin(id, parsed.data);
     revalidateTrainerPaths(trainer.slug);
+
+    if (parsed.data.isPublished !== undefined && trainer.accountId) {
+      const { notifyTrainerProfileStatusChange, notifyTrainerProfileRejected } = await import(
+        "@/services/notification/notification.dispatch"
+      );
+      if (parsed.data.isPublished) {
+        void notifyTrainerProfileStatusChange({
+          accountId: trainer.accountId,
+          trainerId: trainer.id,
+          trainerSlug: trainer.slug,
+          trainerName: trainer.fullName,
+          isPublished: true,
+          isVerified: trainer.isVerified,
+        });
+      } else {
+        void notifyTrainerProfileRejected({
+          accountId: trainer.accountId,
+          trainerId: trainer.id,
+          trainerName: trainer.fullName,
+        });
+      }
+    }
+
     return NextResponse.json({ data: trainer });
   } catch (error) {
     console.error("PATCH /api/admin/trainers/[id] error:", error);
