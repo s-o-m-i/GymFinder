@@ -231,14 +231,14 @@ export default async function HomePage() {
         <Navbar variant="hero" />
         <main>
           <HeroSection stats={stats} />
+          <HomeSuccessStoriesSection />
 
           <ExploreCenterSection />
-          <FeatureHighlightsSection />
-          <MapPreviewSection />
           <TrendingListingsSection gyms={featuredGyms} trainers={featuredTrainers} />
+          <MapPreviewSection />
           <EventsPreviewSection events={upcomingEvents} />
-          <HomeSuccessStoriesSection />
           <BlogPreviewSection posts={latestBlogPosts} />
+          <FeatureHighlightsSection />
           <HomePreFooterSection stats={stats} />
         </main>
         <Footer />

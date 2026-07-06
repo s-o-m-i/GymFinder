@@ -22,10 +22,10 @@ export function HomeMotionProvider({ children }: HomeMotionProviderProps) {
         initNavbarHeroMotion,
         initMagneticButtons,
         initSectionParallax,
-        initMapPins,
         initListingCards,
         initExploreParallax,
       } = await import("@/lib/motion/interactions");
+      const { initPakistanMapMotion } = await import("@/lib/motion/pakistan-map");
       const { initSuccessStoriesMotion } = await import("@/lib/motion/success-stories");
 
       const gsap = await loadGsap();
@@ -58,7 +58,7 @@ export function HomeMotionProvider({ children }: HomeMotionProviderProps) {
           y: MOTION.y.md,
         });
         initCounters(gsap, ScrollTrigger, scope, isReduced);
-        initMapPins(gsap, ScrollTrigger, scope, isReduced);
+        const mapCleanup = initPakistanMapMotion(gsap, ScrollTrigger, scope, isReduced);
         initListingCards(gsap, ScrollTrigger, scope, isReduced);
         initExploreParallax(gsap, ScrollTrigger, scope, isReduced);
         initSectionParallax(gsap, ScrollTrigger, scope, isReduced);
@@ -99,7 +99,10 @@ export function HomeMotionProvider({ children }: HomeMotionProviderProps) {
           });
         }
 
-        return magneticCleanup;
+        return () => {
+          mapCleanup?.();
+          magneticCleanup?.();
+        };
       }, scope);
 
       ctxRevert = () => ctx.revert();

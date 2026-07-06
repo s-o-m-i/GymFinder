@@ -6,6 +6,36 @@ export interface HeroStats {
   cities: number;
 }
 
+export type HeroBackgroundSlide = {
+  src: string;
+  alt: string;
+  /** CSS object-position value */
+  position?: string;
+};
+
+export const HERO_BACKGROUND_SLIDES: HeroBackgroundSlide[] = [
+  {
+    src: "/images/Fighting_Person.png",
+    alt: "FitnessAdda hero — martial arts and fighting training",
+    position: "65% center",
+  },
+  {
+    src: "/images/NewHeroSectionBGImage.png",
+    alt: "FitnessAdda hero — premium gym and strength training",
+    position: "65% center",
+  },
+  {
+    src: "/images/Fitness_Trainer.png",
+    alt: "FitnessAdda hero — personal fitness trainer",
+    position: "center",
+  },
+  {
+    src: "/images/FitnessAddaSlide.png",
+    alt: "FitnessAdda hero — Fitness Adda gym at night",
+    position: "right center",
+  },
+];
+
 export interface DisciplineCardData {
   type: string;
   title: string;

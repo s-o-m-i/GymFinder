@@ -128,7 +128,7 @@ export function Navbar({ variant }: { variant?: "default" | "hero" }) {
           "z-50",
           isHero
             ? cn(
-                "absolute top-0 left-0 right-0 border-b",
+                "absolute top-0 left-0 right-0 ",
                 sidebarOpen
                   ? "border-white/15 bg-[#0B2545]/75 backdrop-blur-xl backdrop-saturate-150 shadow-[0_8px_32px_rgba(0,0,0,0.35)]"
                   : "border-white/10 bg-transparent"

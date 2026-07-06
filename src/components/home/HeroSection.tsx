@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { CITIES, cityNameToSlug } from "@/lib/constants";
 import { formatHeroStatCount, type HeroStats } from "@/lib/hero-data";
+import { HeroBackgroundCarousel } from "@/components/home/HeroBackgroundCarousel";
 import { cn } from "@/lib/utils";
 
 type HeroCategory = "all" | "gyms" | "trainers" | "fighting-clubs" | "events";
@@ -101,22 +102,18 @@ export function HeroSection({ stats }: HeroSectionProps) {
 
   return (
     <section className="relative flex min-h-screen flex-col overflow-hidden bg-black" data-hero>
+      <HeroBackgroundCarousel />
       <div
-        className="absolute inset-0 bg-cover bg-no-repeat [background-position:65%_center] lg:[background-position:right_center]"
-        style={{ backgroundImage: "url(/images/NewHeroSectionBGImage.png)" }}
+        className="absolute inset-0 z-[1] bg-gradient-to-r from-black via-black/90 to-black/25 lg:from-black lg:via-black/75 lg:to-transparent"
         aria-hidden
       />
       <div
-        className="absolute inset-0 bg-gradient-to-r from-black via-black/90 to-black/25 lg:from-black lg:via-black/75 lg:to-transparent"
-        aria-hidden
-      />
-      <div
-        className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/40"
+        className="absolute inset-0 z-[1] bg-gradient-to-t from-black via-transparent to-black/40"
         aria-hidden
       />
       <div
         data-hero-glow
-        className="pointer-events-none absolute right-0 top-1/3 h-80 w-80 rounded-full bg-[#FF6A3D]/15 blur-3xl"
+        className="pointer-events-none absolute right-0 top-1/3 z-[1] h-80 w-80 rounded-full bg-[#FF6A3D]/15 blur-3xl"
         aria-hidden
       />
 
