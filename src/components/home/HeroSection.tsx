@@ -318,7 +318,7 @@ export function HeroSection({ stats }: HeroSectionProps) {
         </div>
 
         {/* Scroll hint — full-width row so it doesn't collide with stat cards on mobile */}
-        <div data-hero-scroll className="mt-5 flex w-full justify-center sm:mt-6 lg:mt-4 lg:justify-end">
+        <div data-hero-scroll className="mt-5 flex w-full justify-center sm:mt-6 lg:mt-4">
           <a
             href="#explore-center"
             className="inline-flex flex-col items-center gap-2 text-white/45 transition-colors hover:text-white/70 sm:flex-row sm:gap-2.5"
