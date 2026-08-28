@@ -335,6 +335,8 @@ export function HeroSection({ stats }: HeroSectionProps) {
           </a>
         </div>
 
+        
+
         {/* Trusted bar — centered rounded container with vertical dividers */}
         <div className="mx-auto mt-8 w-full max-w-5xl sm:mt-10 lg:mt-12">
           <div

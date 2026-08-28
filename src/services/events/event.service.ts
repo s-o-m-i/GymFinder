@@ -292,10 +292,67 @@ export async function getOwnerEvents(ownerId: string) {
   });
 }
 
+export async function getAdminEvents() {
+  return prisma.event.findMany({
+    orderBy: [{ startDate: "desc" }],
+    select: {
+      id: true,
+      slug: true,
+      title: true,
+      type: true,
+      city: true,
+      area: true,
+      gym: {
+        select: { id: true, name: true },
+      },
+      createdByOwner: {
+        select: { name: true },
+      },
+      startDate: true,
+      endDate: true,
+      isFeatured: true,
+    },
+  });
+}
+
+export async function getAdminEventById(id: string) {
+  return prisma.event.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      slug: true,
+      title: true,
+      description: true,
+      type: true,
+      city: true,
+      area: true,
+      address: true,
+      startDate: true,
+      endDate: true,
+      price: true,
+      isFeatured: true,
+      gymId: true,
+      image: true,
+      cloudinaryId: true,
+      createdByOwner: {
+        select: { name: true },
+      },
+    },
+  });
+}
+
 export async function getEventSlugsForSitemap() {
   return prisma.event.findMany({
     select: { slug: true, updatedAt: true },
     orderBy: { updatedAt: "desc" },
+  });
+}
+
+export async function getApprovedGymsForEventForm() {
+  return prisma.gym.findMany({
+    where: { listingStatus: "approved" },
+    select: { id: true, name: true, city: true, area: true },
+    orderBy: [{ city: "asc" }, { name: "asc" }],
   });
 }
 
@@ -317,4 +374,74 @@ export async function createEvent(data: {
   createdByOwnerId?: string | null;
 }) {
   return prisma.event.create({ data });
+}
+
+export async function createEventByAdmin(data: {
+  title: string;
+  description?: string | null;
+  type: EventType;
+  city: string;
+  area?: string | null;
+  address?: string | null;
+  startDate: Date;
+  endDate?: Date | null;
+  image?: string | null;
+  cloudinaryId?: string | null;
+  price?: number | null;
+  isFeatured?: boolean;
+  gymId?: string | null;
+}) {
+  const slug = await generateUniqueEventSlug(data.title, data.city);
+  return prisma.event.create({
+    data: {
+      ...data,
+      slug,
+      createdByOwnerId: null,
+    },
+  });
+}
+
+export async function updateEventByAdmin(
+  eventId: string,
+  data: {
+    title: string;
+    description?: string | null;
+    type: EventType;
+    city: string;
+    area?: string | null;
+    address?: string | null;
+    startDate: Date;
+    endDate?: Date | null;
+    image?: string | null;
+    cloudinaryId?: string | null;
+    price?: number | null;
+    isFeatured?: boolean;
+    gymId?: string | null;
+  }
+) {
+  const existing = await prisma.event.findUnique({ where: { id: eventId } });
+  if (!existing) return null;
+
+  let slug = existing.slug;
+  if (existing.title !== data.title || existing.city !== data.city) {
+    slug = await generateUniqueEventSlug(data.title, data.city);
+  }
+
+  return prisma.event.update({
+    where: { id: eventId },
+    data: {
+      ...data,
+      slug,
+    },
+  });
+}
+
+export async function deleteEventByAdmin(id: string) {
+  return prisma.event.delete({
+    where: { id },
+    select: {
+      id: true,
+      slug: true,
+    },
+  });
 }

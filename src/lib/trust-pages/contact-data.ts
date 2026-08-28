@@ -8,11 +8,11 @@ import {
 import type { ContactSubject } from "@/lib/validations/contact-form";
 
 export const CONTACT_EMAILS = {
-  support: "support@fitnessadda.pk",
-  business: "business@fitnessadda.pk",
+  support: "skullhunter030@gmail.com",
+  business: "sulemandevofficial@gmail.com",
 } as const;
 
-export const CONTACT_WHATSAPP = "+92 300 0000000";
+export const CONTACT_WHATSAPP = "+92 3199828336";
 
 export const CONTACT_HOURS = "Monday–Saturday, 10AM–7PM (PKT)";
 

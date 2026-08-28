@@ -69,7 +69,7 @@ export function buildContactPageSchema() {
           {
             "@type": "ContactPoint",
             contactType: "sales",
-            email: "business@fitnessadda.pk",
+            email: "sulemandevofficial@gmail.com",
             availableLanguage: ["English", "Urdu"],
             areaServed: "PK",
           },

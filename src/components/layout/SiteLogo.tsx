@@ -30,7 +30,8 @@ const LOGO_DARK_BG_PADDING: Record<SiteLogoSize, string> = {
 };
 
 interface SiteLogoProps {
-  href?: string;
+  href?: string | null;
+  disableLink?: boolean;
   size?: SiteLogoSize;
   className?: string;
   onClick?: () => void;
@@ -42,6 +43,7 @@ interface SiteLogoProps {
 /** Renders Logo.png directly (no Next/Image) to preserve transparency and avoid white boxes. */
 export function SiteLogo({
   href = "/",
+  disableLink = false,
   size = "md",
   className,
   onClick,
@@ -79,10 +81,11 @@ export function SiteLogo({
     image
   );
 
-  if (!href) return content;
+  const shouldLink = !disableLink && href !== null;
+  if (!shouldLink) return content;
 
   return (
-    <Link href={href} onClick={onClick} className="inline-flex shrink-0 items-center">
+    <Link href={href ?? "/"} onClick={onClick} className="inline-flex shrink-0 items-center">
       {content}
     </Link>
   );
@@ -115,7 +118,13 @@ export function SiteLogoStack({
       onClick={onClick}
       className={cn("inline-flex min-w-0 flex-col gap-1", className)}
     >
-      <SiteLogo href={undefined} size={size} priority={priority} darkBackground={darkBackground} />
+      <SiteLogo
+        href={null}
+        disableLink
+        size={size}
+        priority={priority}
+        darkBackground={darkBackground}
+      />
       {caption && (
         <span className={cn("truncate text-xs leading-tight", captionClassName)}>{caption}</span>
       )}
