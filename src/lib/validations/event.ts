@@ -1,8 +1,9 @@
 import { z } from "zod";
 import { EVENT_TYPES } from "@/lib/event-constants";
 import { CITIES } from "@/lib/constants";
+import type { EventType } from "@prisma/client";
 
-const eventTypeValues = EVENT_TYPES.map((t) => t.value) as [string, ...string[]];
+const eventTypeValues = EVENT_TYPES.map((t) => t.value) as [EventType, ...EventType[]];
 
 export const createEventSchema = z
   .object({

@@ -9,12 +9,13 @@ import { eventTypeLabel, EVENT_STATUS_LABELS } from "@/lib/event-constants";
 import { getEventDetailPath } from "@/lib/events-routes";
 import { formatEventDateRange } from "@/components/events/EventCard";
 import { cn } from "@/lib/utils";
+import type { EventType } from "@prisma/client";
 
 export interface AdminEventRow {
   id: string;
   slug: string;
   title: string;
-  type: string;
+  type: EventType;
   city: string;
   area: string | null;
   gym: { id: string; name: string } | null;
@@ -94,7 +95,9 @@ export function AdminEventsTable({ events }: { events: AdminEventRow[] }) {
                   <td className="px-5 py-4 text-[var(--text-muted)]">{event.gym?.name ?? "—"}</td>
                   <td className="px-5 py-4 text-[var(--text-muted)]">{event.createdByOwner?.name ?? "Admin"}</td>
                   <td className="px-5 py-4 text-[var(--text-muted)]">{eventTypeLabel(event.type)}</td>
-                  <td className="px-5 py-4 text-[var(--text-muted)]">{formatEventDateRange(event.startDate, event.endDate)}</td>
+                  <td className="px-5 py-4 text-[var(--text-muted)]">
+                    {formatEventDateRange(new Date(event.startDate), event.endDate ? new Date(event.endDate) : null)}
+                  </td>
                   <td className="px-5 py-4 text-right">
                     <div className="flex flex-wrap justify-end gap-2">
                       {event.isFeatured && (

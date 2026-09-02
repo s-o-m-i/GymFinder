@@ -12,6 +12,11 @@ export default async function AdminEventsPage() {
   if (!isAdmin) redirect("/admin/login");
 
   const events = await getAdminEvents();
+  const serializedEvents = events.map((event) => ({
+    ...event,
+    startDate: event.startDate.toISOString(),
+    endDate: event.endDate?.toISOString() ?? null,
+  }));
 
   return (
     <div className="p-8">
@@ -32,7 +37,7 @@ export default async function AdminEventsPage() {
       </div>
 
       <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl overflow-hidden">
-        <AdminEventsTable events={events} />
+        <AdminEventsTable events={serializedEvents} />
       </div>
     </div>
   );

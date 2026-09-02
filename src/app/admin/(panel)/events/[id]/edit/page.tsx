@@ -6,7 +6,7 @@ import { AdminEventForm } from "@/components/admin/AdminEventForm";
 import { getAdminEventById, getApprovedGymsForEventForm } from "@/services/events/event.service";
 
 interface AdminEditEventPageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 export const dynamic = "force-dynamic";
@@ -15,8 +15,10 @@ export default async function AdminEditEventPage({ params }: AdminEditEventPageP
   const isAdmin = await getAdminSession();
   if (!isAdmin) redirect("/admin/login");
 
+  const { id } = await params;
+
   const [event, gyms] = await Promise.all([
-    getAdminEventById(params.id),
+    getAdminEventById(id),
     getApprovedGymsForEventForm(),
   ]);
 
@@ -43,7 +45,15 @@ export default async function AdminEditEventPage({ params }: AdminEditEventPageP
       </div>
 
       <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6 sm:p-8">
-        <AdminEventForm mode="edit" event={event} gyms={gyms} />
+        <AdminEventForm
+          mode="edit"
+          event={{
+            ...event,
+            startDate: event.startDate.toISOString().slice(0, 16),
+            endDate: event.endDate?.toISOString().slice(0, 16) ?? null,
+          }}
+          gyms={gyms}
+        />
       </div>
     </div>
   );
