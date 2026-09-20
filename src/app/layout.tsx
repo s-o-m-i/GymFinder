@@ -24,7 +24,7 @@ const ibmPlexMono = IBM_Plex_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: `${SITE_NAME} – Gyms & Fighting Clubs in Pakistan`,
+    default: `Gyms in Pakistan – Find Gyms, Fighting Clubs & Trainers | FitnessAdda`,
     template: `%s | ${SITE_NAME}`,
   },
   description: SITE_DESCRIPTION,
