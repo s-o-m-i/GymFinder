@@ -75,6 +75,7 @@ interface GymFormProps {
 }
 
 const ADMIN_SECRET = process.env.NEXT_PUBLIC_ADMIN_SECRET ?? "gymfinder-admin-2024";
+const ADMIN_CREATE_GALLERY_IMAGE_LIMIT = 20;
 
 function SectionCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -84,6 +85,7 @@ function SectionCard({ title, children }: { title: string; children: React.React
     </div>
   );
 }
+
 
 export function GymForm({
   initialData,
@@ -976,10 +978,10 @@ export function GymForm({
 
           <ImageUploader
             label="Gallery Images"
-            description="Additional photos for the gym profile gallery. Upload up to 10 images."
+            description={`Additional photos for the gym profile gallery. Upload up to ${ADMIN_CREATE_GALLERY_IMAGE_LIMIT} images.`}
             uploadType="gallery"
             multiple
-            maxImages={10}
+            maxImages={ADMIN_CREATE_GALLERY_IMAGE_LIMIT}
             images={form.galleryImages}
             onChange={(imgs) => set("galleryImages", imgs)}
             authMode="admin-secret"
@@ -1059,4 +1061,3 @@ export function GymForm({
     </form>
   );
 }
-
