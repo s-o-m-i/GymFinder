@@ -155,7 +155,11 @@ export function HeroSection({ stats }: HeroSectionProps) {
               {/* Search — independent bordered bar, not connected to pills below */}
               <div
                 data-hero-search
-                className={cn("flex h-14 items-center gap-3 px-4 sm:h-[3.75rem] sm:px-5", HERO_SEARCH_SURFACE)}
+                className={cn(
+                  "flex h-14 items-center gap-3 px-4 sm:h-[3.75rem] sm:px-5",
+                  HERO_SEARCH_SURFACE,
+                  locationOpen && "relative z-50"
+                )}
               >
                 <Search
                   data-hero-search-icon
