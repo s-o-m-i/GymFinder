@@ -62,7 +62,9 @@ export async function POST(req: NextRequest) {
       customAmenities ?? []
     );
 
-    const slug = gymData.slug ?? slugify(`${gymData.name}-${gymData.area}-${gymData.city}`);
+    const slug =
+      (typeof gymData.slug === "string" ? slugify(gymData.slug) : "") ||
+      slugify(`${gymData.name}-${gymData.area}-${gymData.city}`);
     const slugTaken = await prisma.gym.findUnique({ where: { slug } });
     const finalSlug = slugTaken ? `${slug}-${Date.now()}` : slug;
 
@@ -144,6 +146,11 @@ export async function PUT(req: NextRequest) {
       amenities !== undefined
         ? await resolveAmenityIds(prisma, amenities ?? [], customAmenities ?? [])
         : undefined;
+
+    if (typeof gymData.slug === "string") {
+      gymData.slug = slugify(gymData.slug);
+      if (!gymData.slug) delete gymData.slug;
+    }
 
     const updated = await prisma.gym.update({
       where: { id: gym.id },

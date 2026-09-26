@@ -11,6 +11,7 @@ import {
   OWNER_GYM_STEPS,
 } from "@/components/owner/OwnerGymStepIndicator";
 import { parseOpeningHours } from "@/lib/opening-hours";
+import { slugify } from "@/lib/utils";
 import type { UploadedImage } from "@/lib/gym-images-form";
 import { buildGymFormImageState } from "@/lib/gym-images-form";
 import {
@@ -124,7 +125,7 @@ export function GymForm({
 
   const [form, setForm] = useState<GymFormData>({
     name: initialData?.name ?? "",
-    slug: initialData?.slug ?? "",
+    slug: slugify(initialData?.slug ?? ""),
     type:
       variant === "owner" && businessCategory
         ? getInitialFormType(
@@ -518,7 +519,7 @@ export function GymForm({
             <input
               type="text"
               value={form.slug}
-              onChange={(e) => set("slug", e.target.value)}
+              onChange={(e) => set("slug", slugify(e.target.value))}
               placeholder="auto-generated if empty"
               className={inputClass}
             />

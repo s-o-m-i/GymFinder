@@ -72,6 +72,11 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
         ? await resolveAmenityIds(prisma, amenities ?? [], customAmenities ?? [])
         : undefined;
 
+    if (typeof gymData.slug === "string") {
+      gymData.slug = slugify(gymData.slug);
+      if (!gymData.slug) delete gymData.slug;
+    }
+
     if (gymData.name && !gymData.slug) {
       const gym = await prisma.gym.findUnique({
         where: { id },

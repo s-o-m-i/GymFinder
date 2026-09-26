@@ -72,7 +72,9 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const slug = body.slug ?? slugify(`${body.name}-${body.area}-${body.city}`);
+    const slug =
+      (typeof body.slug === "string" ? slugify(body.slug) : "") ||
+      slugify(`${body.name}-${body.area}-${body.city}`);
     const existing = await prisma.gym.findUnique({ where: { slug } });
     const finalSlug = existing ? `${slug}-${Date.now()}` : slug;
 
