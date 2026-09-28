@@ -19,6 +19,14 @@ export function GymCard({ gym, distanceKm }: GymCardProps) {
   const coverUrl = getGymCoverUrl(gym);
   const coverImage = coverUrl ? optimizedImageUrl(coverUrl, { width: 600, quality: 80 }) : undefined;
   const disciplineNames = gym.disciplines.map((d) => d.discipline.name);
+  const href = gym.branchSlug
+    ? `/gyms/${gym.slug}/${gym.branchSlug}`
+    : `/gyms/${gym.slug}`;
+  const title = gym.branchName ?? gym.name;
+  const locationLabel =
+    !gym.branchSlug && gym.activeBranchCount && gym.activeBranchCount > 1
+      ? `${gym.activeBranchCount} locations`
+      : `${gym.area}, ${gym.city}`;
 
   return (
     <article
@@ -27,7 +35,7 @@ export function GymCard({ gym, distanceKm }: GymCardProps) {
     >
       {/* ── Image ── */}
       <Link
-        href={`/gyms/${gym.slug}`}
+        href={href}
         className="block relative overflow-hidden bg-[#0B2545]"
         style={{ height: "200px" }}
       >
@@ -71,7 +79,7 @@ export function GymCard({ gym, distanceKm }: GymCardProps) {
         <div className="absolute bottom-0 left-0 right-0 px-4 pb-3 pt-8">
           <div className="flex items-end justify-between gap-2">
             <h3 className="font-heading font-bold text-white text-[15px] leading-tight drop-shadow-sm line-clamp-2">
-              {gym.name}
+              {title}
             </h3>
             <div className="shrink-0 font-mono-nums font-bold text-[13px] text-white bg-[#FF6A3D] px-2.5 py-1 rounded-lg shadow whitespace-nowrap">
               {formatPriceShort(gym.priceMin, gym.priceMax)}
@@ -87,7 +95,7 @@ export function GymCard({ gym, distanceKm }: GymCardProps) {
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-1.5 text-[var(--text-muted)] text-xs min-w-0">
             <MapPin className="w-3 h-3 shrink-0 text-[#FF6A3D]" />
-            <span className="truncate">{gym.area}, {gym.city}</span>
+            <span className="truncate">{locationLabel}</span>
           </div>
           <div className="flex items-center gap-2 shrink-0 ml-2">
             {distanceKm !== undefined && (
@@ -145,7 +153,7 @@ export function GymCard({ gym, distanceKm }: GymCardProps) {
         {/* ── CTA row ── */}
         <div className="mt-auto pt-3 border-t border-[var(--border)] grid grid-cols-2 gap-2">
           <Link
-            href={`/gyms/${gym.slug}`}
+            href={href}
             className="flex items-center justify-center gap-1.5 h-9 px-3 text-xs font-semibold text-[#0B2545] bg-[var(--bg)] border border-[var(--border)] rounded-xl hover:bg-[#0B2545] hover:text-white hover:border-[#0B2545] transition-all duration-150 group/btn"
           >
             View Details

@@ -1,4 +1,4 @@
-import type { Gym, GymImage, GymDiscipline, GymAmenity, Discipline, Amenity, Review, MembershipPlan, StaffMember } from "@prisma/client";
+import type { Gym, GymImage, GymDiscipline, GymAmenity, Discipline, Amenity, Review, MembershipPlan, StaffMember, GymBranch } from "@prisma/client";
 
 export type GymWithRelations = Gym & {
   galleryImages: GymImage[];
@@ -7,6 +7,7 @@ export type GymWithRelations = Gym & {
   reviews: Review[];
   membershipPlans?: MembershipPlan[];
   staffMembers?: StaffMember[];
+  branches?: GymBranch[];
 };
 
 export type GymCardData = Pick<
@@ -31,6 +32,9 @@ export type GymCardData = Pick<
 > & {
   galleryImages: Pick<GymImage, "imageUrl" | "alt">[];
   disciplines: { discipline: Pick<Discipline, "name"> }[];
+  activeBranchCount?: number;
+  branchName?: string;
+  branchSlug?: string;
 };
 
 export type GymCardDataWithDistance = GymCardData & {

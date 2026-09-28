@@ -4,6 +4,12 @@ import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/utils";
 import { syncGymImages } from "@/lib/gym-images";
 import { resolveAmenityIds, resolveDisciplineIds } from "@/lib/gym-tags";
+import { upsertPrimaryBranchFromGym } from "@/lib/gym-branches";
+import {
+  ACTIVE_BRANCH_COUNT_INCLUDE,
+  gymLocationMatchWhere,
+  gymTextSearchWhere,
+} from "@/lib/gym-location-where";
 import type { GymFilters } from "@/types";
 import type { Prisma } from "@prisma/client";
 
@@ -12,6 +18,7 @@ const GYM_INCLUDE = {
   disciplines: {
     include: { discipline: { select: { name: true } } },
   },
+  ...ACTIVE_BRANCH_COUNT_INCLUDE,
 } satisfies Prisma.GymInclude;
 
 export async function GET(req: NextRequest) {
@@ -40,7 +47,7 @@ export async function GET(req: NextRequest) {
     const limit = Math.min(filters.limit ?? 12, 50);
     const skip = (page - 1) * limit;
 
-    const [gyms, total] = await Promise.all([
+    const [rows, total] = await Promise.all([
       prisma.gym.findMany({
         where,
         include: GYM_INCLUDE,
@@ -50,6 +57,11 @@ export async function GET(req: NextRequest) {
       }),
       prisma.gym.count({ where }),
     ]);
+
+    const gyms = rows.map(({ _count, ...gym }) => ({
+      ...gym,
+      activeBranchCount: _count.branches,
+    }));
 
     return NextResponse.json({
       gyms,
@@ -121,6 +133,7 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    await upsertPrimaryBranchFromGym(gym.id);
     await syncGymImages(gym.id, coverImage, galleryImages);
 
     const full = await prisma.gym.findUnique({
@@ -141,28 +154,27 @@ export async function POST(req: NextRequest) {
 
 function buildWhereClause(filters: GymFilters): Prisma.GymWhereInput {
   const where: Prisma.GymWhereInput = { listingStatus: "approved" };
+  const and: Prisma.GymWhereInput[] = [];
 
   if (filters.search) {
-    where.OR = [
-      { name: { contains: filters.search, mode: "insensitive" } },
-      { area: { contains: filters.search, mode: "insensitive" } },
-      { description: { contains: filters.search, mode: "insensitive" } },
-    ];
+    and.push(gymTextSearchWhere(filters.search));
   }
 
-  if (filters.city) where.city = { equals: filters.city, mode: "insensitive" };
-  if (filters.area) where.area = { equals: filters.area, mode: "insensitive" };
+  const locationWhere = gymLocationMatchWhere({
+    city: filters.city,
+    area: filters.area,
+  });
+  if (locationWhere) and.push(locationWhere);
 
   if (filters.type) {
     where.type = filters.type as Prisma.EnumGymTypeFilter["equals"];
   }
 
   if (filters.priceMin !== undefined || filters.priceMax !== undefined) {
-    where.AND = [
-      ...(Array.isArray(where.AND) ? where.AND : []),
+    and.push(
       ...(filters.priceMin !== undefined ? [{ priceMin: { gte: filters.priceMin } }] : []),
-      ...(filters.priceMax !== undefined ? [{ priceMax: { lte: filters.priceMax } }] : []),
-    ];
+      ...(filters.priceMax !== undefined ? [{ priceMax: { lte: filters.priceMax } }] : [])
+    );
   }
 
   if (filters.ladiesStatus) {
@@ -192,6 +204,10 @@ function buildWhereClause(filters: GymFilters): Prisma.GymWhereInput {
   if (filters.rating) {
     const ratingWhere = buildGymRatingWhere(filters.rating);
     if (ratingWhere) Object.assign(where, ratingWhere);
+  }
+
+  if (and.length > 0) {
+    where.AND = [...(Array.isArray(where.AND) ? where.AND : []), ...and];
   }
 
   return where;

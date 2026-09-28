@@ -43,6 +43,7 @@ import { SuccessStoriesProfileSection } from "@/components/success-stories/Succe
 import { getStoriesForGymProfile } from "@/services/success-story/success-story.service";
 import { TransformationGallerySection } from "@/components/transformation/TransformationGallerySection";
 import { ClaimGymBanner } from "@/components/gym-claim/ClaimGymBanner";
+import { GymLocationsSection } from "@/components/gym/GymLocationsSection";
 
 interface GymProfilePageProps {
   slug: string;
@@ -65,6 +66,10 @@ async function getGym(slug: string) {
         where: { isActive: true },
         orderBy: [{ displayOrder: "asc" }, { createdAt: "asc" }],
       },
+      branches: {
+        where: { status: "ACTIVE" },
+        orderBy: [{ isPrimary: "desc" }, { createdAt: "asc" }],
+      },
     },
   });
 }
@@ -86,6 +91,8 @@ export async function GymProfilePage({ slug }: GymProfilePageProps) {
       : gym.rating;
 
   const galleryImages = getGymGalleryImages(gym);
+  const activeBranches = gym.branches;
+  const hasMultipleBranches = activeBranches.length > 1;
 
   const coachCount = gym.staffMembers.filter((m) => m.isCoach).length;
   const trainerCount = coachCount > 0 ? coachCount : gym.staffMembers.length;
@@ -182,17 +189,21 @@ export async function GymProfilePage({ slug }: GymProfilePageProps) {
                     </h1>
                     <div className="flex items-center gap-1.5 mt-2 text-[var(--text-muted)] text-sm">
                       <MapPin className="w-4 h-4 shrink-0" />
-                      <span>{gym.address}, {gym.area}, {gym.city}</span>
+                      <span>
+                        {hasMultipleBranches
+                          ? `${activeBranches.length} locations`
+                          : `${gym.address}, ${gym.area}, ${gym.city}`}
+                      </span>
                     </div>
                   </div>
 
-                  {gym.openingHours && (
+                  {!hasMultipleBranches && gym.openingHours && (
                     <div className="flex items-center gap-2 text-sm text-[var(--text-muted)] bg-[var(--bg)] px-3 py-2 rounded-xl border border-[var(--border)]">
                       <Clock className="w-4 h-4" />
                       {gym.openingHours}
                     </div>
                   )}
-                  {gym.ladiesHours && gym.ladiesStatus === "ladies_timings" && (
+                  {!hasMultipleBranches && gym.ladiesHours && gym.ladiesStatus === "ladies_timings" && (
                     <div className="flex items-center gap-2 text-sm text-purple-700 bg-purple-50 px-3 py-2 rounded-xl border border-purple-200">
                       <Clock className="w-4 h-4" />
                       Ladies-only hours: {gym.ladiesHours}
@@ -207,6 +218,12 @@ export async function GymProfilePage({ slug }: GymProfilePageProps) {
                 <h2 className="font-heading font-bold text-lg text-[var(--text)] mb-3">About</h2>
                 <GymAboutText text={gym.description} />
               </div>
+
+              <GymLocationsSection
+                gymName={gym.name}
+                gymSlug={gym.slug}
+                branches={activeBranches}
+              />
 
               {disciplineNames.length > 0 && (
                 <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6">
@@ -366,6 +383,7 @@ export async function GymProfilePage({ slug }: GymProfilePageProps) {
                 </div>
               </div>
 
+              {!hasMultipleBranches && (
               <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-5">
                 <h3 className="font-heading font-bold text-[var(--text)] mb-3 flex items-center gap-2">
                   <MapPin className="w-4 h-4 text-[#FF6A3D]" />
@@ -383,6 +401,7 @@ export async function GymProfilePage({ slug }: GymProfilePageProps) {
                   Get Directions
                 </a>
               </div>
+              )}
 
               <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-5">
                 <h3 className="font-heading font-semibold text-sm uppercase tracking-widest text-[var(--text-muted)] mb-4">

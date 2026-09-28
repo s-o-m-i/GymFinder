@@ -100,7 +100,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const gyms = await prisma.gym.findMany({
     where: { listingStatus: "approved" },
-    select: { slug: true, updatedAt: true },
+    select: {
+      slug: true,
+      updatedAt: true,
+      branches: {
+        where: { status: "ACTIVE" },
+        select: { slug: true, updatedAt: true },
+      },
+    },
     orderBy: { updatedAt: "desc" },
   });
 
@@ -145,12 +152,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })),
   ];
 
-  const gymPages: MetadataRoute.Sitemap = gyms.map((gym) => ({
-    url: `${base}/gyms/${gym.slug}`,
-    lastModified: gym.updatedAt,
-    changeFrequency: "weekly",
-    priority: 0.8,
-  }));
+  const gymPages: MetadataRoute.Sitemap = gyms.flatMap((gym) => {
+    const gymEntry = {
+      url: `${base}/gyms/${gym.slug}`,
+      lastModified: gym.updatedAt,
+      changeFrequency: "weekly" as const,
+      priority: 0.8,
+    };
+    const branchEntries = gym.branches.map((branch) => ({
+      url: `${base}/gyms/${gym.slug}/${branch.slug}`,
+      lastModified: branch.updatedAt,
+      changeFrequency: "weekly" as const,
+      priority: 0.7,
+    }));
+    return [gymEntry, ...branchEntries];
+  });
 
   const trainerPages: MetadataRoute.Sitemap = trainers.map((trainer) => ({
     url: `${base}/trainer/${trainer.slug}`,
