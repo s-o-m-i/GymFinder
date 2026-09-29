@@ -4,6 +4,7 @@ import { getOwnerSession } from "@/lib/owner-auth";
 import { slugify } from "@/lib/utils";
 import { syncGymImages } from "@/lib/gym-images";
 import { resolveAmenityIds, resolveDisciplineIds } from "@/lib/gym-tags";
+import { upsertPrimaryBranchFromGym } from "@/lib/gym-branches";
 
 const GYM_INCLUDE = {
   galleryImages: true,
@@ -87,6 +88,7 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    await upsertPrimaryBranchFromGym(gym.id);
     await syncGymImages(gym.id, coverImage, galleryImages);
 
     const full = await prisma.gym.findUnique({ where: { id: gym.id }, include: GYM_INCLUDE });
@@ -171,6 +173,7 @@ export async function PUT(req: NextRequest) {
       },
     });
 
+    await upsertPrimaryBranchFromGym(updated.id);
     await syncGymImages(updated.id, coverImage, galleryImages);
 
     const full = await prisma.gym.findUnique({ where: { id: updated.id }, include: GYM_INCLUDE });

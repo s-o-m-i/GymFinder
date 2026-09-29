@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { GymForm } from "@/components/admin/GymForm";
+import { AdminGymBranchesPanel } from "@/components/gym-branch/AdminGymBranchesPanel";
 import { toUploaded } from "@/lib/gym-images-form";
 import { splitLinkedTags } from "@/lib/gym-tags";
 
@@ -18,6 +19,7 @@ async function getData(id: string) {
         galleryImages: true,
         disciplines: { include: { discipline: true } },
         amenities: { include: { amenity: true } },
+        branches: { orderBy: [{ isPrimary: "desc" }, { createdAt: "asc" }] },
       },
     }),
     prisma.discipline.findMany({ orderBy: { name: "asc" } }),
@@ -93,6 +95,15 @@ export default async function EditGymPage({ params }: PageProps) {
         <p className="text-[var(--text-muted)] text-sm mt-1">
           Update gym information below.
         </p>
+      </div>
+
+      <div className="mb-8">
+        <AdminGymBranchesPanel
+          gymId={gym.id}
+          gymName={gym.name}
+          gymSlug={gym.slug}
+          branches={gym.branches}
+        />
       </div>
 
       <GymForm

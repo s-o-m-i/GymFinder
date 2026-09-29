@@ -10,6 +10,7 @@ import {
   HelpCircle,
   Images,
   LayoutDashboard,
+  MapPin,
   Menu,
   Sparkles,
   Swords,
@@ -26,6 +27,7 @@ import { SiteLogoStack } from "@/components/layout/SiteLogo";
 const NAV_LINKS = [
   { href: "/owner/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/owner/gym", label: "My Listing", icon: Building2 },
+  { href: "/owner/branches", label: "Locations", icon: MapPin },
   { href: "/owner/memberships", label: "Memberships", icon: CreditCard },
   { href: "/owner/team", label: "Team & Coaches", icon: Users },
   { href: "/owner/equipment", label: "Equipment", icon: Dumbbell },

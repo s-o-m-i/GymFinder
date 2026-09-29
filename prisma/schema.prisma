@@ -87,6 +87,12 @@ enum FeatureRequestStatus {
   rejected
 }
 
+enum GymBranchStatus {
+  ACTIVE
+  TEMPORARILY_CLOSED
+  PERMANENTLY_CLOSED
+}
+
 enum EventType {
   boxing
   mma
@@ -189,6 +195,7 @@ model Gym {
   leads            GymLead[]
   publishedStories SuccessStory[] @relation("StoryPublisherGym")
   linkedStories    SuccessStory[] @relation("StoryLinkedGym")
+  branches         GymBranch[]
 
   @@index([city])
   @@index([area])
@@ -199,6 +206,37 @@ model Gym {
   @@index([slug])
   @@index([listingStatus])
   @@index([ownerId])
+}
+
+model GymBranch {
+  id             String          @id @default(cuid())
+  gymId          String
+  name           String
+  slug           String
+  address        String
+  area           String
+  city           String
+  latitude       Float?
+  longitude      Float?
+  phone          String?
+  whatsappNumber String?
+  email          String?
+  openingHours   String?
+  ladiesHours    String?
+  status         GymBranchStatus @default(ACTIVE)
+  isPrimary      Boolean         @default(false)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  gym Gym @relation(fields: [gymId], references: [id], onDelete: Cascade)
+
+  @@unique([gymId, slug])
+  @@index([gymId])
+  @@index([city])
+  @@index([area])
+  @@index([status])
+  @@index([gymId, isPrimary])
+  @@index([latitude, longitude])
 }
 
 model Discipline {

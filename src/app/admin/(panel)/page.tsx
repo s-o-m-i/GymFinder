@@ -15,7 +15,7 @@ async function getStats() {
 }
 
 async function getAllGyms() {
-  return prisma.gym.findMany({
+  const rows = await prisma.gym.findMany({
     select: {
       id: true,
       name: true,
@@ -27,9 +27,15 @@ async function getAllGyms() {
       priceMin: true,
       priceMax: true,
       featured: true,
+      _count: { select: { branches: true } },
     },
     orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
   });
+
+  return rows.map(({ _count, ...gym }) => ({
+    ...gym,
+    branchCount: _count.branches,
+  }));
 }
 
 export default async function AdminDashboard() {

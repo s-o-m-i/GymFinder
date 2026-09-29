@@ -20,6 +20,7 @@ export interface AdminGymRow {
   priceMin: number;
   priceMax: number;
   featured: boolean;
+  branchCount: number;
 }
 
 interface AdminGymsTableProps {
@@ -83,6 +84,7 @@ export function AdminGymsTable({ gyms }: AdminGymsTableProps) {
           <tr className="border-b border-[var(--border)] bg-[var(--bg)]">
             <th className="text-left px-5 py-3 font-semibold text-[var(--text-muted)] text-xs uppercase tracking-wide">Gym</th>
             <th className="text-left px-4 py-3 font-semibold text-[var(--text-muted)] text-xs uppercase tracking-wide">City / Area</th>
+            <th className="text-left px-4 py-3 font-semibold text-[var(--text-muted)] text-xs uppercase tracking-wide">Branches</th>
             <th className="text-left px-4 py-3 font-semibold text-[var(--text-muted)] text-xs uppercase tracking-wide">Type</th>
             <th className="text-left px-4 py-3 font-semibold text-[var(--text-muted)] text-xs uppercase tracking-wide">Price</th>
             <th className="text-left px-4 py-3 font-semibold text-[var(--text-muted)] text-xs uppercase tracking-wide">Status</th>
@@ -101,6 +103,9 @@ export function AdminGymsTable({ gyms }: AdminGymsTableProps) {
                   <MapPin className="w-3 h-3 shrink-0" />
                   {gym.area}, {gym.city}
                 </div>
+              </td>
+              <td className="px-4 py-4 font-mono-nums text-[var(--text)]">
+                {gym.branchCount}
               </td>
               <td className="px-4 py-4">
                 <span className="inline-flex items-center gap-1.5 text-[var(--text)]">

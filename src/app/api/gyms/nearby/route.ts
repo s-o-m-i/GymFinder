@@ -7,6 +7,7 @@ const NEARBY_GYM_SELECT = {
   name: true,
   slug: true,
   type: true,
+  customTypeLabel: true,
   area: true,
   city: true,
   priceMin: true,
@@ -16,9 +17,8 @@ const NEARBY_GYM_SELECT = {
   whatsappNumber: true,
   rating: true,
   featured: true,
+  featuredUntil: true,
   openingHours: true,
-  latitude: true,
-  longitude: true,
   coverImage: true,
   galleryImages: { select: { imageUrl: true, alt: true }, take: 1 },
   disciplines: {
@@ -53,27 +53,48 @@ export async function POST(req: NextRequest) {
 
     const radiusKm = Math.min(Math.max(Number(radius), 1), 100);
 
-    // Fetch all gyms that have coordinates
-    const gyms = await prisma.gym.findMany({
+    const branches = await prisma.gymBranch.findMany({
       where: {
+        status: "ACTIVE",
         latitude: { not: null },
         longitude: { not: null },
-        listingStatus: "approved",
+        gym: { listingStatus: "approved" },
       },
-      select: NEARBY_GYM_SELECT,
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        area: true,
+        city: true,
+        latitude: true,
+        longitude: true,
+        openingHours: true,
+        whatsappNumber: true,
+        gym: { select: NEARBY_GYM_SELECT },
+      },
     });
 
-    if (gyms.length === 0) {
+    if (branches.length === 0) {
       return NextResponse.json({ gyms: [], total: 0, radius: radiusKm });
     }
 
-    // Calculate distance and filter/sort
-    const withDistance = gyms
-      .map((gym) => ({
-        ...gym,
-        distanceKm: getDistance(lat, lng, gym.latitude!, gym.longitude!),
-      }))
-      .filter((gym) => gym.distanceKm <= radiusKm)
+    const withDistance = branches
+      .map((branch) => {
+        const { gym } = branch;
+        return {
+          ...gym,
+          area: branch.area,
+          city: branch.city,
+          openingHours: branch.openingHours ?? gym.openingHours,
+          whatsappNumber: branch.whatsappNumber ?? gym.whatsappNumber,
+          latitude: branch.latitude,
+          longitude: branch.longitude,
+          branchName: branch.name,
+          branchSlug: branch.slug,
+          distanceKm: getDistance(lat, lng, branch.latitude!, branch.longitude!),
+        };
+      })
+      .filter((item) => item.distanceKm <= radiusKm)
       .sort((a, b) => a.distanceKm - b.distanceKm);
 
     return NextResponse.json({

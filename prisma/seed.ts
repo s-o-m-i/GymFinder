@@ -439,6 +439,7 @@ async function main() {
   await prisma.gymImage.deleteMany();
   await prisma.gymAmenity.deleteMany();
   await prisma.gymDiscipline.deleteMany();
+  await prisma.gymBranch.deleteMany();
   await prisma.gym.deleteMany();
   await prisma.discipline.deleteMany();
   await prisma.amenity.deleteMany();
@@ -499,6 +500,24 @@ async function main() {
     });
 
     console.log(`✓ Created: ${gym.name}`);
+
+    await prisma.gymBranch.create({
+      data: {
+        gymId: gym.id,
+        name: "Main Branch",
+        slug: "main",
+        address: gym.address,
+        area: gym.area,
+        city: gym.city,
+        latitude: gym.latitude,
+        longitude: gym.longitude,
+        whatsappNumber: gym.whatsappNumber,
+        openingHours: gym.openingHours,
+        ladiesHours: gym.ladiesHours,
+        status: "ACTIVE",
+        isPrimary: true,
+      },
+    });
   }
 
   console.log("\n✅ Seed complete!");

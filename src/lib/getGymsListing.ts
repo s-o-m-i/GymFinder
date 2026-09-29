@@ -3,6 +3,11 @@ import { prisma } from "@/lib/prisma";
 import type { Prisma } from "@prisma/client";
 import type { GymFilters } from "@/types";
 import { checkExpiredFeaturedGyms } from "@/services/featured/featured-gym.service";
+import {
+  ACTIVE_BRANCH_COUNT_INCLUDE,
+  gymLocationMatchWhere,
+  gymTextSearchWhere,
+} from "@/lib/gym-location-where";
 
 export function parseGymSearchParams(
   searchParams: Record<string, string | string[] | undefined>,
@@ -37,20 +42,22 @@ export function buildGymWhere(
   fixedTypes?: readonly string[]
 ): Prisma.GymWhereInput {
   const where: Prisma.GymWhereInput = {};
+  const and: Prisma.GymWhereInput[] = [];
 
   if (publicOnly) {
     where.listingStatus = "approved";
   }
 
   if (filters.search) {
-    where.OR = [
-      { name:        { contains: filters.search, mode: "insensitive" } },
-      { area:        { contains: filters.search, mode: "insensitive" } },
-      { description: { contains: filters.search, mode: "insensitive" } },
-    ];
+    and.push(gymTextSearchWhere(filters.search));
   }
-  if (filters.city)        where.city        = { equals: filters.city,        mode: "insensitive" };
-  if (filters.area)        where.area        = { equals: filters.area,        mode: "insensitive" };
+
+  const locationWhere = gymLocationMatchWhere({
+    city: filters.city,
+    area: filters.area,
+  });
+  if (locationWhere) and.push(locationWhere);
+
   if (fixedTypes?.length) {
     where.type = { in: [...fixedTypes] as Prisma.EnumGymTypeFilter["in"] };
   } else if (filters.type) {
@@ -76,6 +83,10 @@ export function buildGymWhere(
   if (filters.rating) {
     const ratingWhere = buildGymRatingWhere(filters.rating);
     if (ratingWhere) Object.assign(where, ratingWhere);
+  }
+
+  if (and.length > 0) {
+    where.AND = and;
   }
 
   return where;
@@ -105,12 +116,13 @@ export async function getGymsListing(
   const limit   = filters.limit ?? 12;
   const skip    = (page - 1) * limit;
 
-  const [gyms, total] = await Promise.all([
+  const [rows, total] = await Promise.all([
     prisma.gym.findMany({
       where,
       include: {
         galleryImages: { select: { imageUrl: true, alt: true }, take: 1 },
         disciplines: { include: { discipline: { select: { name: true } } } },
+        ...ACTIVE_BRANCH_COUNT_INCLUDE,
       },
       orderBy,
       skip,
@@ -118,6 +130,11 @@ export async function getGymsListing(
     }),
     prisma.gym.count({ where }),
   ]);
+
+  const gyms = rows.map(({ _count, ...gym }) => ({
+    ...gym,
+    activeBranchCount: _count.branches,
+  }));
 
   return { gyms, total, page, totalPages: Math.ceil(total / limit), filters };
 }

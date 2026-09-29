@@ -3,12 +3,14 @@ import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/utils";
 import { syncGymImages, deleteGymCloudinaryAssets } from "@/lib/gym-images";
 import { resolveAmenityIds, resolveDisciplineIds } from "@/lib/gym-tags";
+import { upsertPrimaryBranchFromGym } from "@/lib/gym-branches";
 
 const GYM_FULL_INCLUDE = {
   galleryImages: true,
   disciplines: { include: { discipline: true } },
   amenities: { include: { amenity: true } },
   reviews: { orderBy: { createdAt: "desc" as const }, take: 10 },
+  branches: { orderBy: [{ isPrimary: "desc" as const }, { createdAt: "asc" as const }] },
 };
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -111,6 +113,8 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
         }),
       },
     });
+
+    await upsertPrimaryBranchFromGym(gym.id);
 
     await syncGymImages(
       gym.id,

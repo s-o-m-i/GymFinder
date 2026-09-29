@@ -15,6 +15,11 @@ export async function GET(req: NextRequest) {
           { name: { contains: q, mode: "insensitive" } },
           { area: { contains: q, mode: "insensitive" } },
           { city: { contains: q, mode: "insensitive" } },
+          { branches: { some: { status: "ACTIVE", OR: [
+            { name: { contains: q, mode: "insensitive" } },
+            { area: { contains: q, mode: "insensitive" } },
+            { city: { contains: q, mode: "insensitive" } },
+          ] } } },
         ] },
         select: { id: true, name: true, slug: true, type: true, area: true, city: true, latitude: true, longitude: true, priceMin: true, priceMax: true, rating: true, featured: true, claimed: true, coverImage: true },
         take: 8,
