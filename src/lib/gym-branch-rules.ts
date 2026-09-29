@@ -3,6 +3,36 @@ import { slugify } from "./utils";
 export const DEFAULT_BRANCH_NAME = "Main Branch";
 export const DEFAULT_BRANCH_SLUG = "main";
 
+export function publicBranchDisplayName(gymName: string, branchName: string): string {
+  const trimmed = branchName.trim();
+  if (!trimmed || trimmed.toLowerCase() === DEFAULT_BRANCH_NAME.toLowerCase()) {
+    return gymName;
+  }
+  return trimmed;
+}
+
+export function inheritValue<T>(
+  useCommon: boolean,
+  branchValue: T | null | undefined,
+  commonValue: T,
+  empty: (value: T | null | undefined) => boolean = (value) =>
+    value === null || value === undefined || value === ""
+): T {
+  if (useCommon) return commonValue;
+  if (empty(branchValue)) return commonValue;
+  return branchValue as T;
+}
+
+export function inheritList<T>(
+  useCommon: boolean,
+  branchItems: T[] | null | undefined,
+  commonItems: T[]
+): T[] {
+  if (useCommon) return commonItems;
+  if (!branchItems?.length) return commonItems;
+  return branchItems;
+}
+
 /** Nested public routes under /gyms/[slug]/ that must never be used as branch slugs. */
 export const RESERVED_BRANCH_SLUGS = ["claim"] as const;
 

@@ -127,7 +127,7 @@ export async function getTrustedPartners(): Promise<TrustedPartner[]> {
           claimed: true,
           rating: true,
           coverImage: true,
-          galleryImages: { select: { imageUrl: true }, take: 1 },
+          galleryImages: { where: { branchId: null }, select: { imageUrl: true }, take: 1 },
           _count: {
             select: {
               trainers: true,

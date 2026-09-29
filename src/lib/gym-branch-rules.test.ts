@@ -7,6 +7,9 @@ import {
   canManageGymBranches,
   DEFAULT_BRANCH_NAME,
   DEFAULT_BRANCH_SLUG,
+  inheritValue,
+  inheritList,
+  publicBranchDisplayName,
   gymLocationUpdateFromBranch,
   gymsNeedingPrimaryBranchBackfill,
   isPubliclyVisibleBranch,
@@ -129,5 +132,21 @@ describe("idempotent backfill payload", () => {
     );
     assert.equal(update.whatsappNumber, "03001112233");
     assert.equal(update.city, "Lahore");
+  });
+});
+
+describe("branch inherit helpers", () => {
+  it("uses common values when the flag is on or the branch value is empty", () => {
+    assert.equal(inheritValue(true, "branch hours", "common hours"), "common hours");
+    assert.equal(inheritValue(false, "", "common hours"), "common hours");
+    assert.equal(inheritValue(false, "branch hours", "common hours"), "branch hours");
+    assert.deepEqual(inheritList(true, ["A"], ["B", "C"]), ["B", "C"]);
+    assert.deepEqual(inheritList(false, [], ["B", "C"]), ["B", "C"]);
+    assert.deepEqual(inheritList(false, ["A"], ["B", "C"]), ["A"]);
+  });
+
+  it("shows the gym name for a default Main Branch", () => {
+    assert.equal(publicBranchDisplayName("BodyTech", "Main Branch"), "BodyTech");
+    assert.equal(publicBranchDisplayName("BodyTech", "EME"), "EME");
   });
 });

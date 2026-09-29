@@ -15,7 +15,7 @@ import type { GymSearchFilters } from "@/types/gym-search";
 const AI_SEARCH_LIMIT = 24;
 
 const gymInclude = {
-  galleryImages: { select: { imageUrl: true, alt: true }, take: 3 },
+  galleryImages: { where: { branchId: null }, select: { imageUrl: true, alt: true }, take: 3 },
   disciplines: { include: { discipline: { select: { name: true } } } },
   amenities: { include: { amenity: { select: { name: true } } } },
   membershipPlans: {

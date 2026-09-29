@@ -11,6 +11,9 @@ import {
   shouldOverwriteGymLocation,
   type GymLocationCache,
 } from "@/lib/gym-branch-rules";
+import { resolveAmenityIds, resolveDisciplineIds } from "@/lib/gym-tags";
+import { syncGymBranchImages } from "@/lib/gym-images";
+import type { GymBranchFormValues } from "@/lib/validations/gym-branch";
 
 export const GYM_LOCATION_SELECT = {
   id: true,
@@ -165,24 +168,86 @@ export async function setPrimaryGymBranchRecord(
   return updated;
 }
 
+export type GymBranchWriteInput = {
+  name: string;
+  slug?: string | null;
+  description?: string | null;
+  address: string;
+  area: string;
+  city: string;
+  latitude: number | null;
+  longitude: number | null;
+  phone: string | null;
+  whatsappNumber: string | null;
+  email: string | null;
+  openingHours: string | null;
+  ladiesHours: string | null;
+  priceMin?: number | null;
+  priceMax?: number | null;
+  ladiesStatus?: GymBranch["ladiesStatus"];
+  sizeCategory?: GymBranch["sizeCategory"];
+  establishedYear?: number | null;
+  memberCount?: number | null;
+  coachInfo?: string | null;
+  equipment?: string | null;
+  transformations?: string | null;
+  status: GymBranch["status"];
+  isPrimary?: boolean;
+  useCommonAmenities?: boolean;
+  useCommonDisciplines?: boolean;
+  useCommonHours?: boolean;
+  disciplineIds?: string[];
+  amenityIds?: string[];
+};
+
+function listingFieldsFromInput(input: GymBranchWriteInput) {
+  return {
+    description: input.description ?? null,
+    priceMin: input.priceMin ?? null,
+    priceMax: input.priceMax ?? null,
+    ladiesStatus: input.ladiesStatus ?? null,
+    sizeCategory: input.sizeCategory ?? null,
+    establishedYear: input.establishedYear ?? null,
+    memberCount: input.memberCount ?? null,
+    coachInfo: input.coachInfo ?? null,
+    equipment: input.equipment ?? null,
+    transformations: input.transformations ?? null,
+    useCommonAmenities: input.useCommonAmenities ?? true,
+    useCommonDisciplines: input.useCommonDisciplines ?? true,
+    useCommonHours: input.useCommonHours ?? true,
+  };
+}
+
+async function syncBranchTags(
+  client: BranchWriteClient,
+  gymBranchId: string,
+  input: GymBranchWriteInput
+) {
+  const useCommonAmenities = input.useCommonAmenities ?? true;
+  const useCommonDisciplines = input.useCommonDisciplines ?? true;
+
+  await client.gymBranchAmenity.deleteMany({ where: { gymBranchId } });
+  await client.gymBranchDiscipline.deleteMany({ where: { gymBranchId } });
+
+  if (!useCommonAmenities && input.amenityIds?.length) {
+    await client.gymBranchAmenity.createMany({
+      data: input.amenityIds.map((amenityId) => ({ gymBranchId, amenityId })),
+    });
+  }
+
+  if (!useCommonDisciplines && input.disciplineIds?.length) {
+    await client.gymBranchDiscipline.createMany({
+      data: input.disciplineIds.map((disciplineId) => ({
+        gymBranchId,
+        disciplineId,
+      })),
+    });
+  }
+}
+
 export async function createGymBranchRecord(
   gymId: string,
-  input: {
-    name: string;
-    slug?: string | null;
-    address: string;
-    area: string;
-    city: string;
-    latitude: number | null;
-    longitude: number | null;
-    phone: string | null;
-    whatsappNumber: string | null;
-    email: string | null;
-    openingHours: string | null;
-    ladiesHours: string | null;
-    status: GymBranch["status"];
-    isPrimary?: boolean;
-  },
+  input: GymBranchWriteInput,
   client: BranchWriteClient = prisma
 ): Promise<GymBranch> {
   const existingCount = await client.gymBranch.count({ where: { gymId } });
@@ -210,8 +275,11 @@ export async function createGymBranchRecord(
       ladiesHours: input.ladiesHours,
       status: input.status,
       isPrimary: makePrimary,
+      ...listingFieldsFromInput(input),
     },
   });
+
+  await syncBranchTags(client, created.id, input);
 
   if (makePrimary) {
     await client.gymBranch.updateMany({
@@ -227,22 +295,7 @@ export async function createGymBranchRecord(
 export async function updateGymBranchRecord(
   gymId: string,
   branchId: string,
-  input: {
-    name: string;
-    slug?: string | null;
-    address: string;
-    area: string;
-    city: string;
-    latitude: number | null;
-    longitude: number | null;
-    phone: string | null;
-    whatsappNumber: string | null;
-    email: string | null;
-    openingHours: string | null;
-    ladiesHours: string | null;
-    status: GymBranch["status"];
-    isPrimary?: boolean;
-  },
+  input: GymBranchWriteInput,
   client: BranchWriteClient = prisma
 ): Promise<GymBranch> {
   const existing = await client.gymBranch.findFirst({
@@ -277,8 +330,11 @@ export async function updateGymBranchRecord(
       ladiesHours: input.ladiesHours,
       status: input.status,
       isPrimary: makePrimary,
+      ...listingFieldsFromInput(input),
     },
   });
+
+  await syncBranchTags(client, branchId, input);
 
   if (makePrimary) {
     await client.gymBranch.updateMany({
@@ -356,3 +412,70 @@ export async function backfillMissingPrimaryBranches(
 export const ACTIVE_BRANCH_WHERE = {
   status: "ACTIVE" as const,
 };
+
+export async function persistGymBranchFromParsed(
+  gymId: string,
+  parsed: GymBranchFormValues,
+  branchId?: string
+): Promise<GymBranch> {
+  const disciplineIds = parsed.useCommonDisciplines
+    ? []
+    : await resolveDisciplineIds(
+        prisma,
+        parsed.disciplines ?? [],
+        parsed.customDisciplines ?? []
+      );
+  const amenityIds = parsed.useCommonAmenities
+    ? []
+    : await resolveAmenityIds(
+        prisma,
+        parsed.amenities ?? [],
+        parsed.customAmenities ?? []
+      );
+
+  const writeInput: GymBranchWriteInput = {
+    name: parsed.name,
+    slug: parsed.slug,
+    description: parsed.description,
+    address: parsed.address,
+    area: parsed.area,
+    city: parsed.city,
+    latitude: parsed.latitude,
+    longitude: parsed.longitude,
+    phone: parsed.phone,
+    whatsappNumber: parsed.whatsappNumber,
+    email: parsed.email,
+    openingHours: parsed.openingHours,
+    ladiesHours: parsed.ladiesHours,
+    priceMin: parsed.priceMin,
+    priceMax: parsed.priceMax,
+    ladiesStatus: (parsed.ladiesStatus || null) as GymBranchWriteInput["ladiesStatus"],
+    sizeCategory: (parsed.sizeCategory || null) as GymBranchWriteInput["sizeCategory"],
+    establishedYear: parsed.establishedYear,
+    memberCount: parsed.memberCount,
+    coachInfo: parsed.coachInfo,
+    equipment: parsed.equipment,
+    transformations: parsed.transformations,
+    status: parsed.status,
+    isPrimary: parsed.isPrimary,
+    useCommonAmenities: parsed.useCommonAmenities,
+    useCommonDisciplines: parsed.useCommonDisciplines,
+    useCommonHours: parsed.useCommonHours,
+    disciplineIds,
+    amenityIds,
+  };
+
+  const branch = await prisma.$transaction((tx) =>
+    branchId
+      ? updateGymBranchRecord(gymId, branchId, writeInput, tx)
+      : createGymBranchRecord(gymId, writeInput, tx)
+  );
+
+  await syncGymBranchImages(
+    gymId,
+    branch.id,
+    parsed.coverImage,
+    parsed.galleryImages
+  );
+  return branch;
+}

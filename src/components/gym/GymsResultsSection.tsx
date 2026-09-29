@@ -499,7 +499,7 @@ export function GymsResultsSection({ initialGyms, total, page, totalPages }: Gym
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
             {nearbyGyms.map((gym) => (
-              <GymCard key={gym.id} gym={gym} distanceKm={gym.distanceKm} />
+              <GymCard key={gym.branchId ?? gym.id} gym={gym} distanceKm={gym.distanceKm} />
             ))}
           </div>
         )
@@ -522,7 +522,7 @@ export function GymsResultsSection({ initialGyms, total, page, totalPages }: Gym
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5 w-full min-w-0">
               {initialGyms.map((gym) => (
-                <GymCard key={gym.id} gym={gym} />
+                <GymCard key={gym.branchId ?? gym.id} gym={gym} />
               ))}
             </div>
             <Pagination page={page} totalPages={totalPages} />

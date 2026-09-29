@@ -100,7 +100,7 @@ async function getFeaturedGymListings(): Promise<HomeListingItem[]> {
         city: true,
         rating: true,
         coverImage: true,
-        galleryImages: { select: { imageUrl: true }, take: 1 },
+        galleryImages: { where: { branchId: null }, select: { imageUrl: true }, take: 1 },
       },
       orderBy: { createdAt: "desc" },
       take: 6,

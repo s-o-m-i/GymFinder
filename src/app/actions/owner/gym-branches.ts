@@ -10,10 +10,9 @@ import {
   type GymBranchFormInput,
 } from "@/lib/validations/gym-branch";
 import {
-  createGymBranchRecord,
+  persistGymBranchFromParsed,
   deleteGymBranchRecord,
   setPrimaryGymBranchRecord,
-  updateGymBranchRecord,
 } from "@/lib/gym-branches";
 import { getGymBranchPath } from "@/lib/gym-branch-rules";
 
@@ -43,7 +42,9 @@ function actionError(
 
 function revalidateOwnerBranchPaths(gymSlug: string, branchSlug?: string) {
   revalidatePath("/owner/branches");
+  revalidatePath("/owner/common");
   revalidatePath("/owner/gym");
+  revalidatePath("/gyms");
   revalidatePath(`/gyms/${gymSlug}`);
   if (branchSlug) {
     revalidatePath(getGymBranchPath(gymSlug, branchSlug));
@@ -87,9 +88,7 @@ export async function createOwnerGymBranch(
       );
     }
 
-    const branch = await prisma.$transaction((tx) =>
-      createGymBranchRecord(gym.id, parsed.data, tx)
-    );
+    const branch = await persistGymBranchFromParsed(gym.id, parsed.data);
 
     revalidateOwnerBranchPaths(gym.slug, branch.slug);
     return { success: true, data: { id: branch.id, slug: branch.slug } };
@@ -118,9 +117,7 @@ export async function updateOwnerGymBranch(
     });
     if (!owned) return actionError("Branch not found.");
 
-    const branch = await prisma.$transaction((tx) =>
-      updateGymBranchRecord(gym.id, branchId, parsed.data, tx)
-    );
+    const branch = await persistGymBranchFromParsed(gym.id, parsed.data, branchId);
 
     revalidateOwnerBranchPaths(gym.slug, branch.slug);
     return { success: true, data: { id: branch.id, slug: branch.slug } };

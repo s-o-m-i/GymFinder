@@ -188,13 +188,13 @@ export default function NearMeMap({ userLat, userLng, gyms }: NearMeMapProps) {
         const gymIcon = makeGymIcon(gym.featured);
         return (
           <Marker
-            key={gym.id}
+            key={gym.branchId ?? gym.id}
             position={[gym.latitude, gym.longitude]}
             icon={gymIcon}
           >
             <Popup>
               <div style={{ fontFamily: "Inter, sans-serif", fontSize: 13, minWidth: 160 }}>
-                <strong style={{ color: "#0B2545", fontSize: 14 }}>{gym.name}</strong>
+                <strong style={{ color: "#0B2545", fontSize: 14 }}>{gym.branchName ?? gym.name}</strong>
                 <div style={{ color: "#6b7280", marginTop: 2 }}>
                   {gym.area}, {gym.city}
                 </div>

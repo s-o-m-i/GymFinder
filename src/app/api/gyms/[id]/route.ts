@@ -6,7 +6,7 @@ import { resolveAmenityIds, resolveDisciplineIds } from "@/lib/gym-tags";
 import { upsertPrimaryBranchFromGym } from "@/lib/gym-branches";
 
 const GYM_FULL_INCLUDE = {
-  galleryImages: true,
+  galleryImages: { where: { branchId: null } },
   disciplines: { include: { discipline: true } },
   amenities: { include: { amenity: true } },
   reviews: { orderBy: { createdAt: "desc" as const }, take: 10 },

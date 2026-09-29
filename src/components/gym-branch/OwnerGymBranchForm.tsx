@@ -14,6 +14,8 @@ interface OwnerGymBranchFormProps {
   mode: "create" | "edit";
   branchId?: string;
   initialData?: GymBranchFormState;
+  disciplines: { id: string; name: string }[];
+  amenities: { id: string; name: string }[];
 }
 
 export function OwnerGymBranchForm({
@@ -21,6 +23,8 @@ export function OwnerGymBranchForm({
   mode,
   branchId,
   initialData,
+  disciplines,
+  amenities,
 }: OwnerGymBranchFormProps) {
   return (
     <GymBranchForm
@@ -29,6 +33,10 @@ export function OwnerGymBranchForm({
       gymName={gymName}
       cancelHref="/owner/branches"
       successHref="/owner/branches"
+      commonSettingsHref="/owner/common"
+      imageAuthMode="cookie"
+      disciplines={disciplines}
+      amenities={amenities}
       onSubmit={(input) =>
         mode === "edit" && branchId
           ? updateOwnerGymBranch(branchId, input)

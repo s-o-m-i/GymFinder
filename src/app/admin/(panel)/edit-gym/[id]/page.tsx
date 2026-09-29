@@ -4,8 +4,10 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { GymForm } from "@/components/admin/GymForm";
 import { AdminGymBranchesPanel } from "@/components/gym-branch/AdminGymBranchesPanel";
+import { AdminGymCommonSettingsForm } from "@/components/gym-branch/AdminGymCommonSettingsForm";
 import { toUploaded } from "@/lib/gym-images-form";
 import { splitLinkedTags } from "@/lib/gym-tags";
+import { GYM_LEVEL_IMAGE_WHERE } from "@/lib/gym-images";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -16,7 +18,7 @@ async function getData(id: string) {
     prisma.gym.findUnique({
       where: { id },
       include: {
-        galleryImages: true,
+        galleryImages: { where: GYM_LEVEL_IMAGE_WHERE },
         disciplines: { include: { discipline: true } },
         amenities: { include: { amenity: true } },
         branches: { orderBy: [{ isPrimary: "desc" }, { createdAt: "asc" }] },
@@ -103,6 +105,24 @@ export default async function EditGymPage({ params }: PageProps) {
           gymName={gym.name}
           gymSlug={gym.slug}
           branches={gym.branches}
+        />
+      </div>
+
+      <div className="mb-8">
+        <h2 className="font-heading font-bold text-lg text-[var(--text)] mb-2">
+          Common brand settings
+        </h2>
+        <p className="text-sm text-[var(--text-muted)] mb-5">
+          Hours, amenities, and disciplines here apply to every branch unless a
+          branch turns off “Use common”.
+        </p>
+        <AdminGymCommonSettingsForm
+          gymId={gym.id}
+          gym={gym}
+          disciplines={disciplines}
+          amenities={amenities}
+          disciplineTags={disciplineTags}
+          amenityTags={amenityTags}
         />
       </div>
 

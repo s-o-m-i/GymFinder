@@ -4,6 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { AdminGymBranchForm } from "@/components/gym-branch/AdminGymBranchForm";
+import { getGymTagCatalog } from "@/lib/gym-branch-form-data";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -18,6 +19,8 @@ export default async function AddGymBranchPage({ params }: PageProps) {
 
   if (!gym) notFound();
 
+  const { disciplines, amenities } = await getGymTagCatalog();
+
   return (
     <div className="p-8 max-w-3xl mx-auto">
       <div className="mb-8">
@@ -31,11 +34,18 @@ export default async function AddGymBranchPage({ params }: PageProps) {
           Add Branch
         </h1>
         <p className="text-[var(--text-muted)] text-sm mt-1">
-          Add a physical location for {gym.name}.
+          Add another branch for {gym.name}. Each branch has its own photos,
+          address, and listing details.
         </p>
       </div>
 
-      <AdminGymBranchForm gymId={gym.id} gymName={gym.name} mode="create" />
+      <AdminGymBranchForm
+        gymId={gym.id}
+        gymName={gym.name}
+        mode="create"
+        disciplines={disciplines}
+        amenities={amenities}
+      />
     </div>
   );
 }

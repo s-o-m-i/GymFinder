@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getDistance } from "@/lib/getDistance";
+import { toGymCardDataFromBranch } from "@/lib/gym-branch-listing";
 
 const NEARBY_GYM_SELECT = {
   id: true,
@@ -8,8 +9,6 @@ const NEARBY_GYM_SELECT = {
   slug: true,
   type: true,
   customTypeLabel: true,
-  area: true,
-  city: true,
   priceMin: true,
   priceMax: true,
   ladiesStatus: true,
@@ -19,8 +18,13 @@ const NEARBY_GYM_SELECT = {
   featured: true,
   featuredUntil: true,
   openingHours: true,
+  ladiesHours: true,
   coverImage: true,
-  galleryImages: { select: { imageUrl: true, alt: true }, take: 1 },
+  galleryImages: {
+    where: { branchId: null },
+    select: { imageUrl: true, alt: true },
+    take: 1,
+  },
   disciplines: {
     select: {
       discipline: { select: { name: true } },
@@ -69,7 +73,19 @@ export async function POST(req: NextRequest) {
         latitude: true,
         longitude: true,
         openingHours: true,
+        ladiesHours: true,
         whatsappNumber: true,
+        priceMin: true,
+        priceMax: true,
+        ladiesStatus: true,
+        sizeCategory: true,
+        coverImage: true,
+        useCommonHours: true,
+        useCommonDisciplines: true,
+        galleryImages: { select: { imageUrl: true, alt: true }, take: 1 },
+        disciplines: {
+          select: { discipline: { select: { name: true } } },
+        },
         gym: { select: NEARBY_GYM_SELECT },
       },
     });
@@ -80,17 +96,11 @@ export async function POST(req: NextRequest) {
 
     const withDistance = branches
       .map((branch) => {
-        const { gym } = branch;
+        const card = toGymCardDataFromBranch(branch);
         return {
-          ...gym,
-          area: branch.area,
-          city: branch.city,
-          openingHours: branch.openingHours ?? gym.openingHours,
-          whatsappNumber: branch.whatsappNumber ?? gym.whatsappNumber,
+          ...card,
           latitude: branch.latitude,
           longitude: branch.longitude,
-          branchName: branch.name,
-          branchSlug: branch.slug,
           distanceKm: getDistance(lat, lng, branch.latitude!, branch.longitude!),
         };
       })

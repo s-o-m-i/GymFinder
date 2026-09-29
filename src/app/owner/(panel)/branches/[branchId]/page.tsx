@@ -5,7 +5,10 @@ import Link from "next/link";
 import { getOwnerSession } from "@/lib/owner-auth";
 import { prisma } from "@/lib/prisma";
 import { OwnerGymBranchForm } from "@/components/gym-branch/OwnerGymBranchForm";
-import { branchToForm } from "@/components/gym-branch/GymBranchForm";
+import {
+  getBranchFormInitialData,
+  getGymTagCatalog,
+} from "@/lib/gym-branch-form-data";
 
 interface PageProps {
   params: Promise<{ branchId: string }>;
@@ -22,10 +25,9 @@ export default async function OwnerEditBranchPage({ params }: PageProps) {
   });
   if (!gym) redirect("/owner/gym");
 
-  const branch = await prisma.gymBranch.findFirst({
-    where: { id: branchId, gymId: gym.id },
-  });
-  if (!branch) notFound();
+  const catalog = await getGymTagCatalog();
+  const initialData = await getBranchFormInitialData(gym.id, branchId, catalog);
+  if (!initialData) notFound();
 
   return (
     <div className="p-8 max-w-3xl mx-auto w-full">
@@ -34,18 +36,20 @@ export default async function OwnerEditBranchPage({ params }: PageProps) {
           href="/owner/branches"
           className="text-sm text-[var(--text-muted)] hover:text-[#FF6A3D]"
         >
-          ← Back to locations
+          ← Back to branches
         </Link>
         <h1 className="font-heading font-bold text-2xl text-[var(--text)] mt-3">
           Edit Branch
         </h1>
-        <p className="text-[var(--text-muted)] text-sm mt-1">{branch.name}</p>
+        <p className="text-[var(--text-muted)] text-sm mt-1">{initialData.name}</p>
       </div>
       <OwnerGymBranchForm
         gymName={gym.name}
         mode="edit"
-        branchId={branch.id}
-        initialData={branchToForm(branch)}
+        branchId={branchId}
+        initialData={initialData}
+        disciplines={catalog.disciplines}
+        amenities={catalog.amenities}
       />
     </div>
   );

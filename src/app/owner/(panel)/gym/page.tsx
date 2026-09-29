@@ -10,6 +10,7 @@ import {
   isDisciplineAllowedForOwner,
 } from "@/lib/owner-constants";
 import { splitLinkedTags } from "@/lib/gym-tags";
+import { GYM_LEVEL_IMAGE_WHERE } from "@/lib/gym-images";
 
 async function getData(ownerId: string) {
   const [owner, disciplines, amenities, gym] = await Promise.all([
@@ -19,7 +20,7 @@ async function getData(ownerId: string) {
     prisma.gym.findUnique({
       where: { ownerId },
       include: {
-        galleryImages: true,
+        galleryImages: { where: GYM_LEVEL_IMAGE_WHERE },
         disciplines: { include: { discipline: true } },
         amenities: { include: { amenity: true } },
       },

@@ -27,6 +27,7 @@ import { isGymActivelyFeatured } from "@/lib/featured-gym";
 import { SITE_NAME } from "@/lib/constants";
 import { getGymsBasePath } from "@/lib/gyms-routes";
 import { getGymGalleryImages } from "@/lib/images";
+import { GYM_LEVEL_IMAGE_WHERE } from "@/lib/gym-images";
 import {
   MapPin,
   ExternalLink,
@@ -44,6 +45,10 @@ import { getStoriesForGymProfile } from "@/services/success-story/success-story.
 import { TransformationGallerySection } from "@/components/transformation/TransformationGallerySection";
 import { ClaimGymBanner } from "@/components/gym-claim/ClaimGymBanner";
 import { GymLocationsSection } from "@/components/gym/GymLocationsSection";
+import {
+  inheritValue,
+  publicBranchDisplayName,
+} from "@/lib/gym-branch-rules";
 
 interface GymProfilePageProps {
   slug: string;
@@ -53,7 +58,7 @@ async function getGym(slug: string) {
   return prisma.gym.findUnique({
     where: { slug },
     include: {
-      galleryImages: true,
+      galleryImages: { where: GYM_LEVEL_IMAGE_WHERE },
       disciplines: { include: { discipline: true } },
       amenities: { include: { amenity: true } },
       reviews: { orderBy: { createdAt: "desc" }, take: 20 },
@@ -191,7 +196,7 @@ export async function GymProfilePage({ slug }: GymProfilePageProps) {
                       <MapPin className="w-4 h-4 shrink-0" />
                       <span>
                         {hasMultipleBranches
-                          ? `${activeBranches.length} locations`
+                          ? `${activeBranches.length} branches`
                           : `${gym.address}, ${gym.area}, ${gym.city}`}
                       </span>
                     </div>
@@ -222,7 +227,18 @@ export async function GymProfilePage({ slug }: GymProfilePageProps) {
               <GymLocationsSection
                 gymName={gym.name}
                 gymSlug={gym.slug}
-                branches={activeBranches}
+                branches={activeBranches.map((branch) => ({
+                  name: publicBranchDisplayName(gym.name, branch.name),
+                  slug: branch.slug,
+                  address: branch.address,
+                  area: branch.area,
+                  city: branch.city,
+                  openingHours: inheritValue(
+                    branch.useCommonHours,
+                    branch.openingHours,
+                    gym.openingHours
+                  ),
+                }))}
               />
 
               {disciplineNames.length > 0 && (
