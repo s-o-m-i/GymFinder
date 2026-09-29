@@ -89,7 +89,7 @@ export function GymBranchesPanel({
         <div>
           <h2 className="font-heading font-bold text-[var(--text)]">Branches</h2>
           <p className="text-sm text-[var(--text-muted)] mt-0.5">
-            Physical locations for {gymName}
+            Physical branches for {gymName}
           </p>
         </div>
         <Link
@@ -108,7 +108,7 @@ export function GymBranchesPanel({
 
       {branches.length === 0 ? (
         <div className="p-8 text-center text-sm text-[var(--text-muted)]">
-          No branches yet. Add the first location for this gym.
+          No branches yet. Add the first branch for this gym.
         </div>
       ) : (
         <ol className="divide-y divide-[var(--border)]">

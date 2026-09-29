@@ -15,12 +15,14 @@ interface GymLocationsSectionProps {
   gymName: string;
   gymSlug: string;
   branches: PublicGymBranch[];
+  currentBranchSlug?: string;
 }
 
 export function GymLocationsSection({
   gymName,
   gymSlug,
   branches,
+  currentBranchSlug,
 }: GymLocationsSectionProps) {
   if (branches.length < 2) return null;
 
@@ -29,10 +31,10 @@ export function GymLocationsSection({
       <div className="flex items-end justify-between gap-3 mb-5">
         <div>
           <h2 className="font-heading font-bold text-lg text-[var(--text)]">
-            Locations
+            Branches
           </h2>
           <p className="text-sm text-[var(--text-muted)] mt-1">
-            {gymName} · {branches.length} locations
+            {gymName} · {branches.length} branches
           </p>
         </div>
       </div>
@@ -41,7 +43,11 @@ export function GymLocationsSection({
         {branches.map((branch) => (
           <div
             key={branch.slug}
-            className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-2xl border border-[var(--border)] bg-[var(--bg)]"
+            className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-2xl border bg-[var(--bg)] ${
+              currentBranchSlug === branch.slug
+                ? "border-[#FF6A3D]/40"
+                : "border-[var(--border)]"
+            }`}
           >
             <div className="min-w-0">
               <h3 className="font-heading font-bold text-[var(--text)]">
@@ -64,7 +70,7 @@ export function GymLocationsSection({
               href={getGymBranchPath(gymSlug, branch.slug)}
               className="shrink-0 inline-flex items-center justify-center px-4 py-2.5 text-sm font-semibold text-white bg-[#0B2545] rounded-xl hover:bg-[#071832] transition-colors"
             >
-              View Branch
+              {currentBranchSlug === branch.slug ? "This Branch" : "View Branch"}
             </Link>
           </div>
         ))}

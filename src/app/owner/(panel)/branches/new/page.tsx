@@ -5,6 +5,7 @@ import Link from "next/link";
 import { getOwnerSession } from "@/lib/owner-auth";
 import { prisma } from "@/lib/prisma";
 import { OwnerGymBranchForm } from "@/components/gym-branch/OwnerGymBranchForm";
+import { getGymTagCatalog } from "@/lib/gym-branch-form-data";
 
 export default async function OwnerNewBranchPage() {
   const session = await getOwnerSession();
@@ -16,6 +17,8 @@ export default async function OwnerNewBranchPage() {
   });
   if (!gym) redirect("/owner/gym");
 
+  const { disciplines, amenities } = await getGymTagCatalog();
+
   return (
     <div className="p-8 max-w-3xl mx-auto w-full">
       <div className="mb-8">
@@ -23,16 +26,22 @@ export default async function OwnerNewBranchPage() {
           href="/owner/branches"
           className="text-sm text-[var(--text-muted)] hover:text-[#FF6A3D]"
         >
-          ← Back to locations
+          ← Back to branches
         </Link>
         <h1 className="font-heading font-bold text-2xl text-[var(--text)] mt-3">
           Add Branch
         </h1>
         <p className="text-[var(--text-muted)] text-sm mt-1">
-          Add a physical location for {gym.name}.
+          Add another branch for {gym.name}. Each branch has its own photos,
+          address, and listing details.
         </p>
       </div>
-      <OwnerGymBranchForm gymName={gym.name} mode="create" />
+      <OwnerGymBranchForm
+        gymName={gym.name}
+        mode="create"
+        disciplines={disciplines}
+        amenities={amenities}
+      />
     </div>
   );
 }

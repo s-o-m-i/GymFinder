@@ -33,6 +33,7 @@ export type GymCardData = Pick<
   galleryImages: Pick<GymImage, "imageUrl" | "alt">[];
   disciplines: { discipline: Pick<Discipline, "name"> }[];
   activeBranchCount?: number;
+  branchId?: string;
   branchName?: string;
   branchSlug?: string;
 };

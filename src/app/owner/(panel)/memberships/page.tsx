@@ -44,7 +44,8 @@ export default async function OwnerMembershipsPage() {
         </div>
         <p className="text-[var(--text-muted)] text-sm">
           {businessCategoryLabel(owner.businessCategory)} · Create up to{" "}
-          {FREE_MEMBERSHIP_PLAN_LIMIT} plans for free. Visitors will see these on your public listing page.
+          {FREE_MEMBERSHIP_PLAN_LIMIT} plans for free. These plans are shared
+          across every branch unless you later customize a branch.
         </p>
       </div>
 

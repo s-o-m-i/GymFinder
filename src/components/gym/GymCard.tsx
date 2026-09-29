@@ -23,10 +23,7 @@ export function GymCard({ gym, distanceKm }: GymCardProps) {
     ? `/gyms/${gym.slug}/${gym.branchSlug}`
     : `/gyms/${gym.slug}`;
   const title = gym.branchName ?? gym.name;
-  const locationLabel =
-    !gym.branchSlug && gym.activeBranchCount && gym.activeBranchCount > 1
-      ? `${gym.activeBranchCount} locations`
-      : `${gym.area}, ${gym.city}`;
+  const locationLabel = `${gym.area}, ${gym.city}`;
 
   return (
     <article
@@ -78,9 +75,16 @@ export function GymCard({ gym, distanceKm }: GymCardProps) {
         {/* BOTTOM: Name + price overlay */}
         <div className="absolute bottom-0 left-0 right-0 px-4 pb-3 pt-8">
           <div className="flex items-end justify-between gap-2">
-            <h3 className="font-heading font-bold text-white text-[15px] leading-tight drop-shadow-sm line-clamp-2">
-              {title}
-            </h3>
+            <div>
+              <h3 className="font-heading font-bold text-white text-[15px] leading-tight drop-shadow-sm line-clamp-2">
+                {title}
+              </h3>
+              {gym.branchSlug && gym.branchName && gym.branchName !== gym.name && (
+                <p className="text-[11px] text-white/80 mt-0.5 drop-shadow-sm truncate">
+                  {gym.name}
+                </p>
+              )}
+            </div>
             <div className="shrink-0 font-mono-nums font-bold text-[13px] text-white bg-[#FF6A3D] px-2.5 py-1 rounded-lg shadow whitespace-nowrap">
               {formatPriceShort(gym.priceMin, gym.priceMax)}
             </div>

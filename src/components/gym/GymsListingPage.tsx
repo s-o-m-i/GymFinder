@@ -85,8 +85,10 @@ export async function GymsListingPage({
     itemListElement: gyms.map((gym, i) => ({
       "@type":    "ListItem",
       position:   (page - 1) * 12 + i + 1,
-      url:        `${baseUrl}/gyms/${gym.slug}`,
-      name:       gym.name,
+      url:        gym.branchSlug
+        ? `${baseUrl}/gyms/${gym.slug}/${gym.branchSlug}`
+        : `${baseUrl}/gyms/${gym.slug}`,
+      name:       gym.branchName ?? gym.name,
     })),
   };
 

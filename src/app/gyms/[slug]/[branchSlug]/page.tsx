@@ -21,10 +21,16 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     select: {
       name: true,
       coverImage: true,
-      galleryImages: { take: 1, select: { imageUrl: true } },
+      galleryImages: { where: { branchId: null }, take: 1, select: { imageUrl: true } },
       branches: {
         where: { slug: branchSlug, status: "ACTIVE" },
-        select: { name: true, area: true, city: true, address: true },
+        select: {
+          name: true,
+          area: true,
+          city: true,
+          address: true,
+          coverImage: true,
+        },
         take: 1,
       },
     },
@@ -34,8 +40,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!gym || !branch) return { title: "Branch Not Found" };
 
   const title = `${branch.name} – ${gym.name} in ${branch.area}, ${branch.city}`;
-  const description = `${branch.name} at ${branch.address}, ${branch.area}, ${branch.city}. A ${gym.name} location on FitnessAdda PK.`;
-  const coverImage = getGymCoverUrl(gym);
+  const description = `${branch.name} at ${branch.address}, ${branch.area}, ${branch.city}. A ${gym.name} branch on FitnessAdda PK.`;
+  const coverImage = branch.coverImage || getGymCoverUrl(gym);
   const base = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 
   return {

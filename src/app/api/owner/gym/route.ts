@@ -7,7 +7,7 @@ import { resolveAmenityIds, resolveDisciplineIds } from "@/lib/gym-tags";
 import { upsertPrimaryBranchFromGym } from "@/lib/gym-branches";
 
 const GYM_INCLUDE = {
-  galleryImages: true,
+  galleryImages: { where: { branchId: null } },
   disciplines: { include: { discipline: true } },
   amenities: { include: { amenity: true } },
 };

@@ -4,7 +4,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { AdminGymBranchForm } from "@/components/gym-branch/AdminGymBranchForm";
-import { branchToForm } from "@/components/gym-branch/GymBranchForm";
+import {
+  getBranchFormInitialData,
+  getGymTagCatalog,
+} from "@/lib/gym-branch-form-data";
 
 interface PageProps {
   params: Promise<{ id: string; branchId: string }>;
@@ -18,10 +21,9 @@ export default async function EditGymBranchPage({ params }: PageProps) {
   });
   if (!gym) notFound();
 
-  const branch = await prisma.gymBranch.findFirst({
-    where: { id: branchId, gymId: gym.id },
-  });
-  if (!branch) notFound();
+  const catalog = await getGymTagCatalog();
+  const initialData = await getBranchFormInitialData(gym.id, branchId, catalog);
+  if (!initialData) notFound();
 
   return (
     <div className="p-8 max-w-3xl mx-auto">
@@ -35,15 +37,17 @@ export default async function EditGymBranchPage({ params }: PageProps) {
         <h1 className="font-heading font-bold text-2xl text-[var(--text)] mt-3">
           Edit Branch
         </h1>
-        <p className="text-[var(--text-muted)] text-sm mt-1">{branch.name}</p>
+        <p className="text-[var(--text-muted)] text-sm mt-1">{initialData.name}</p>
       </div>
 
       <AdminGymBranchForm
         gymId={gym.id}
         gymName={gym.name}
         mode="edit"
-        branchId={branch.id}
-        initialData={branchToForm(branch)}
+        branchId={branchId}
+        initialData={initialData}
+        disciplines={catalog.disciplines}
+        amenities={catalog.amenities}
       />
     </div>
   );

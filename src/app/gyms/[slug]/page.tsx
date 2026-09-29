@@ -43,7 +43,7 @@ export async function generateMetadata({ params, searchParams }: PageProps): Pro
       priceMin: true,
       priceMax: true,
       coverImage: true,
-      galleryImages: { take: 1, select: { imageUrl: true } },
+      galleryImages: { where: { branchId: null }, take: 1, select: { imageUrl: true } },
     },
   });
 

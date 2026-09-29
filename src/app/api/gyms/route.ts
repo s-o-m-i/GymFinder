@@ -1,74 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
-import { buildGymRatingWhere } from "@/lib/constants";
 import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/utils";
-import { syncGymImages } from "@/lib/gym-images";
+import { GYM_LEVEL_IMAGE_WHERE, syncGymImages } from "@/lib/gym-images";
 import { resolveAmenityIds, resolveDisciplineIds } from "@/lib/gym-tags";
 import { upsertPrimaryBranchFromGym } from "@/lib/gym-branches";
-import {
-  ACTIVE_BRANCH_COUNT_INCLUDE,
-  gymLocationMatchWhere,
-  gymTextSearchWhere,
-} from "@/lib/gym-location-where";
-import type { GymFilters } from "@/types";
-import type { Prisma } from "@prisma/client";
-
-const GYM_INCLUDE = {
-  galleryImages: { select: { imageUrl: true, alt: true }, take: 1 },
-  disciplines: {
-    include: { discipline: { select: { name: true } } },
-  },
-  ...ACTIVE_BRANCH_COUNT_INCLUDE,
-} satisfies Prisma.GymInclude;
+import { getGymsListing } from "@/lib/getGymsListing";
 
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = req.nextUrl;
+    const params: Record<string, string> = {};
+    searchParams.forEach((value, key) => {
+      params[key] = value;
+    });
 
-    const filters: GymFilters = {
-      search: searchParams.get("search") ?? undefined,
-      city: searchParams.get("city") ?? undefined,
-      area: searchParams.get("area") ?? undefined,
-      type: searchParams.get("type") ?? undefined,
-      priceMin: searchParams.get("priceMin") ? Number(searchParams.get("priceMin")) : undefined,
-      priceMax: searchParams.get("priceMax") ? Number(searchParams.get("priceMax")) : undefined,
-      ladiesStatus: searchParams.get("ladiesStatus") ?? undefined,
-      discipline: searchParams.get("discipline") ?? undefined,
-      amenity: searchParams.get("amenity") ?? undefined,
-      rating: searchParams.get("rating") ?? undefined,
-      sort: (searchParams.get("sort") as GymFilters["sort"]) ?? "featured",
-      page: searchParams.get("page") ? Number(searchParams.get("page")) : 1,
-      limit: searchParams.get("limit") ? Number(searchParams.get("limit")) : 12,
-    };
-
-    const where = buildWhereClause(filters);
-    const orderBy = buildOrderBy(filters.sort);
-    const page = filters.page ?? 1;
-    const limit = Math.min(filters.limit ?? 12, 50);
-    const skip = (page - 1) * limit;
-
-    const [rows, total] = await Promise.all([
-      prisma.gym.findMany({
-        where,
-        include: GYM_INCLUDE,
-        orderBy,
-        skip,
-        take: limit,
-      }),
-      prisma.gym.count({ where }),
-    ]);
-
-    const gyms = rows.map(({ _count, ...gym }) => ({
-      ...gym,
-      activeBranchCount: _count.branches,
-    }));
-
+    const result = await getGymsListing(params);
     return NextResponse.json({
-      gyms,
-      total,
-      page,
-      limit,
-      totalPages: Math.ceil(total / limit),
+      gyms: result.gyms,
+      total: result.total,
+      page: result.page,
+      limit: result.filters.limit ?? 12,
+      totalPages: result.totalPages,
     });
   } catch (error) {
     console.error("GET /api/gyms error:", error);
@@ -139,7 +91,7 @@ export async function POST(req: NextRequest) {
     const full = await prisma.gym.findUnique({
       where: { id: gym.id },
       include: {
-        galleryImages: true,
+        galleryImages: { where: GYM_LEVEL_IMAGE_WHERE },
         disciplines: { include: { discipline: true } },
         amenities: { include: { amenity: true } },
       },
@@ -149,80 +101,5 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error("POST /api/gyms error:", error);
     return NextResponse.json({ error: "Failed to create gym" }, { status: 500 });
-  }
-}
-
-function buildWhereClause(filters: GymFilters): Prisma.GymWhereInput {
-  const where: Prisma.GymWhereInput = { listingStatus: "approved" };
-  const and: Prisma.GymWhereInput[] = [];
-
-  if (filters.search) {
-    and.push(gymTextSearchWhere(filters.search));
-  }
-
-  const locationWhere = gymLocationMatchWhere({
-    city: filters.city,
-    area: filters.area,
-  });
-  if (locationWhere) and.push(locationWhere);
-
-  if (filters.type) {
-    where.type = filters.type as Prisma.EnumGymTypeFilter["equals"];
-  }
-
-  if (filters.priceMin !== undefined || filters.priceMax !== undefined) {
-    and.push(
-      ...(filters.priceMin !== undefined ? [{ priceMin: { gte: filters.priceMin } }] : []),
-      ...(filters.priceMax !== undefined ? [{ priceMax: { lte: filters.priceMax } }] : [])
-    );
-  }
-
-  if (filters.ladiesStatus) {
-    where.ladiesStatus = filters.ladiesStatus as Prisma.EnumLadiesStatusFilter["equals"];
-  }
-
-  if (filters.discipline) {
-    where.disciplines = {
-      some: {
-        discipline: {
-          name: { equals: filters.discipline, mode: "insensitive" },
-        },
-      },
-    };
-  }
-
-  if (filters.amenity) {
-    where.amenities = {
-      some: {
-        amenity: {
-          name: { equals: filters.amenity, mode: "insensitive" },
-        },
-      },
-    };
-  }
-
-  if (filters.rating) {
-    const ratingWhere = buildGymRatingWhere(filters.rating);
-    if (ratingWhere) Object.assign(where, ratingWhere);
-  }
-
-  if (and.length > 0) {
-    where.AND = [...(Array.isArray(where.AND) ? where.AND : []), ...and];
-  }
-
-  return where;
-}
-
-function buildOrderBy(sort?: string): Prisma.GymOrderByWithRelationInput | Prisma.GymOrderByWithRelationInput[] {
-  switch (sort) {
-    case "price_asc":
-      return [{ priceMin: "asc" }, { featured: "desc" }];
-    case "price_desc":
-      return [{ priceMax: "desc" }, { featured: "desc" }];
-    case "rating":
-      return [{ rating: { sort: "desc", nulls: "last" } }, { featured: "desc" }];
-    case "featured":
-    default:
-      return [{ featured: "desc" }, { createdAt: "desc" }];
   }
 }

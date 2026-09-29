@@ -15,6 +15,8 @@ interface AdminGymBranchFormProps {
   mode: "create" | "edit";
   branchId?: string;
   initialData?: GymBranchFormState;
+  disciplines: { id: string; name: string }[];
+  amenities: { id: string; name: string }[];
 }
 
 export function AdminGymBranchForm({
@@ -23,6 +25,8 @@ export function AdminGymBranchForm({
   mode,
   branchId,
   initialData,
+  disciplines,
+  amenities,
 }: AdminGymBranchFormProps) {
   const cancelHref = `/admin/edit-gym/${gymId}`;
   return (
@@ -32,6 +36,9 @@ export function AdminGymBranchForm({
       gymName={gymName}
       cancelHref={cancelHref}
       successHref={cancelHref}
+      imageAuthMode="admin-secret"
+      disciplines={disciplines}
+      amenities={amenities}
       onSubmit={(input) =>
         mode === "edit" && branchId
           ? updateAdminGymBranch(gymId, branchId, input)

@@ -213,6 +213,7 @@ model GymBranch {
   gymId          String
   name           String
   slug           String
+  description    String?         @db.Text
   address        String
   area           String
   city           String
@@ -223,12 +224,29 @@ model GymBranch {
   email          String?
   openingHours   String?
   ladiesHours    String?
+  priceMin       Int?
+  priceMax       Int?
+  ladiesStatus   LadiesStatus?
+  sizeCategory   SizeCategory?
+  establishedYear Int?
+  memberCount    Int?
+  coachInfo      String?         @db.Text
+  equipment      String?         @db.Text
+  transformations String?        @db.Text
+  coverImage     String?
+  coverImagePublicId String?
   status         GymBranchStatus @default(ACTIVE)
   isPrimary      Boolean         @default(false)
+  useCommonAmenities   Boolean   @default(true)
+  useCommonDisciplines Boolean   @default(true)
+  useCommonHours       Boolean   @default(true)
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
 
-  gym Gym @relation(fields: [gymId], references: [id], onDelete: Cascade)
+  gym            Gym                   @relation(fields: [gymId], references: [id], onDelete: Cascade)
+  galleryImages  GymImage[]
+  disciplines    GymBranchDiscipline[]
+  amenities      GymBranchAmenity[]
 
   @@unique([gymId, slug])
   @@index([gymId])
@@ -240,9 +258,10 @@ model GymBranch {
 }
 
 model Discipline {
-  id   String          @id @default(cuid())
-  name String          @unique
-  gyms GymDiscipline[]
+  id       String                  @id @default(cuid())
+  name     String                  @unique
+  gyms     GymDiscipline[]
+  branches GymBranchDiscipline[]
 }
 
 model GymDiscipline {
@@ -255,9 +274,10 @@ model GymDiscipline {
 }
 
 model Amenity {
-  id   String       @id @default(cuid())
-  name String       @unique
-  gyms GymAmenity[]
+  id       String             @id @default(cuid())
+  name     String             @unique
+  gyms     GymAmenity[]
+  branches GymBranchAmenity[]
 }
 
 model GymAmenity {
@@ -269,15 +289,36 @@ model GymAmenity {
   @@id([gymId, amenityId])
 }
 
+model GymBranchDiscipline {
+  gymBranchId  String
+  disciplineId String
+  gymBranch    GymBranch  @relation(fields: [gymBranchId], references: [id], onDelete: Cascade)
+  discipline   Discipline @relation(fields: [disciplineId], references: [id], onDelete: Cascade)
+
+  @@id([gymBranchId, disciplineId])
+}
+
+model GymBranchAmenity {
+  gymBranchId String
+  amenityId   String
+  gymBranch   GymBranch @relation(fields: [gymBranchId], references: [id], onDelete: Cascade)
+  amenity     Amenity   @relation(fields: [amenityId], references: [id], onDelete: Cascade)
+
+  @@id([gymBranchId, amenityId])
+}
+
 model GymImage {
-  id       String  @id @default(cuid())
+  id       String     @id @default(cuid())
   gymId    String
-  imageUrl String  @map("url")
+  branchId String?
+  imageUrl String     @map("url")
   publicId String?
   alt      String?
-  gym      Gym     @relation(fields: [gymId], references: [id], onDelete: Cascade)
+  gym      Gym        @relation(fields: [gymId], references: [id], onDelete: Cascade)
+  branch   GymBranch? @relation(fields: [branchId], references: [id], onDelete: Cascade)
 
   @@index([gymId])
+  @@index([branchId])
 }
 
 model Review {

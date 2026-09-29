@@ -27,11 +27,12 @@ export default async function OwnerBranchesPage() {
         <div className="flex items-center gap-2 mb-2">
           <MapPin className="w-6 h-6 text-[#FF6A3D]" />
           <h1 className="font-heading font-bold text-2xl text-[var(--text)]">
-            Locations
+            Branches
           </h1>
         </div>
         <p className="text-[var(--text-muted)] text-sm">
-          Manage physical branches for your gym listing.
+          Each branch is its own listing with its own photos and details. Shared
+          hours, amenities, and memberships live in Common Settings.
         </p>
       </div>
 

@@ -30,6 +30,17 @@ function optionalCoord(min: number, max: number, label: string) {
     );
 }
 
+function optionalNullableInt(min?: number, max?: number) {
+  let schema = z.number().int();
+  if (min !== undefined) schema = schema.min(min);
+  if (max !== undefined) schema = schema.max(max);
+  return z.preprocess((value) => {
+    if (value === null || value === undefined || value === "") return null;
+    const n = typeof value === "number" ? value : Number(value);
+    return Number.isFinite(n) ? Math.round(n) : null;
+  }, schema.nullable());
+}
+
 export const gymBranchFormSchema = z.object({
   name: z
     .string()
@@ -91,6 +102,67 @@ export const gymBranchFormSchema = z.object({
     .pipe(z.string().max(200).nullable()),
   status: z.enum(GYM_BRANCH_STATUSES).default("ACTIVE"),
   isPrimary: z.boolean().optional().default(false),
+  description: z
+    .string()
+    .optional()
+    .nullable()
+    .transform(emptyToNull)
+    .pipe(z.string().max(5000).nullable()),
+  priceMin: optionalNullableInt(0),
+  priceMax: optionalNullableInt(0),
+  ladiesStatus: z.preprocess(
+    (value) => (value === "" || value === undefined ? null : value),
+    z.enum(["mixed", "ladies_only", "ladies_timings", "men_only"]).nullable()
+  ),
+  sizeCategory: z.preprocess(
+    (value) => (value === "" || value === undefined ? null : value),
+    z.enum(["small", "medium", "large"]).nullable()
+  ),
+  equipment: z
+    .string()
+    .optional()
+    .nullable()
+    .transform(emptyToNull)
+    .pipe(z.string().max(5000).nullable()),
+  transformations: z
+    .string()
+    .optional()
+    .nullable()
+    .transform(emptyToNull)
+    .pipe(z.string().max(5000).nullable()),
+  establishedYear: optionalNullableInt(1950, new Date().getFullYear()),
+  memberCount: optionalNullableInt(0),
+  coachInfo: z
+    .string()
+    .optional()
+    .nullable()
+    .transform(emptyToNull)
+    .pipe(z.string().max(5000).nullable()),
+  useCommonAmenities: z.boolean().optional().default(true),
+  useCommonDisciplines: z.boolean().optional().default(true),
+  useCommonHours: z.boolean().optional().default(true),
+  disciplines: z.array(z.string()).optional().default([]),
+  customDisciplines: z.array(z.string()).optional().default([]),
+  amenities: z.array(z.string()).optional().default([]),
+  customAmenities: z.array(z.string()).optional().default([]),
+  coverImage: z
+    .object({
+      imageUrl: z.string().min(1),
+      publicId: z.string().optional().nullable(),
+    })
+    .nullable()
+    .optional(),
+  galleryImages: z
+    .array(
+      z.object({
+        id: z.string().optional(),
+        imageUrl: z.string().min(1),
+        publicId: z.string().optional().nullable(),
+        alt: z.string().optional().nullable(),
+      })
+    )
+    .optional()
+    .default([]),
 });
 
 export type GymBranchFormInput = z.input<typeof gymBranchFormSchema>;
