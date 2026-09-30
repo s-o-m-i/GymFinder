@@ -68,6 +68,7 @@ export async function POST(req: NextRequest) {
         id: true,
         name: true,
         slug: true,
+        listingSlug: true,
         area: true,
         city: true,
         latitude: true,

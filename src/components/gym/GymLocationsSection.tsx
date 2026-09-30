@@ -5,6 +5,7 @@ import { getGymBranchPath } from "@/lib/gym-branch-rules";
 export type PublicGymBranch = {
   name: string;
   slug: string;
+  listingSlug?: string | null;
   address: string;
   area: string;
   city: string;
@@ -67,7 +68,11 @@ export function GymLocationsSection({
               )}
             </div>
             <Link
-              href={getGymBranchPath(gymSlug, branch.slug)}
+              href={
+                branch.listingSlug
+                  ? getGymBranchPath(branch.listingSlug)
+                  : `/gyms/${gymSlug}/${branch.slug}`
+              }
               className="shrink-0 inline-flex items-center justify-center px-4 py-2.5 text-sm font-semibold text-white bg-[#0B2545] rounded-xl hover:bg-[#071832] transition-colors"
             >
               {currentBranchSlug === branch.slug ? "This Branch" : "View Branch"}

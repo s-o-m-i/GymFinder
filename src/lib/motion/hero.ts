@@ -36,47 +36,56 @@ export async function initHeroMotion(gsap: Gsap, scope: Document | HTMLElement, 
   tl.to(grid, { opacity: 0.3, duration: 1.2, ease: MOTION.ease.inOut }, 0.4);
   tl.to(bgGlows, { opacity: 1, scale: 1, duration: 1.1, stagger: 0.15, ease: MOTION.ease.inOut }, 0.5);
 
-  // Headline — SplitType line reveal
+  // Headline — SplitType line reveal (desktop only; overflow:hidden clips wrapping text on phones)
+  const isNarrow =
+    typeof window !== "undefined" && window.matchMedia("(max-width: 767px)").matches;
+
   if (headline) {
-    const SplitType = await loadSplitType();
-    const lines = headline.querySelectorAll<HTMLElement>("[data-hero-line]");
     gsap.set(headline, { opacity: 1 });
 
-    lines.forEach((line, lineIndex) => {
-      const split = new SplitType(line, { types: "lines,words" });
-      const accents = line.querySelectorAll<HTMLElement>("[data-hero-accent]");
+    if (isNarrow) {
+      gsap.set(headline, { opacity: 0, y: 16 });
+      tl.to(headline, { opacity: 1, y: 0, duration: MOTION.duration.base }, 0.15);
+    } else {
+      const SplitType = await loadSplitType();
+      const lines = headline.querySelectorAll<HTMLElement>("[data-hero-line]");
 
-      if (split.lines) {
-        gsap.set(split.lines, { overflow: "hidden" });
-        gsap.set(split.words, { yPercent: 110, opacity: 0 });
-        tl.to(
-          split.words,
-          {
-            yPercent: 0,
-            opacity: 1,
-            duration: MOTION.duration.hero,
-            stagger: 0.04,
-            ease: MOTION.ease.expo,
-          },
-          0.15 + lineIndex * 0.12
-        );
-      }
+      lines.forEach((line, lineIndex) => {
+        const split = new SplitType(line, { types: "lines,words" });
+        const accents = line.querySelectorAll<HTMLElement>("[data-hero-accent]");
 
-      if (accents.length) {
-        gsap.set(accents, { scale: 0.92, opacity: 0, display: "inline-block" });
-        tl.to(
-          accents,
-          {
-            scale: 1,
-            opacity: 1,
-            duration: MOTION.duration.base,
-            stagger: 0.06,
-            ease: MOTION.ease.out,
-          },
-          0.35 + lineIndex * 0.12
-        );
-      }
-    });
+        if (split.lines) {
+          gsap.set(split.lines, { overflow: "hidden" });
+          gsap.set(split.words, { yPercent: 110, opacity: 0 });
+          tl.to(
+            split.words,
+            {
+              yPercent: 0,
+              opacity: 1,
+              duration: MOTION.duration.hero,
+              stagger: 0.04,
+              ease: MOTION.ease.expo,
+            },
+            0.15 + lineIndex * 0.12
+          );
+        }
+
+        if (accents.length) {
+          gsap.set(accents, { scale: 0.92, opacity: 0, display: "inline-block" });
+          tl.to(
+            accents,
+            {
+              scale: 1,
+              opacity: 1,
+              duration: MOTION.duration.base,
+              stagger: 0.06,
+              ease: MOTION.ease.out,
+            },
+            0.35 + lineIndex * 0.12
+          );
+        }
+      });
+    }
   }
 
   if (sub) {
@@ -85,12 +94,17 @@ export async function initHeroMotion(gsap: Gsap, scope: Document | HTMLElement, 
   }
 
   if (search) {
-    gsap.set(search, { opacity: 0, scale: 0.95, transformOrigin: "center top" });
-    tl.to(
-      search,
-      { opacity: 1, scale: 1, duration: MOTION.duration.slow, ease: MOTION.ease.expo },
-      0.65
-    );
+    if (isNarrow) {
+      gsap.set(search, { opacity: 0, y: 12 });
+      tl.to(search, { opacity: 1, y: 0, duration: MOTION.duration.base }, 0.65);
+    } else {
+      gsap.set(search, { opacity: 0, scale: 0.95, transformOrigin: "center top" });
+      tl.to(
+        search,
+        { opacity: 1, scale: 1, duration: MOTION.duration.slow, ease: MOTION.ease.expo },
+        0.65
+      );
+    }
   }
 
   if (chips.length) {
@@ -104,8 +118,12 @@ export async function initHeroMotion(gsap: Gsap, scope: Document | HTMLElement, 
       const raw = Number(stat.dataset.statValue ?? 0);
       const suffix = stat.dataset.statSuffix ?? "";
 
-      gsap.set(stat, { opacity: 0, scale: 0.9 });
-      tl.to(stat, { opacity: 1, scale: 1, duration: MOTION.duration.base, ease: MOTION.ease.out }, 1);
+      gsap.set(stat, { opacity: 0, scale: isNarrow ? 1 : 0.9, y: isNarrow ? 10 : 0 });
+      tl.to(
+        stat,
+        { opacity: 1, scale: 1, y: 0, duration: MOTION.duration.base, ease: MOTION.ease.out },
+        1
+      );
 
       if (valueEl && raw > 0) {
         const obj = { v: 0 };

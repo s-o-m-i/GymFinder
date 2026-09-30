@@ -10,6 +10,9 @@ import {
   inheritValue,
   inheritList,
   publicBranchDisplayName,
+  buildBranchListingSlug,
+  buildUniqueListingSlug,
+  getGymBranchPath,
   gymLocationUpdateFromBranch,
   gymsNeedingPrimaryBranchBackfill,
   isPubliclyVisibleBranch,
@@ -29,6 +32,25 @@ describe("gym branch slugs", () => {
     assert.equal(buildUniqueBranchSlug("EME", ["eme", "eme-2"]), "eme-3");
     assert.equal(buildUniqueBranchSlug("Main Branch", []), "main-branch");
     assert.equal(buildUniqueBranchSlug("", ["main"]), "main-2");
+  });
+
+  it("builds an independent listing slug from the branch address", () => {
+    assert.equal(
+      buildBranchListingSlug({
+        name: "BodyTech Rahbar",
+        area: "DHA Phase XI Rahbar",
+        city: "Lahore",
+      }),
+      "bodytech-rahbar-dha-phase-xi-rahbar-lahore"
+    );
+    assert.equal(
+      getGymBranchPath("bodytech-rahbar-dha-phase-xi-rahbar-lahore"),
+      "/gyms/bodytech-rahbar-dha-phase-xi-rahbar-lahore/main"
+    );
+    assert.equal(
+      buildUniqueListingSlug("lahore", ["other"]),
+      "lahore-branch"
+    );
   });
 });
 

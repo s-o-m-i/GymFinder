@@ -8,6 +8,7 @@ import { getGymCoverUrl, optimizedImageUrl } from "@/lib/images";
 import { formatPriceShort, gymTypeLabel } from "@/lib/utils";
 import { formatDistance } from "@/lib/getDistance";
 import { isGymActivelyFeatured } from "@/lib/featured-gym";
+import { getGymBranchPath } from "@/lib/gym-branch-rules";
 import type { GymCardData } from "@/types";
 
 interface GymCardProps {
@@ -19,7 +20,9 @@ export function GymCard({ gym, distanceKm }: GymCardProps) {
   const coverUrl = getGymCoverUrl(gym);
   const coverImage = coverUrl ? optimizedImageUrl(coverUrl, { width: 600, quality: 80 }) : undefined;
   const disciplineNames = gym.disciplines.map((d) => d.discipline.name);
-  const href = gym.branchSlug
+  const href = gym.listingSlug
+    ? getGymBranchPath(gym.listingSlug)
+    : gym.branchSlug
     ? `/gyms/${gym.slug}/${gym.branchSlug}`
     : `/gyms/${gym.slug}`;
   const title = gym.branchName ?? gym.name;

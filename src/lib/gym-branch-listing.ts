@@ -69,6 +69,7 @@ export type BranchListingRow = {
   id: string;
   name: string;
   slug: string;
+  listingSlug?: string | null;
   area: string;
   city: string;
   openingHours: string | null;
@@ -135,5 +136,6 @@ export function toGymCardDataFromBranch(branch: BranchListingRow): GymCardData {
     ),
     branchName: displayName,
     branchSlug: branch.slug,
+    listingSlug: branch.listingSlug ?? undefined,
   };
 }

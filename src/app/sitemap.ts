@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { prisma } from "@/lib/prisma";
 import { ALL_LISTING_SLUGS } from "@/lib/gyms-routes";
+import { getGymBranchPath } from "@/lib/gym-branch-rules";
 import { TRAINER_CITY_SLUG_MAP } from "@/lib/trainers-routes";
 import { EVENT_CITY_SLUGS } from "@/lib/events-routes";
 import { getBlogBasePath, getBlogCategoriesPath, getBlogCategoryPath, getBlogPostPath } from "@/lib/blogs-routes";
@@ -105,7 +106,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       updatedAt: true,
       branches: {
         where: { status: "ACTIVE" },
-        select: { slug: true, updatedAt: true },
+        select: { listingSlug: true, updatedAt: true },
       },
     },
     orderBy: { updatedAt: "desc" },
@@ -159,12 +160,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "weekly" as const,
       priority: 0.8,
     };
-    const branchEntries = gym.branches.map((branch) => ({
-      url: `${base}/gyms/${gym.slug}/${branch.slug}`,
-      lastModified: branch.updatedAt,
-      changeFrequency: "weekly" as const,
-      priority: 0.7,
-    }));
+    const branchEntries = gym.branches
+      .filter((branch) => branch.listingSlug)
+      .map((branch) => ({
+        url: `${base}${getGymBranchPath(branch.listingSlug!)}`,
+        lastModified: branch.updatedAt,
+        changeFrequency: "weekly" as const,
+        priority: 0.7,
+      }));
     return [gymEntry, ...branchEntries];
   });
 
