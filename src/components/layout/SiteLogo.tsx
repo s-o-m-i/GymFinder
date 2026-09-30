@@ -13,11 +13,11 @@ const LOGO_HEIGHT: Record<SiteLogoSize, string> = {
 };
 
 const LOGO_MAX_WIDTH: Record<SiteLogoSize, string> = {
-  xs: "max-w-[160px]",
-  sm: "max-w-[200px]",
-  md: "max-w-[240px] sm:max-w-[280px]",
-  lg: "max-w-[260px] sm:max-w-[300px]",
-  xl: "max-w-[260px] sm:max-w-[300px] md:max-w-[340px] lg:max-w-[580px]",
+  xs: "max-w-[8.5rem]",
+  sm: "max-w-[10rem]",
+  md: "max-w-[10.5rem] sm:max-w-[15rem]",
+  lg: "max-w-[9.75rem] sm:max-w-[15rem] lg:max-w-[18.75rem]",
+  xl: "max-w-[10.5rem] sm:max-w-[16rem] md:max-w-[20rem] lg:max-w-[28rem]",
 };
 
 /** Padding when logo sits on a light header — keeps white logo text readable. */
@@ -60,7 +60,7 @@ export function SiteLogo({
       decoding="async"
       fetchPriority={priority ? "high" : "auto"}
       className={cn(
-        "w-auto object-contain object-left",
+        "h-auto max-h-full w-auto max-w-full object-contain object-left",
         LOGO_MAX_WIDTH[size],
         LOGO_HEIGHT[size],
         className
@@ -71,7 +71,7 @@ export function SiteLogo({
   const content = darkBackground ? (
     <span
       className={cn(
-        "inline-flex shrink-0 items-center rounded-xl bg-[#0B2545]",
+        "inline-flex min-w-0 max-w-full items-center rounded-xl bg-[#0B2545]",
         LOGO_DARK_BG_PADDING[size]
       )}
     >
@@ -85,7 +85,7 @@ export function SiteLogo({
   if (!shouldLink) return content;
 
   return (
-    <Link href={href ?? "/"} onClick={onClick} className="inline-flex shrink-0 items-center">
+    <Link href={href ?? "/"} onClick={onClick} className="inline-flex min-w-0 max-w-full items-center">
       {content}
     </Link>
   );
