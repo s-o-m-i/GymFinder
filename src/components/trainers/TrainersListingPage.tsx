@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { Breadcrumbs } from "@/components/layout/Breadcrumbs";
 import { TrainerFilters } from "@/components/trainers/TrainerFilters";
 import { TrainersResultsSection } from "@/components/trainers/TrainersResultsSection";
 import { getTrainersListing } from "@/services/trainer/trainer.service";
@@ -51,21 +52,14 @@ export async function TrainersListingPage({ searchParams, city }: TrainersListin
       <main className="min-h-screen bg-[var(--bg)]">
         <div className="bg-[var(--card)] border-b border-[var(--border)]">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs text-[var(--text-muted)] mb-3">
-              <Link href="/" className="hover:text-[var(--text)] transition-colors">
-                Home
-              </Link>
-              <span>/</span>
-              <Link href="/trainers" className="hover:text-[var(--text)] transition-colors">
-                Trainers
-              </Link>
-              {city && (
-                <>
-                  <span>/</span>
-                  <span className="text-[var(--text)]">{city}</span>
-                </>
-              )}
-            </nav>
+            <Breadcrumbs
+              className="mb-3"
+              items={[
+                { label: "Home", href: "/" },
+                { label: "Trainers", href: "/trainers" },
+                ...(city ? [{ label: city }] : []),
+              ]}
+            />
             <h1 className="font-heading font-bold text-2xl sm:text-3xl text-[var(--text)]">{h1}</h1>
             <p className="text-[var(--text-muted)] text-sm mt-2 max-w-2xl">
               {seoIntro?.description ??

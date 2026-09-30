@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { Breadcrumbs } from "@/components/layout/Breadcrumbs";
 import { TaleOfTheTape } from "@/components/gym/TaleOfTheTape";
 import { WhatsAppButton } from "@/components/gym/WhatsAppButton";
 import { CallGymButton } from "@/components/gym/CallGymButton";
@@ -21,7 +22,6 @@ import { getGymEvents } from "@/services/events/event.service";
 import { prisma } from "@/lib/prisma";
 import { gymTypeLabel, formatPrice } from "@/lib/utils";
 import { isGymActivelyFeatured } from "@/lib/featured-gym";
-import { SITE_NAME } from "@/lib/constants";
 import { getGymGalleryImages } from "@/lib/images";
 import { GYM_LEVEL_IMAGE_WHERE } from "@/lib/gym-images";
 import {
@@ -35,7 +35,6 @@ import {
   MapPin,
   ExternalLink,
   Clock,
-  ChevronRight,
   CheckCircle2,
   Star,
 } from "lucide-react";
@@ -233,24 +232,14 @@ export async function GymBranchProfilePage({
       <main className="min-h-screen bg-[var(--bg)] pb-24 lg:pb-0">
         <div className="bg-[var(--card)] border-b border-[var(--border)]">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-            <nav className="flex items-center gap-1 text-xs text-[var(--text-muted)]">
-              <Link href="/" className="hover:text-[var(--text)] transition-colors">
-                {SITE_NAME}
-              </Link>
-              <ChevronRight className="w-3 h-3" />
-              <Link href="/gyms" className="hover:text-[var(--text)] transition-colors">
-                Gyms
-              </Link>
-              <ChevronRight className="w-3 h-3" />
-              <Link
-                href={`/gyms/${gym.slug}`}
-                className="hover:text-[var(--text)] transition-colors"
-              >
-                {gym.name}
-              </Link>
-              <ChevronRight className="w-3 h-3" />
-              <span className="text-[var(--text)] font-medium">{displayName}</span>
-            </nav>
+            <Breadcrumbs
+              items={[
+                { label: "Home", href: "/" },
+                { label: "Gyms", href: "/gyms" },
+                { label: gym.name, href: `/gyms/${gym.slug}` },
+                { label: displayName },
+              ]}
+            />
           </div>
         </div>
 

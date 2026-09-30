@@ -1,13 +1,11 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { redirect, notFound } from "next/navigation";
-import { ChevronRight } from "lucide-react";
 import { NavbarWithSuspense } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { Breadcrumbs } from "@/components/layout/Breadcrumbs";
 import { ClaimGymForm } from "@/components/gym-claim/ClaimGymForm";
 import { prisma } from "@/lib/prisma";
 import { getOwnerSession } from "@/lib/owner-auth";
-import { SITE_NAME } from "@/lib/constants";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -70,13 +68,14 @@ export default async function ClaimGymPage({ params }: PageProps) {
       <NavbarWithSuspense />
       <main className="min-h-screen bg-[var(--bg)] py-8">
         <div className="mx-auto max-w-2xl px-4 sm:px-6">
-          <nav className="mb-6 flex items-center gap-1 text-xs text-[var(--text-muted)]">
-            <Link href="/" className="hover:text-[var(--text)]">{SITE_NAME}</Link>
-            <ChevronRight className="h-3 w-3" />
-            <Link href={`/gyms/${slug}`} className="hover:text-[var(--text)]">{gym.name}</Link>
-            <ChevronRight className="h-3 w-3" />
-            <span className="text-[var(--text)]">Claim Profile</span>
-          </nav>
+          <Breadcrumbs
+            className="mb-6"
+            items={[
+              { label: "Home", href: "/" },
+              { label: gym.name, href: `/gyms/${slug}` },
+              { label: "Claim Profile" },
+            ]}
+          />
 
           <div className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 sm:p-8">
             <h1 className="font-heading text-2xl font-bold text-[var(--text)]">Claim Gym Profile</h1>

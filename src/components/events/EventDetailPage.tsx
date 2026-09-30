@@ -3,6 +3,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { Breadcrumbs } from "@/components/layout/Breadcrumbs";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { TrackEventView } from "@/components/events/TrackEventView";
 import { EventRegisterButton } from "@/components/events/EventRegisterButton";
@@ -94,13 +95,14 @@ export async function EventDetailPage({ slug }: EventDetailPageProps) {
       <main className="min-h-screen bg-[var(--bg)]">
         <div className="bg-[var(--card)] border-b border-[var(--border)]">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs text-[var(--text-muted)] mb-4">
-              <Link href="/" className="hover:text-[var(--text)]">Home</Link>
-              <span>/</span>
-              <Link href="/events" className="hover:text-[var(--text)]">Events</Link>
-              <span>/</span>
-              <span className="text-[var(--text)] line-clamp-1">{event.title}</span>
-            </nav>
+            <Breadcrumbs
+              className="mb-4"
+              items={[
+                { label: "Home", href: "/" },
+                { label: "Events", href: "/events" },
+                { label: event.title },
+              ]}
+            />
 
             <div className="flex flex-wrap gap-2 mb-4">
               <span className="inline-flex px-2.5 py-1 rounded-full text-xs font-semibold bg-[#0B2545]/10 text-[#0B2545]">

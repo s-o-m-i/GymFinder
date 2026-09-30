@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { Breadcrumbs } from "@/components/layout/Breadcrumbs";
 import { TrainerContactButtons } from "@/components/trainers/TrainerContactButtons";
 import { TrainerMobileStickyBar } from "@/components/trainers/TrainerMobileStickyBar";
 import { TrainerHeroGallery } from "@/components/trainers/TrainerHeroGallery";
@@ -26,7 +27,6 @@ import {
 } from "@/lib/trainer-availability";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { TrackTrainerProfileView } from "@/components/trainers/TrackTrainerProfileView";
-import { SITE_NAME } from "@/lib/constants";
 import { getTrainersBasePath } from "@/lib/trainers-routes";
 import {
   MapPin,
@@ -97,21 +97,14 @@ export async function TrainerProfilePage({ slug }: TrainerProfilePageProps) {
         {/* Breadcrumb */}
         <div className="bg-[var(--card)] border-b border-[var(--border)]">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-            <nav className="flex items-center gap-1 text-xs text-[var(--text-muted)]">
-              <Link href="/" className="hover:text-[var(--text)] transition-colors">
-                {SITE_NAME}
-              </Link>
-              <ChevronRight className="w-3 h-3" />
-              <Link href="/trainers" className="hover:text-[var(--text)] transition-colors">
-                Trainers
-              </Link>
-              <ChevronRight className="w-3 h-3" />
-              <Link href={cityTrainerPath} className="hover:text-[var(--text)] transition-colors">
-                {trainer.city}
-              </Link>
-              <ChevronRight className="w-3 h-3" />
-              <span className="text-[var(--text)] font-medium truncate">{trainer.fullName}</span>
-            </nav>
+            <Breadcrumbs
+              items={[
+                { label: "Home", href: "/" },
+                { label: "Trainers", href: "/trainers" },
+                { label: trainer.city, href: cityTrainerPath },
+                { label: trainer.fullName },
+              ]}
+            />
           </div>
         </div>
 
