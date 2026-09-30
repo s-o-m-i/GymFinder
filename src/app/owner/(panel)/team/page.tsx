@@ -34,15 +34,15 @@ export default async function OwnerTeamPage() {
   if (!owner) redirect("/owner/login");
 
   return (
-    <div className="p-8 max-w-3xl mx-auto w-full">
-      <div className="mb-8">
-        <div className="flex items-center gap-2 mb-2">
-          <Users className="w-6 h-6 text-[#FF6A3D]" />
-          <h1 className="font-heading font-bold text-2xl text-[var(--text)]">
+    <div className="mx-auto w-full min-w-0 max-w-3xl p-4 sm:p-6 lg:p-8">
+      <div className="mb-6 sm:mb-8">
+        <div className="mb-2 flex items-center gap-2">
+          <Users className="h-6 w-6 shrink-0 text-[#FF6A3D]" />
+          <h1 className="font-heading text-xl font-bold text-[var(--text)] sm:text-2xl">
             Team & Coaches
           </h1>
         </div>
-        <p className="text-[var(--text-muted)] text-sm">
+        <p className="text-sm text-[var(--text-muted)]">
           {businessCategoryLabel(owner.businessCategory)} · Manage coaches and staff shown on your public listing.
         </p>
       </div>

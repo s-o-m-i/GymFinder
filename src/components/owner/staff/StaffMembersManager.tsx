@@ -105,13 +105,13 @@ export function StaffMembersManager({ gymName, initialMembers }: StaffMembersMan
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-start justify-between gap-4 flex-wrap">
-        <div>
+    <div className="w-full min-w-0 space-y-5 sm:space-y-6">
+      <div className="flex w-full min-w-0 flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+        <div className="min-w-0">
           <p className="text-sm text-[var(--text-muted)]">
             Team at <span className="font-medium text-[var(--text)]">{gymName}</span>
           </p>
-          <p className="text-xs text-[var(--text-muted)] mt-1">
+          <p className="mt-1 text-xs text-[var(--text-muted)]">
             {members.length} member{members.length === 1 ? "" : "s"} · Drag order with arrows
           </p>
         </div>
@@ -120,9 +120,9 @@ export function StaffMembersManager({ gymName, initialMembers }: StaffMembersMan
           <button
             type="button"
             onClick={openCreate}
-            className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#FF6A3D] text-white text-sm font-semibold rounded-xl hover:bg-[#e85528] transition-colors"
+            className="inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-xl bg-[#FF6A3D] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#e85528] sm:w-auto"
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="h-4 w-4" />
             Add Member
           </button>
         )}
@@ -146,7 +146,7 @@ export function StaffMembersManager({ gymName, initialMembers }: StaffMembersMan
       )}
 
       {members.length === 0 && !showForm ? (
-        <div className="bg-[var(--card)] border border-dashed border-[var(--border)] rounded-2xl p-10 text-center">
+        <div className="rounded-2xl border border-dashed border-[var(--border)] bg-[var(--card)] p-6 text-center sm:p-10">
           <div className="w-14 h-14 bg-[#0B2545]/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <UserCircle className="w-7 h-7 text-[#0B2545]" />
           </div>
@@ -164,17 +164,17 @@ export function StaffMembersManager({ gymName, initialMembers }: StaffMembersMan
           </button>
         </div>
       ) : (
-        <div className="grid gap-4">
+        <div className="grid w-full min-w-0 grid-cols-1 gap-3 sm:gap-4">
           {members.map((member, index) => (
-            <div
+            <article
               key={member.id}
               className={cn(
-                "bg-white border border-[var(--border)] rounded-2xl p-4 sm:p-5 shadow-sm",
+                "flex w-full min-w-0 flex-col overflow-hidden rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm sm:p-5",
                 !member.isActive && "opacity-70"
               )}
             >
-              <div className="flex gap-4">
-                <div className="relative w-16 h-16 sm:w-20 sm:h-20 shrink-0 rounded-xl overflow-hidden bg-[var(--bg)] border border-[var(--border)]">
+              <div className="flex min-w-0 items-start gap-3">
+                <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--bg)] sm:h-20 sm:w-20">
                   {member.profileImage ? (
                     <Image
                       src={member.profileImage}
@@ -186,96 +186,97 @@ export function StaffMembersManager({ gymName, initialMembers }: StaffMembersMan
                     />
                   ) : (
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <UserCircle className="w-10 h-10 text-[var(--text-muted)]" />
+                      <UserCircle className="h-10 w-10 text-[var(--text-muted)]" />
                     </div>
                   )}
                 </div>
 
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <h3 className="font-heading font-bold text-[var(--text)]">
-                          {member.fullName}
-                        </h3>
-                        {member.isCoach && (
-                          <span className="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide bg-[#FF6A3D]/10 text-[#FF6A3D] rounded-md">
-                            Coach
-                          </span>
-                        )}
-                        <span
-                          className={cn(
-                            "px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide rounded-md",
-                            member.isActive
-                              ? "bg-green-50 text-green-700"
-                              : "bg-gray-100 text-gray-500"
-                          )}
-                        >
-                          {member.isActive ? "Active" : "Hidden"}
-                        </span>
-                      </div>
-                      <p className="text-sm text-[#0B2545] font-medium mt-0.5">
-                        {member.designation}
-                      </p>
-                      {member.yearsExperience !== null && (
-                        <p className="text-xs text-[var(--text-muted)] mt-1">
-                          {member.yearsExperience} year{member.yearsExperience === 1 ? "" : "s"} experience
-                        </p>
+                <div className="min-w-0 flex-1">
+                  <h3 className="font-heading text-base font-bold leading-snug break-words text-[var(--text)] sm:text-lg">
+                    {member.fullName}
+                  </h3>
+                  <div className="mt-1.5 flex flex-wrap gap-1.5">
+                    {member.isCoach && (
+                      <span className="rounded-md bg-[#FF6A3D]/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#FF6A3D]">
+                        Coach
+                      </span>
+                    )}
+                    <span
+                      className={cn(
+                        "rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide",
+                        member.isActive
+                          ? "bg-green-50 text-green-700"
+                          : "bg-gray-100 text-gray-500"
                       )}
-                      {member.specialization && (
-                        <p className="text-xs text-[var(--text-muted)] mt-0.5">
-                          {member.specialization}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="flex items-center gap-1 shrink-0">
-                      <div className="flex flex-col mr-1">
-                        <button
-                          type="button"
-                          disabled={index === 0 || reordering || isPending}
-                          onClick={() => moveMember(index, "up")}
-                          className="p-1 rounded text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--bg)] disabled:opacity-30"
-                          aria-label="Move up"
-                        >
-                          <ChevronUp className="w-4 h-4" />
-                        </button>
-                        <button
-                          type="button"
-                          disabled={index === members.length - 1 || reordering || isPending}
-                          onClick={() => moveMember(index, "down")}
-                          className="p-1 rounded text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--bg)] disabled:opacity-30"
-                          aria-label="Move down"
-                        >
-                          <ChevronDown className="w-4 h-4" />
-                        </button>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => openEdit(member)}
-                        className="p-2 rounded-lg text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--bg)] transition-colors"
-                        aria-label={`Edit ${member.fullName}`}
-                      >
-                        <Pencil className="w-4 h-4" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleDelete(member)}
-                        disabled={deletingId === member.id || isPending}
-                        className="p-2 rounded-lg text-red-500 hover:bg-red-50 transition-colors disabled:opacity-50"
-                        aria-label={`Delete ${member.fullName}`}
-                      >
-                        {deletingId === member.id ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : (
-                          <Trash2 className="w-4 h-4" />
-                        )}
-                      </button>
-                    </div>
+                    >
+                      {member.isActive ? "Active" : "Hidden"}
+                    </span>
                   </div>
                 </div>
               </div>
-            </div>
+
+              <div className="mt-3 min-w-0 space-y-1">
+                <p className="text-sm font-medium leading-snug break-words text-[#0B2545]">
+                  {member.designation}
+                </p>
+                {member.yearsExperience !== null && (
+                  <p className="text-xs leading-relaxed text-[var(--text-muted)]">
+                    {member.yearsExperience} year{member.yearsExperience === 1 ? "" : "s"} experience
+                  </p>
+                )}
+                {member.specialization && (
+                  <p className="text-xs leading-relaxed break-words text-[var(--text-muted)]">
+                    {member.specialization}
+                  </p>
+                )}
+              </div>
+
+              <div className="mt-4 flex items-center justify-between gap-2 border-t border-[var(--border)] pt-3">
+                <div className="flex items-center">
+                  <button
+                    type="button"
+                    disabled={index === 0 || reordering || isPending}
+                    onClick={() => moveMember(index, "up")}
+                    className="rounded-lg p-2 text-[var(--text-muted)] hover:bg-[var(--bg)] hover:text-[var(--text)] disabled:opacity-30"
+                    aria-label="Move up"
+                  >
+                    <ChevronUp className="h-4 w-4" />
+                  </button>
+                  <button
+                    type="button"
+                    disabled={index === members.length - 1 || reordering || isPending}
+                    onClick={() => moveMember(index, "down")}
+                    className="rounded-lg p-2 text-[var(--text-muted)] hover:bg-[var(--bg)] hover:text-[var(--text)] disabled:opacity-30"
+                    aria-label="Move down"
+                  >
+                    <ChevronDown className="h-4 w-4" />
+                  </button>
+                </div>
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => openEdit(member)}
+                    className="rounded-lg p-2 text-[var(--text-muted)] transition-colors hover:bg-[var(--bg)] hover:text-[var(--text)]"
+                    aria-label={`Edit ${member.fullName}`}
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(member)}
+                    disabled={deletingId === member.id || isPending}
+                    className="rounded-lg p-2 text-red-500 transition-colors hover:bg-red-50 disabled:opacity-50"
+                    aria-label={`Delete ${member.fullName}`}
+                  >
+                    {deletingId === member.id ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Trash2 className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
+              </div>
+            </article>
           ))}
         </div>
       )}
