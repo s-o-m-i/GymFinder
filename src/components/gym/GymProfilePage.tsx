@@ -230,6 +230,7 @@ export async function GymProfilePage({ slug }: GymProfilePageProps) {
                 branches={activeBranches.map((branch) => ({
                   name: publicBranchDisplayName(gym.name, branch.name),
                   slug: branch.slug,
+                  listingSlug: branch.listingSlug,
                   address: branch.address,
                   area: branch.area,
                   city: branch.city,

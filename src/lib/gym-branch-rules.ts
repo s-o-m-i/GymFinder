@@ -1,3 +1,4 @@
+import { isListingSlug } from "./gyms-routes";
 import { slugify } from "./utils";
 
 export const DEFAULT_BRANCH_NAME = "Main Branch";
@@ -222,6 +223,39 @@ export function gymBranchStatusLabel(status: GymBranchStatusValue): string {
   }
 }
 
-export function getGymBranchPath(gymSlug: string, branchSlug: string): string {
-  return `/gyms/${gymSlug}/${branchSlug}`;
+export function buildBranchListingSlug(input: {
+  name: string;
+  area: string;
+  city: string;
+}): string {
+  return slugify(`${input.name}-${input.area}-${input.city}`);
+}
+
+export function buildUniqueListingSlug(
+  desired: string,
+  takenSlugs: string[]
+): string {
+  const taken = new Set(
+    takenSlugs.map((slug) => slug.trim().toLowerCase()).filter(Boolean)
+  );
+
+  let base = slugify(desired);
+  if (!base || isReservedBranchSlug(base) || isListingSlug(base)) {
+    base = base ? `${base}-branch` : DEFAULT_BRANCH_SLUG;
+  }
+  if (isListingSlug(base)) {
+    base = `${base}-branch`;
+  }
+
+  if (!taken.has(base)) return base;
+
+  let n = 2;
+  while (taken.has(`${base}-${n}`)) {
+    n += 1;
+  }
+  return `${base}-${n}`;
+}
+
+export function getGymBranchPath(listingSlug: string): string {
+  return `/gyms/${listingSlug}/${DEFAULT_BRANCH_SLUG}`;
 }

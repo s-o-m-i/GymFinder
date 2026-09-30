@@ -36,6 +36,7 @@ export type GymCardData = Pick<
   branchId?: string;
   branchName?: string;
   branchSlug?: string;
+  listingSlug?: string;
 };
 
 export type GymCardDataWithDistance = GymCardData & {

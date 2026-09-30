@@ -3,8 +3,10 @@ import "server-only";
 import type { Gym, GymBranch, Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import {
+  buildBranchListingSlug,
   buildMainBranchFromGym,
   buildUniqueBranchSlug,
+  buildUniqueListingSlug,
   canDeleteGymBranch,
   gymLocationUpdateFromBranch,
   primaryBranchLocationFromGym,
@@ -17,6 +19,8 @@ import type { GymBranchFormValues } from "@/lib/validations/gym-branch";
 
 export const GYM_LOCATION_SELECT = {
   id: true,
+  slug: true,
+  name: true,
   address: true,
   area: true,
   city: true,
@@ -63,6 +67,72 @@ async function uniqueSlugForGym(
   );
 }
 
+async function uniqueListingSlugForBranch(
+  client: BranchWriteClient,
+  gymId: string,
+  desired: string,
+  excludeBranchId?: string
+): Promise<string> {
+  const [otherGyms, otherBranches] = await Promise.all([
+    client.gym.findMany({
+      where: { id: { not: gymId } },
+      select: { slug: true },
+    }),
+    client.gymBranch.findMany({
+      where: excludeBranchId ? { id: { not: excludeBranchId } } : {},
+      select: { listingSlug: true },
+    }),
+  ]);
+
+  return buildUniqueListingSlug(desired, [
+    ...otherGyms.map((gym) => gym.slug),
+    ...otherBranches
+      .map((branch) => branch.listingSlug)
+      .filter((slug): slug is string => Boolean(slug)),
+  ]);
+}
+
+async function listingSlugForBranchInput(
+  client: BranchWriteClient,
+  gymId: string,
+  input: { name: string; area: string; city: string; isPrimary: boolean },
+  excludeBranchId?: string
+): Promise<string> {
+  const gym = await client.gym.findUnique({
+    where: { id: gymId },
+    select: { slug: true },
+  });
+  if (!gym) throw new Error("GYM_NOT_FOUND");
+
+  const desired = input.isPrimary
+    ? gym.slug
+    : buildBranchListingSlug(input);
+
+  return uniqueListingSlugForBranch(client, gymId, desired, excludeBranchId);
+}
+
+async function reassignDemotedPrimaryListingSlug(
+  client: BranchWriteClient,
+  gymId: string,
+  excludeBranchId: string
+): Promise<void> {
+  const previous = await client.gymBranch.findFirst({
+    where: { gymId, isPrimary: true, NOT: { id: excludeBranchId } },
+  });
+  if (!previous) return;
+
+  const listingSlug = await uniqueListingSlugForBranch(
+    client,
+    gymId,
+    buildBranchListingSlug(previous),
+    previous.id
+  );
+  await client.gymBranch.update({
+    where: { id: previous.id },
+    data: { listingSlug },
+  });
+}
+
 export async function upsertPrimaryBranchFromGym(
   gymId: string,
   client: BranchWriteClient = prisma
@@ -81,10 +151,17 @@ export async function upsertPrimaryBranchFromGym(
     where: { gymId, isPrimary: true },
   });
 
+  const listingSlug = await uniqueListingSlugForBranch(
+    client,
+    gymId,
+    gym.slug,
+    existingPrimary?.id
+  );
+
   if (existingPrimary) {
     return client.gymBranch.update({
       where: { id: existingPrimary.id },
-      data: location,
+      data: { ...location, listingSlug },
     });
   }
 
@@ -96,7 +173,7 @@ export async function upsertPrimaryBranchFromGym(
   if (anyBranch) {
     return client.gymBranch.update({
       where: { id: anyBranch.id },
-      data: { ...location, isPrimary: true },
+      data: { ...location, isPrimary: true, listingSlug },
     });
   }
 
@@ -107,6 +184,7 @@ export async function upsertPrimaryBranchFromGym(
       gymId,
       ...created,
       slug,
+      listingSlug,
     },
   });
 }
@@ -154,14 +232,23 @@ export async function setPrimaryGymBranchRecord(
     throw new Error("BRANCH_NOT_FOUND");
   }
 
+  await reassignDemotedPrimaryListingSlug(client, gymId, branchId);
+
   await client.gymBranch.updateMany({
     where: { gymId, NOT: { id: branchId } },
     data: { isPrimary: false },
   });
 
+  const listingSlug = await listingSlugForBranchInput(
+    client,
+    gymId,
+    { ...branch, isPrimary: true },
+    branchId
+  );
+
   const updated = await client.gymBranch.update({
     where: { id: branchId },
-    data: { isPrimary: true },
+    data: { isPrimary: true, listingSlug },
   });
 
   await syncGymFromPrimaryBranch(gymId, updated, client);
@@ -258,11 +345,27 @@ export async function createGymBranchRecord(
     input.slug || input.name
   );
 
+  if (makePrimary) {
+    await reassignDemotedPrimaryListingSlug(client, gymId, "new");
+  }
+
+  const listingSlug = await listingSlugForBranchInput(
+    client,
+    gymId,
+    {
+      name: input.name,
+      area: input.area,
+      city: input.city,
+      isPrimary: makePrimary,
+    }
+  );
+
   const created = await client.gymBranch.create({
     data: {
       gymId,
       name: input.name,
       slug,
+      listingSlug,
       address: input.address,
       area: input.area,
       city: input.city,
@@ -313,11 +416,28 @@ export async function updateGymBranchRecord(
   );
   const makePrimary = Boolean(input.isPrimary) || existing.isPrimary;
 
+  if (makePrimary && !existing.isPrimary) {
+    await reassignDemotedPrimaryListingSlug(client, gymId, branchId);
+  }
+
+  const listingSlug = await listingSlugForBranchInput(
+    client,
+    gymId,
+    {
+      name: input.name,
+      area: input.area,
+      city: input.city,
+      isPrimary: makePrimary,
+    },
+    branchId
+  );
+
   const updated = await client.gymBranch.update({
     where: { id: branchId },
     data: {
       name: input.name,
       slug,
+      listingSlug,
       address: input.address,
       area: input.area,
       city: input.city,
@@ -396,17 +516,55 @@ export async function backfillMissingPrimaryBranches(
 
     const payload = buildMainBranchFromGym(toLocationCache(gym));
     const slug = await uniqueSlugForGym(client, gym.id, payload.slug);
+    const listingSlug = await uniqueListingSlugForBranch(client, gym.id, gym.slug);
     await client.gymBranch.create({
       data: {
         gymId: gym.id,
         ...payload,
         slug,
+        listingSlug,
       },
     });
     created += 1;
   }
 
   return { created, skipped };
+}
+
+export async function backfillMissingListingSlugs(
+  client: BranchWriteClient = prisma
+): Promise<{ updated: number; skipped: number }> {
+  const branches = await client.gymBranch.findMany({
+    include: { gym: { select: { id: true, slug: true } } },
+    orderBy: [{ isPrimary: "desc" }, { createdAt: "asc" }],
+  });
+
+  let updated = 0;
+  let skipped = 0;
+
+  for (const branch of branches) {
+    if (branch.listingSlug) {
+      skipped += 1;
+      continue;
+    }
+
+    const desired = branch.isPrimary
+      ? branch.gym.slug
+      : buildBranchListingSlug(branch);
+    const listingSlug = await uniqueListingSlugForBranch(
+      client,
+      branch.gymId,
+      desired,
+      branch.id
+    );
+    await client.gymBranch.update({
+      where: { id: branch.id },
+      data: { listingSlug },
+    });
+    updated += 1;
+  }
+
+  return { updated, skipped };
 }
 
 export const ACTIVE_BRANCH_WHERE = {

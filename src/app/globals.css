@@ -600,12 +600,28 @@ input[type="range"]::-moz-range-thumb {
   }
 }
 
+/* Hero — prevent SplitType / wide children from overflowing on phones */
+[data-hero] {
+  overflow-x: clip;
+}
+
+[data-hero-headline] {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+[data-hero-headline] .line,
+[data-hero-headline] .word {
+  max-width: 100%;
+}
+
 .complete-bar{
   /* Search Bar & Stats Cards */
 background: #161819 !important;
 border: 1px solid rgba(255, 255, 255, 0.16) !important;
 backdrop-filter: blur(12px) !important;
 border-radius: 18px !important;
+max-width: 100%;
 }
 .chip-card{
   border: 1px solid rgba(255, 255, 255, 0.16) !important;

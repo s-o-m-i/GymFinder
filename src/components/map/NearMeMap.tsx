@@ -216,7 +216,7 @@ export default function NearMeMap({ userLat, userLng, gyms }: NearMeMapProps) {
                   </span>
                 </div>
                 <a
-                  href={`/gyms/${gym.slug}`}
+                  href={gym.listingSlug ? `/gyms/${gym.listingSlug}/main` : `/gyms/${gym.slug}`}
                   style={{
                     display: "block",
                     marginTop: 8,

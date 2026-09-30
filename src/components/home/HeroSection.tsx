@@ -117,19 +117,19 @@ export function HeroSection({ stats }: HeroSectionProps) {
         aria-hidden
       />
 
-      <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-1 flex-col px-4 pb-6 pt-28 sm:px-6 sm:pt-32 lg:px-8">
-        <div className="grid flex-1 items-center gap-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-6">
-          <div className="max-w-xl lg:max-w-none">
+      <div className="relative z-10 mx-auto flex w-full min-w-0 max-w-7xl flex-1 flex-col px-4 pb-6 pt-24 sm:px-6 sm:pt-32 lg:px-8">
+        <div className="grid w-full min-w-0 flex-1 items-center gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-6">
+          <div className="w-full min-w-0 max-w-xl lg:max-w-none">
             <p
               data-hero-label
-              className="mb-4 text-[11px] font-bold uppercase tracking-[0.28em] text-[#FF6A3D] sm:text-xs"
+              className="mb-3 text-[11px] font-bold uppercase tracking-[0.22em] text-[#FF6A3D] sm:mb-4 sm:tracking-[0.28em] sm:text-xs"
             >
               Discover. Connect. Transform.
             </p>
 
             <h1
               data-hero-headline
-              className="font-heading text-left text-[2rem] font-bold leading-[1.12] tracking-tight text-white sm:text-5xl lg:text-[3.35rem]"
+              className="font-heading text-left text-[1.7rem] font-bold leading-[1.18] tracking-tight text-white [overflow-wrap:anywhere] sm:text-5xl sm:leading-[1.12] lg:text-[3.35rem]"
             >
               <span data-hero-line className="block">
                 Find Your Perfect
@@ -143,47 +143,55 @@ export function HeroSection({ stats }: HeroSectionProps) {
 
             <p
               data-hero-sub
-              className="mt-4 max-w-md text-left text-sm leading-relaxed text-white/55 sm:text-base"
+              className="mt-3 max-w-md text-left text-sm leading-relaxed text-white/55 sm:mt-4 sm:text-base"
             >
               Discover fitness gyms, personal trainers, and upcoming events across Pakistan.
             </p>
 
             <form
               onSubmit={handleSearch}
-              className={cn("relative mt-8 space-y-3", locationOpen || moreOpen ? "z-50" : "z-30")}
+              className={cn(
+                "relative mt-6 w-full min-w-0 space-y-3 sm:mt-8",
+                locationOpen || moreOpen ? "z-50" : "z-30"
+              )}
             >
-              {/* Search — independent bordered bar, not connected to pills below */}
+              {/* Search — stacked on mobile so the input and city picker never overflow */}
               <div
                 data-hero-search
                 className={cn(
-                  "flex h-14 items-center gap-3 px-4 sm:h-[3.75rem] sm:px-5",
+                  "flex w-full min-w-0 flex-col gap-3 px-3.5 py-3 sm:h-[3.75rem] sm:flex-row sm:items-center sm:gap-3 sm:px-5 sm:py-0",
                   HERO_SEARCH_SURFACE,
                   locationOpen && "relative z-50"
                 )}
               >
-                <Search
-                  data-hero-search-icon
-                  className="pointer-events-none h-4 w-4 shrink-0 text-white/35"
-                />
-                <input
-                  data-hero-search-input
-                  type="text"
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Search gyms by name, area, or city"
-                  className="min-w-0 flex-1 bg-transparent text-sm text-white placeholder:text-white/35 focus:outline-none"
-                />
+                <div className="flex min-w-0 w-full flex-1 items-center gap-2.5 sm:gap-3">
+                  <Search
+                    data-hero-search-icon
+                    className="pointer-events-none h-4 w-4 shrink-0 text-white/35"
+                  />
+                  <input
+                    data-hero-search-input
+                    type="text"
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    placeholder="Search gyms by name, area, or city"
+                    className="min-w-0 w-full flex-1 bg-transparent text-sm text-white placeholder:text-white/35 focus:outline-none"
+                  />
+                </div>
 
-                <div className="h-8 w-px shrink-0 bg-white/12" />
+                <div className="h-px w-full bg-white/12 sm:hidden" />
+                <div className="hidden h-8 w-px shrink-0 bg-white/12 sm:block" />
 
-                <div className={cn("relative shrink-0", locationOpen && "z-50")}>
+                <div className={cn("relative w-full min-w-0 sm:w-auto sm:shrink-0", locationOpen && "z-50")}>
                   <button
                     type="button"
                     onClick={() => setLocationOpen((v) => !v)}
-                    className="flex h-10 cursor-pointer items-center gap-2 rounded-lg px-2 text-sm text-white/85 transition-colors hover:bg-white/5 sm:px-3"
+                    className="flex h-10 w-full cursor-pointer items-center gap-2 rounded-lg px-1.5 text-sm text-white/85 transition-colors hover:bg-white/5 sm:w-auto sm:px-3"
                   >
                     <MapPin className="h-4 w-4 shrink-0 text-[#FF6A3D]" />
-                    <span className="max-w-28 truncate">{selectedCity || "All Pakistan"}</span>
+                    <span className="min-w-0 flex-1 truncate text-left sm:max-w-28 sm:flex-none">
+                      {selectedCity || "All Pakistan"}
+                    </span>
                     <ChevronDown
                       className={cn(
                         "h-4 w-4 shrink-0 text-white/45 transition-transform",
@@ -198,7 +206,7 @@ export function HeroSection({ stats }: HeroSectionProps) {
                         onClick={() => setLocationOpen(false)}
                         aria-hidden
                       />
-                      <div className="absolute right-0 top-full z-50 mt-2 max-h-64 w-56 overflow-y-auto rounded-xl border border-white/10 bg-[#111111]/95 py-1 shadow-xl backdrop-blur-xl">
+                      <div className="absolute left-0 right-0 top-full z-50 mt-2 max-h-64 overflow-y-auto rounded-xl border border-white/10 bg-[#111111]/95 py-1 shadow-xl backdrop-blur-xl sm:left-auto sm:right-0 sm:w-56">
                         <Link
                           href="/gyms"
                           onClick={() => {
@@ -232,7 +240,7 @@ export function HeroSection({ stats }: HeroSectionProps) {
               </div>
 
               {/* Category pills — separate row, each with its own border */}
-              <div className="flex flex-wrap gap-2">
+              <div className="flex w-full min-w-0 flex-wrap gap-2">
                 {CATEGORY_PILLS.map(({ id, label, href }) => (
                   <button
                     key={id}
@@ -243,7 +251,7 @@ export function HeroSection({ stats }: HeroSectionProps) {
                       if (href && id !== "all") router.push(href);
                     }}
                     className={cn(
-                      "inline-flex items-center rounded-full px-4 py-2 text-xs font-semibold transition-all sm:text-sm",
+                      "inline-flex items-center rounded-full px-3 py-1.5 text-xs font-semibold transition-all sm:px-4 sm:py-2 sm:text-sm",
                       activeCategory === id
                         ? " text-white shadow-[0_4px_16px_rgba(255,106,61,0.35)]"
                         : cn(HERO_CHIP_SURFACE, "text-white/80 hover:border-white/20 hover:text-white")
@@ -259,7 +267,7 @@ export function HeroSection({ stats }: HeroSectionProps) {
                     data-hero-chip
                     onClick={() => setMoreOpen((v) => !v)}
                     className={cn(
-                      "inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-semibold text-white/80 transition-all hover:border-white/20 hover:text-white sm:text-sm",
+                      "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold text-white/80 transition-all hover:border-white/20 hover:text-white sm:px-4 sm:py-2 sm:text-sm",
                       HERO_CHIP_SURFACE
                     )}
                   >
@@ -297,22 +305,22 @@ export function HeroSection({ stats }: HeroSectionProps) {
             </form>
 
             {/* Stats — same independent bordered card style as inactive pills */}
-            <div className="mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-4 sm:gap-3">
+            <div className="mt-4 grid w-full min-w-0 grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-3">
               {statItems.map((stat) => (
                 <div
                   key={stat.label}
                   data-hero-stat
                   data-stat-value={stat.value}
                   data-stat-suffix={stat.suffix}
-                  className={cn("px-3 py-4 text-center sm:px-4 sm:py-5", HERO_CHIP_SURFACE)}
+                  className={cn("min-w-0 px-2 py-3.5 text-center sm:px-4 sm:py-5", HERO_CHIP_SURFACE)}
                 >
                   <div
                     data-hero-stat-value
-                    className="font-heading text-xl font-bold text-[#FF6A3D] sm:text-2xl"
+                    className="font-heading text-lg font-bold text-[#FF6A3D] sm:text-2xl"
                   >
                     {stat.display}
                   </div>
-                  <div className="mt-1 text-xs text-white/45 sm:text-sm">{stat.label}</div>
+                  <div className="mt-1 truncate text-[11px] text-white/45 sm:text-sm">{stat.label}</div>
                 </div>
               ))}
             </div>

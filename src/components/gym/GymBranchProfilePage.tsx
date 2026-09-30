@@ -49,20 +49,24 @@ import { TransformationGallerySection } from "@/components/transformation/Transf
 import { GymLocationsSection } from "@/components/gym/GymLocationsSection";
 
 interface GymBranchProfilePageProps {
-  gymSlug: string;
-  branchSlug: string;
+  listingSlug: string;
 }
 
 export async function GymBranchProfilePage({
-  gymSlug,
-  branchSlug,
+  listingSlug,
 }: GymBranchProfilePageProps) {
-  if (isListingSlug(gymSlug) || isReservedBranchSlug(branchSlug)) {
+  if (isListingSlug(listingSlug) || isReservedBranchSlug(listingSlug)) {
     notFound();
   }
 
+  const branchRecord = await prisma.gymBranch.findFirst({
+    where: { listingSlug, status: "ACTIVE" },
+    select: { gymId: true, slug: true },
+  });
+  if (!branchRecord) notFound();
+
   const gym = await prisma.gym.findUnique({
-    where: { slug: gymSlug },
+    where: { id: branchRecord.gymId },
     include: {
       galleryImages: { where: GYM_LEVEL_IMAGE_WHERE },
       disciplines: { include: { discipline: true } },
@@ -89,7 +93,7 @@ export async function GymBranchProfilePage({
   const branch = await prisma.gymBranch.findFirst({
     where: {
       gymId: gym.id,
-      slug: branchSlug,
+      listingSlug,
       status: "ACTIVE",
     },
     include: {
@@ -315,6 +319,7 @@ export async function GymBranchProfilePage({
                 branches={siblingBranches.map((item) => ({
                   name: publicBranchDisplayName(gym.name, item.name),
                   slug: item.slug,
+                  listingSlug: item.listingSlug,
                   address: item.address,
                   area: item.area,
                   city: item.city,

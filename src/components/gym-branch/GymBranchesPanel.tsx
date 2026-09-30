@@ -22,6 +22,7 @@ export type GymBranchListItem = {
   id: string;
   name: string;
   slug: string;
+  listingSlug?: string | null;
   address: string;
   area: string;
   city: string;
@@ -158,7 +159,11 @@ export function GymBranchesPanel({
 
                   <div className="flex flex-wrap items-center gap-2">
                     <Link
-                      href={getGymBranchPath(gymSlug, branch.slug)}
+                      href={
+                        branch.listingSlug
+                          ? getGymBranchPath(branch.listingSlug)
+                          : `/gyms/${gymSlug}/${branch.slug}`
+                      }
                       target="_blank"
                       className="px-3 py-1.5 text-xs font-medium text-[var(--text-muted)] border border-[var(--border)] rounded-lg hover:bg-[var(--bg)]"
                     >

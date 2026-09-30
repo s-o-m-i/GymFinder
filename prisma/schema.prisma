@@ -213,6 +213,7 @@ model GymBranch {
   gymId          String
   name           String
   slug           String
+  listingSlug    String?         @unique
   description    String?         @db.Text
   address        String
   area           String

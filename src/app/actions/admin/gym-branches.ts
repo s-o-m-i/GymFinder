@@ -39,14 +39,14 @@ function actionError(
   return { success: false, error: message, fieldErrors };
 }
 
-function revalidateBranchPaths(gymId: string, gymSlug: string, branchSlug?: string) {
+function revalidateBranchPaths(gymId: string, gymSlug: string, listingSlug?: string | null) {
   revalidatePath("/admin");
   revalidatePath("/gyms");
   revalidatePath(`/admin/edit-gym/${gymId}`);
   revalidatePath(`/admin/edit-gym/${gymId}/branches/new`);
   revalidatePath(`/gyms/${gymSlug}`);
-  if (branchSlug) {
-    revalidatePath(getGymBranchPath(gymSlug, branchSlug));
+  if (listingSlug) {
+    revalidatePath(getGymBranchPath(listingSlug));
   }
 }
 
@@ -90,7 +90,7 @@ export async function createAdminGymBranch(
 
     const branch = await persistGymBranchFromParsed(gymId, parsed.data);
 
-    revalidateBranchPaths(gym.id, gym.slug, branch.slug);
+    revalidateBranchPaths(gym.id, gym.slug, branch.listingSlug);
     return { success: true, data: { id: branch.id, slug: branch.slug } };
   } catch (err) {
     return catchBranchError(err, "Failed to create branch.");
@@ -117,7 +117,7 @@ export async function updateAdminGymBranch(
 
     const branch = await persistGymBranchFromParsed(gymId, parsed.data, branchId);
 
-    revalidateBranchPaths(gym.id, gym.slug, branch.slug);
+    revalidateBranchPaths(gym.id, gym.slug, branch.listingSlug);
     return { success: true, data: { id: branch.id, slug: branch.slug } };
   } catch (err) {
     return catchBranchError(err, "Failed to update branch.");
@@ -141,7 +141,7 @@ export async function setAdminGymBranchStatus(
 
     const existing = await prisma.gymBranch.findFirst({
       where: { id: branchId, gymId },
-      select: { slug: true },
+      select: { slug: true, listingSlug: true },
     });
     if (!existing) return actionError("Branch not found.");
 
@@ -150,7 +150,7 @@ export async function setAdminGymBranchStatus(
       data: { status: parsed.data.status },
     });
 
-    revalidateBranchPaths(gym.id, gym.slug, existing.slug);
+    revalidateBranchPaths(gym.id, gym.slug, existing.listingSlug);
     return { success: true, data: undefined };
   } catch (err) {
     return catchBranchError(err, "Failed to update branch status.");
@@ -170,7 +170,7 @@ export async function setAdminPrimaryGymBranch(
       setPrimaryGymBranchRecord(gymId, branchId, tx)
     );
 
-    revalidateBranchPaths(gym.id, gym.slug, branch.slug);
+    revalidateBranchPaths(gym.id, gym.slug, branch.listingSlug);
     return { success: true, data: undefined };
   } catch (err) {
     return catchBranchError(err, "Failed to set primary branch.");
@@ -188,7 +188,7 @@ export async function deleteAdminGymBranch(
 
     const existing = await prisma.gymBranch.findFirst({
       where: { id: branchId, gymId },
-      select: { slug: true },
+      select: { slug: true, listingSlug: true },
     });
     if (!existing) return actionError("Branch not found.");
 
@@ -196,7 +196,7 @@ export async function deleteAdminGymBranch(
       deleteGymBranchRecord(gymId, branchId, tx)
     );
 
-    revalidateBranchPaths(gym.id, gym.slug, existing.slug);
+    revalidateBranchPaths(gym.id, gym.slug, existing.listingSlug);
     return { success: true, data: undefined };
   } catch (err) {
     return catchBranchError(err, "Failed to delete branch.");
