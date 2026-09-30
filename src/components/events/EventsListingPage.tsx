@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { Breadcrumbs } from "@/components/layout/Breadcrumbs";
 import { EventCard } from "@/components/events/EventCard";
 import { EventsTabs } from "@/components/events/EventsTabs";
 import { EventsFilters } from "@/components/events/EventsFilters";
@@ -100,17 +101,14 @@ export async function EventsListingPage({ searchParams, city }: EventsListingPag
       <main className="min-h-screen bg-[var(--bg)]">
         <div className="bg-[var(--card)] border-b border-[var(--border)]">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs text-[var(--text-muted)] mb-3">
-              <Link href="/" className="hover:text-[var(--text)]">Home</Link>
-              <span>/</span>
-              <Link href="/events" className="hover:text-[var(--text)]">Events</Link>
-              {city && (
-                <>
-                  <span>/</span>
-                  <span className="text-[var(--text)]">{city}</span>
-                </>
-              )}
-            </nav>
+            <Breadcrumbs
+              className="mb-3"
+              items={[
+                { label: "Home", href: "/" },
+                { label: "Events", href: "/events" },
+                ...(city ? [{ label: city }] : []),
+              ]}
+            />
             <div className="flex items-center gap-3 mb-2">
               <CalendarDays className="w-7 h-7 text-[#FF6A3D]" />
               <h1 className="font-heading font-bold text-2xl sm:text-3xl text-[var(--text)]">{h1}</h1>

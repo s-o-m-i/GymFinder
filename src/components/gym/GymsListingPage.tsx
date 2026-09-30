@@ -1,7 +1,7 @@
 import { Suspense } from "react";
-import Link from "next/link";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { Breadcrumbs } from "@/components/layout/Breadcrumbs";
 import { GymFilters } from "@/components/gym/GymFilters";
 import { GymsResultsSection } from "@/components/gym/GymsResultsSection";
 import { getGymsListing } from "@/lib/getGymsListing";
@@ -136,29 +136,19 @@ export async function GymsListingPage({
       <main className="min-h-screen bg-[var(--bg)] max-lg:overflow-x-hidden">
         <div className="bg-[var(--card)] border-b border-[var(--border)]">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs text-[var(--text-muted)] mb-3">
-              <Link href="/" className="hover:text-[var(--text)] transition-colors">Home</Link>
-              <span>/</span>
-              <Link href="/gyms" className="hover:text-[var(--text)] transition-colors">Gyms</Link>
-              {listingLabel && !city && (
-                <>
-                  <span>/</span>
-                  <span className="text-[var(--text)] font-medium">{listingLabel}</span>
-                </>
-              )}
-              {type && !city && !listingLabel && (
-                <>
-                  <span>/</span>
-                  <span className="text-[var(--text)] font-medium">{gymTypeLabel(type)}</span>
-                </>
-              )}
-              {city && (
-                <>
-                  <span>/</span>
-                  <span className="text-[var(--text)] font-medium">{city}</span>
-                </>
-              )}
-            </nav>
+            <Breadcrumbs
+              className="mb-3"
+              items={[
+                { label: "Home", href: "/" },
+                { label: "Gyms", href: "/gyms" },
+                ...(listingLabel && !city
+                  ? [{ label: listingLabel }]
+                  : type && !city && !listingLabel
+                    ? [{ label: gymTypeLabel(type) }]
+                    : []),
+                ...(city ? [{ label: city }] : []),
+              ]}
+            />
 
             <h1 className="font-heading font-bold text-xl sm:text-2xl text-[var(--text)] break-words">
               {type && city && !listingLabel
