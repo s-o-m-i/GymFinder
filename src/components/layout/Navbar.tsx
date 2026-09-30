@@ -125,7 +125,7 @@ export function Navbar({ variant }: { variant?: "default" | "hero" }) {
       <header
         data-hero-nav={isHero ? "" : undefined}
         className={cn(
-          "z-50",
+          "z-50 w-full min-w-0 overflow-x-clip",
           isHero
             ? cn(
                 "absolute top-0 left-0 right-0 ",
@@ -136,9 +136,9 @@ export function Navbar({ variant }: { variant?: "default" | "hero" }) {
             : "sticky top-0 border-b border-[var(--border)] bg-[var(--card)]/95 backdrop-blur-md"
         )}
       >
-        <nav className="mx-auto w-full max-w-[100rem] px-4 sm:px-6 lg:px-8 xl:px-10">
-          <div className="flex h-18 items-center gap-2 sm:h-20 lg:gap-3">
-            <span data-hero-nav-logo={isHero ? "" : undefined} className="shrink-0">
+        <nav className="mx-auto w-full min-w-0 max-w-[100rem] px-3 sm:px-6 lg:px-8 xl:px-10">
+          <div className="flex h-16 min-w-0 items-center gap-2 sm:h-20 lg:gap-3">
+            <span data-hero-nav-logo={isHero ? "" : undefined} className="min-w-0 overflow-hidden">
               <SiteLogo size="lg" priority darkBackground={!isHero} />
             </span>
 
@@ -157,7 +157,7 @@ export function Navbar({ variant }: { variant?: "default" | "hero" }) {
             </div>
 
             {/* Right actions */}
-            <div className="ml-auto flex shrink-0 items-center gap-1.5 sm:gap-2">
+            <div className="ml-auto flex shrink-0 items-center gap-0.5 sm:gap-2">
               <span data-hero-nav-action={isHero ? "" : undefined} className="hidden sm:contents">
                 <ShareStoryNavButton isHero={isHero} className="hidden sm:inline-flex" />
               </span>
@@ -185,7 +185,7 @@ export function Navbar({ variant }: { variant?: "default" | "hero" }) {
                 type="button"
                 onClick={() => setSidebarOpen(true)}
                 className={cn(
-                  "rounded-xl p-2.5 transition-colors",
+                  "shrink-0 rounded-xl p-2 sm:p-2.5 transition-colors",
                   isHero
                     ? "text-white/70 hover:bg-white/10 hover:text-white"
                     : "text-[var(--text-muted)] hover:bg-[var(--bg)] hover:text-[var(--text)]"
@@ -219,15 +219,15 @@ function NavbarFallback({ variant }: { variant?: "default" | "hero" }) {
   return (
     <header
       className={cn(
-        "z-50",
+        "z-50 w-full min-w-0 overflow-x-clip",
         isHero
           ? "absolute top-0 left-0 right-0 border-b border-white/10 bg-transparent"
           : "sticky top-0 border-b border-[var(--border)] bg-[var(--card)]/95 backdrop-blur-md"
       )}
       aria-hidden
     >
-      <nav className="mx-auto w-full max-w-[100rem] px-4 sm:px-6 lg:px-8 xl:px-10">
-        <div className="h-18 sm:h-20" />
+      <nav className="mx-auto w-full min-w-0 max-w-[100rem] px-3 sm:px-6 lg:px-8 xl:px-10">
+        <div className="h-16 sm:h-20" />
       </nav>
     </header>
   );
