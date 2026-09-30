@@ -12,7 +12,7 @@ import { ImageGallery } from "@/components/gym/ImageGallery";
 import { Badge } from "@/components/ui/Badge";
 import { GymTypeIcon } from "@/components/ui/GymTypeIcon";
 import { LadiesStatusBadge } from "@/components/ui/LadiesStatusBadge";
-import { ReviewForm } from "@/components/gym/ReviewForm";
+import { GymReviewsSection } from "@/components/gym/GymReviewsSection";
 import { MembershipPlansSection } from "@/components/gym/MembershipPlansSection";
 import { MeetOurTeamSectionLazy } from "@/components/gym/MeetOurTeamSectionLazy";
 import { FaqAccordionSection } from "@/components/faq/FaqAccordionSection";
@@ -296,6 +296,58 @@ export async function GymBranchProfilePage({
 
               <GymStatsStrip stats={gymStats} />
 
+              <div className="space-y-5 lg:hidden">
+                <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-5">
+                  <h3 className="font-heading font-bold text-[var(--text)] mb-3 flex items-center gap-2">
+                    <MapPin className="w-4 h-4 text-[#FF6A3D]" />
+                    Address
+                  </h3>
+                  <p className="text-sm text-[var(--text-muted)] mb-4 leading-relaxed">
+                    {branch.address}
+                    <br />
+                    {branch.area}, {branch.city}
+                  </p>
+                  <a
+                    href={directionsUrl}
+                    className="flex items-center justify-center gap-2 w-full py-2.5 text-sm font-semibold text-[var(--navy)] border border-[var(--border)] rounded-xl hover:bg-[var(--bg)] transition-colors"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                    Get Directions
+                  </a>
+                </div>
+                <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-5">
+                  <h3 className="font-heading font-semibold text-sm uppercase tracking-widest text-[var(--text-muted)] mb-4">
+                    Quick Info
+                  </h3>
+                  <div className="space-y-3 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-[var(--text-muted)]">City</span>
+                      <span className="font-medium text-[var(--text)]">{branch.city}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-[var(--text-muted)]">Area</span>
+                      <span className="font-medium text-[var(--text)]">{branch.area}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-[var(--text-muted)]">Type</span>
+                      <span className="font-medium text-[var(--text)]">
+                        {gymTypeLabel(gym.type, gym.customTypeLabel)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-[var(--text-muted)]">Ladies</span>
+                      <LadiesStatusBadge status={ladiesStatus} />
+                    </div>
+                    <div className="flex justify-between gap-3">
+                      <span className="text-[var(--text-muted)]">From</span>
+                      <span className="font-medium text-[var(--text)] text-right">
+                        {formatPrice(priceMin, priceMax)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6 min-w-0 overflow-hidden">
                 <h2 className="font-heading font-bold text-lg text-[var(--text)] mb-3">About</h2>
                 <GymAboutText text={description} />
@@ -379,54 +431,12 @@ export async function GymBranchProfilePage({
                 </div>
               )}
 
-              <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6">
-                <h2 className="font-heading font-bold text-lg text-[var(--text)] mb-4">
-                  Reviews
-                  {avgRating && (
-                    <span className="ml-3 font-mono-nums text-base text-[#FF6A3D]">
-                      {avgRating.toFixed(1)} ★
-                    </span>
-                  )}
-                </h2>
-                <ReviewForm gymId={gym.id} />
-                {gym.reviews.length > 0 ? (
-                  <div className="space-y-4 mt-6 pt-6 border-t border-[var(--border)]">
-                    {gym.reviews.map((review) => (
-                      <div
-                        key={review.id}
-                        className="pb-4 border-b border-[var(--border)] last:border-0 last:pb-0"
-                      >
-                        <div className="flex items-center gap-2 mb-1.5">
-                          <div className="flex gap-0.5">
-                            {Array.from({ length: 5 }).map((_, i) => (
-                              <Star
-                                key={i}
-                                className={`w-3.5 h-3.5 ${
-                                  i < review.rating
-                                    ? "text-amber-400 fill-amber-400"
-                                    : "text-[var(--border)]"
-                                }`}
-                              />
-                            ))}
-                          </div>
-                          {review.author && (
-                            <span className="text-xs font-medium text-[var(--text-muted)]">
-                              {review.author}
-                            </span>
-                          )}
-                        </div>
-                        {review.text && (
-                          <p className="text-sm text-[var(--text-muted)]">{review.text}</p>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-sm text-[var(--text-muted)] mt-6 pt-6 border-t border-[var(--border)]">
-                    No reviews yet — be the first to share your experience!
-                  </p>
-                )}
-              </div>
+              <GymReviewsSection
+                className="hidden lg:block"
+                gymId={gym.id}
+                reviews={gym.reviews}
+                avgRating={avgRating}
+              />
             </div>
 
             <div className="space-y-5">
@@ -464,6 +474,7 @@ export async function GymBranchProfilePage({
                   <CallGymButton gymId={gym.id} gymName={displayName} size="lg" fullWidth />
                 </div>
               </div>
+              <div className="hidden lg:block space-y-5">
               <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-5">
                 <h3 className="font-heading font-bold text-[var(--text)] mb-3 flex items-center gap-2">
                   <MapPin className="w-4 h-4 text-[#FF6A3D]" />
@@ -513,7 +524,15 @@ export async function GymBranchProfilePage({
                   </div>
                 </div>
               </div>
+              </div>
             </div>
+
+            <GymReviewsSection
+              className="lg:hidden"
+              gymId={gym.id}
+              reviews={gym.reviews}
+              avgRating={avgRating}
+            />
           </div>
         </div>
       </main>
