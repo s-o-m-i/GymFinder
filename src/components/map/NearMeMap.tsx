@@ -5,6 +5,7 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import type { GymCardDataWithDistance } from "@/types";
 import { formatDistance } from "@/lib/getDistance";
+import { getGymBranchPath } from "@/lib/gym-branch-rules";
 
 // User location: pulsing blue dot
 function makeUserIcon() {
@@ -216,7 +217,7 @@ export default function NearMeMap({ userLat, userLng, gyms }: NearMeMapProps) {
                   </span>
                 </div>
                 <a
-                  href={gym.listingSlug ? `/gyms/${gym.listingSlug}/main` : `/gyms/${gym.slug}`}
+                  href={gym.listingSlug ? getGymBranchPath(gym.listingSlug) : `/gyms/${gym.slug}`}
                   style={{
                     display: "block",
                     marginTop: 8,

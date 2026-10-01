@@ -154,8 +154,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ];
 
   const gymPages: MetadataRoute.Sitemap = gyms.flatMap((gym) => {
+    const gymUrl = `${base}/gyms/${gym.slug}`;
     const gymEntry = {
-      url: `${base}/gyms/${gym.slug}`,
+      url: gymUrl,
       lastModified: gym.updatedAt,
       changeFrequency: "weekly" as const,
       priority: 0.8,
@@ -167,7 +168,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         lastModified: branch.updatedAt,
         changeFrequency: "weekly" as const,
         priority: 0.7,
-      }));
+      }))
+      .filter((entry) => entry.url !== gymUrl);
     return [gymEntry, ...branchEntries];
   });
 
