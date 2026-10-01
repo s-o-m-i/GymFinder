@@ -8,6 +8,7 @@ import { getGymsListing } from "@/lib/getGymsListing";
 import { gymTypeLabel } from "@/lib/utils";
 import type { City } from "@/lib/constants";
 import { TYPE_SEO, getGymCitySeo, getGymsBasePath } from "@/lib/gyms-routes";
+import { getGymBranchPath } from "@/lib/gym-branch-rules";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { prisma } from "@/lib/prisma";
 
@@ -86,7 +87,7 @@ export async function GymsListingPage({
       "@type":    "ListItem",
       position:   (page - 1) * 12 + i + 1,
       url:        gym.listingSlug
-        ? `${baseUrl}/gyms/${gym.listingSlug}/main`
+        ? `${baseUrl}${getGymBranchPath(gym.listingSlug)}`
         : gym.branchSlug
         ? `${baseUrl}/gyms/${gym.slug}/${gym.branchSlug}`
         : `${baseUrl}/gyms/${gym.slug}`,

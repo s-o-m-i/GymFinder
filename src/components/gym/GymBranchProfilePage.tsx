@@ -30,7 +30,7 @@ import {
   isReservedBranchSlug,
   publicBranchDisplayName,
 } from "@/lib/gym-branch-rules";
-import { isListingSlug } from "@/lib/gyms-routes";
+import { getGymsBasePath, isListingSlug } from "@/lib/gyms-routes";
 import {
   MapPin,
   ExternalLink,
@@ -236,7 +236,10 @@ export async function GymBranchProfilePage({
               items={[
                 { label: "Home", href: "/" },
                 { label: "Gyms", href: "/gyms" },
-                { label: gym.name, href: `/gyms/${gym.slug}` },
+                { label: branch.city, href: getGymsBasePath({ city: branch.city }) },
+                ...(displayName.trim().toLowerCase() !== gym.name.trim().toLowerCase()
+                  ? [{ label: gym.name, href: `/gyms/${gym.slug}` }]
+                  : []),
                 { label: displayName },
               ]}
             />

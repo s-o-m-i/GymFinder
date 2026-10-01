@@ -8,7 +8,7 @@ import {
 
 /**
  * Idempotent: give every branch its own public listing slug from name + area + city.
- * Primary branches reuse the parent gym slug so /gyms/{gymSlug}/main stays the same.
+ * Primary branches reuse the parent gym slug so /gyms/{gymSlug} stays the same.
  *
  *   npx tsx prisma/backfill-listing-slugs.ts
  */
@@ -64,7 +64,7 @@ async function main() {
         data: { listingSlug },
       });
       updated += 1;
-      console.log(`${branch.name} -> /gyms/${listingSlug}/main`);
+      console.log(`${branch.name} -> /gyms/${listingSlug}`);
     }
 
     console.log(JSON.stringify({ updated, skipped }));

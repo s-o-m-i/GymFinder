@@ -11,16 +11,36 @@ interface BreadcrumbsProps {
   className?: string;
 }
 
-export function Breadcrumbs({ items, className }: BreadcrumbsProps) {
-  if (items.length === 0) return null;
+function normalizeLabel(label: string) {
+  return label.trim().toLowerCase();
+}
 
-  const collapseMiddle = items.length > 3;
+function dedupeBreadcrumbItems(items: BreadcrumbItem[]): BreadcrumbItem[] {
+  const result: BreadcrumbItem[] = [];
+
+  for (const item of items) {
+    const prev = result[result.length - 1];
+    if (prev && normalizeLabel(prev.label) === normalizeLabel(item.label)) {
+      result[result.length - 1] = item;
+      continue;
+    }
+    result.push(item);
+  }
+
+  return result;
+}
+
+export function Breadcrumbs({ items, className }: BreadcrumbsProps) {
+  const crumbs = dedupeBreadcrumbItems(items);
+  if (crumbs.length === 0) return null;
+
+  const collapseMiddle = crumbs.length > 3;
 
   return (
     <nav aria-label="Breadcrumb" className={cn("min-w-0", className)}>
       <ol className="flex min-w-0 items-center text-xs text-[var(--text-muted)]">
-        {items.map((item, index) => {
-          const isLast = index === items.length - 1;
+        {crumbs.map((item, index) => {
+          const isLast = index === crumbs.length - 1;
           const isFirst = index === 0;
           const isMiddle = collapseMiddle && !isFirst && !isLast;
 

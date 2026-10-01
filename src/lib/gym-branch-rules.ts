@@ -257,5 +257,5 @@ export function buildUniqueListingSlug(
 }
 
 export function getGymBranchPath(listingSlug: string): string {
-  return `/gyms/${listingSlug}/${DEFAULT_BRANCH_SLUG}`;
+  return `/gyms/${listingSlug}`;
 }

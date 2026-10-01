@@ -45,7 +45,7 @@ describe("gym branch slugs", () => {
     );
     assert.equal(
       getGymBranchPath("bodytech-rahbar-dha-phase-xi-rahbar-lahore"),
-      "/gyms/bodytech-rahbar-dha-phase-xi-rahbar-lahore/main"
+      "/gyms/bodytech-rahbar-dha-phase-xi-rahbar-lahore"
     );
     assert.equal(
       buildUniqueListingSlug("lahore", ["other"]),
