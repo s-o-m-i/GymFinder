@@ -4,6 +4,7 @@ import { slugify } from "@/lib/utils";
 import { GYM_LEVEL_IMAGE_WHERE, syncGymImages } from "@/lib/gym-images";
 import { resolveAmenityIds, resolveDisciplineIds } from "@/lib/gym-tags";
 import { upsertPrimaryBranchFromGym } from "@/lib/gym-branches";
+import { fillMissingCoordinates } from "@/lib/geocode";
 import { getGymsListing } from "@/lib/getGymsListing";
 
 export async function GET(req: NextRequest) {
@@ -63,9 +64,19 @@ export async function POST(req: NextRequest) {
       customAmenities ?? []
     );
 
+    const located = await fillMissingCoordinates({
+      address: gymData.address,
+      area: gymData.area,
+      city: gymData.city,
+      latitude: gymData.latitude ?? null,
+      longitude: gymData.longitude ?? null,
+    });
+
     const gym = await prisma.gym.create({
       data: {
         ...gymData,
+        latitude: located.latitude,
+        longitude: located.longitude,
         slug: finalSlug,
         claimed: false,
         disciplines: disciplineIds.length

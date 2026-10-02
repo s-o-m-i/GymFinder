@@ -591,6 +591,15 @@ export async function persistGymBranchFromParsed(
         parsed.customAmenities ?? []
       );
 
+  const { fillMissingCoordinates } = await import("@/lib/geocode");
+  const located = await fillMissingCoordinates({
+    address: parsed.address,
+    area: parsed.area,
+    city: parsed.city,
+    latitude: parsed.latitude,
+    longitude: parsed.longitude,
+  });
+
   const writeInput: GymBranchWriteInput = {
     name: parsed.name,
     slug: parsed.slug,
@@ -598,8 +607,8 @@ export async function persistGymBranchFromParsed(
     address: parsed.address,
     area: parsed.area,
     city: parsed.city,
-    latitude: parsed.latitude,
-    longitude: parsed.longitude,
+    latitude: located.latitude,
+    longitude: located.longitude,
     phone: parsed.phone,
     whatsappNumber: parsed.whatsappNumber,
     email: parsed.email,
