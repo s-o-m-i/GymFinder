@@ -2,6 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getDistance } from "@/lib/getDistance";
 import { toGymCardDataFromBranch } from "@/lib/gym-branch-listing";
+import {
+  pickListingCoordinates,
+  resolveListingCoordinates,
+} from "@/lib/listing-coordinates";
+import type { GymCardDataWithDistance } from "@/types";
+
+const MAX_GEOCODES_PER_REQUEST = 5;
 
 const NEARBY_GYM_SELECT = {
   id: true,
@@ -20,6 +27,8 @@ const NEARBY_GYM_SELECT = {
   openingHours: true,
   ladiesHours: true,
   coverImage: true,
+  latitude: true,
+  longitude: true,
   galleryImages: {
     where: { branchId: null },
     select: { imageUrl: true, alt: true },
@@ -60,15 +69,15 @@ export async function POST(req: NextRequest) {
     const branches = await prisma.gymBranch.findMany({
       where: {
         status: "ACTIVE",
-        latitude: { not: null },
-        longitude: { not: null },
         gym: { listingStatus: "approved" },
       },
       select: {
         id: true,
+        gymId: true,
         name: true,
         slug: true,
         listingSlug: true,
+        address: true,
         area: true,
         city: true,
         latitude: true,
@@ -95,18 +104,30 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ gyms: [], total: 0, radius: radiusKm });
     }
 
-    const withDistance = branches
-      .map((branch) => {
-        const card = toGymCardDataFromBranch(branch);
-        return {
-          ...card,
-          latitude: branch.latitude,
-          longitude: branch.longitude,
-          distanceKm: getDistance(lat, lng, branch.latitude!, branch.longitude!),
-        };
-      })
-      .filter((item) => item.distanceKm <= radiusKm)
-      .sort((a, b) => a.distanceKm - b.distanceKm);
+    let remainingGeocodes = MAX_GEOCODES_PER_REQUEST;
+    const withDistance: GymCardDataWithDistance[] = [];
+
+    for (const branch of branches) {
+      const needsGeocode = !pickListingCoordinates(branch);
+      const point = await resolveListingCoordinates(branch, {
+        geocodeIfMissing: remainingGeocodes > 0,
+      });
+      if (needsGeocode && remainingGeocodes > 0) remainingGeocodes -= 1;
+      if (!point) continue;
+
+      const card = toGymCardDataFromBranch(branch);
+      const distanceKm = getDistance(lat, lng, point.latitude, point.longitude);
+      if (distanceKm > radiusKm) continue;
+
+      withDistance.push({
+        ...card,
+        latitude: point.latitude,
+        longitude: point.longitude,
+        distanceKm,
+      });
+    }
+
+    withDistance.sort((a, b) => a.distanceKm - b.distanceKm);
 
     return NextResponse.json({
       gyms: withDistance,

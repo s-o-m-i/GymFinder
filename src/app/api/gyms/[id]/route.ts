@@ -4,6 +4,7 @@ import { slugify } from "@/lib/utils";
 import { syncGymImages, deleteGymCloudinaryAssets } from "@/lib/gym-images";
 import { resolveAmenityIds, resolveDisciplineIds } from "@/lib/gym-tags";
 import { upsertPrimaryBranchFromGym } from "@/lib/gym-branches";
+import { fillMissingCoordinates } from "@/lib/geocode";
 
 const GYM_FULL_INCLUDE = {
   galleryImages: { where: { branchId: null } },
@@ -54,7 +55,17 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
     const existing = await prisma.gym.findUnique({
       where: { id },
-      select: { listingStatus: true, ownerId: true, slug: true, name: true },
+      select: {
+        listingStatus: true,
+        ownerId: true,
+        slug: true,
+        name: true,
+        address: true,
+        area: true,
+        city: true,
+        latitude: true,
+        longitude: true,
+      },
     });
 
     if (!existing) {
@@ -89,6 +100,18 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
         const existing = await prisma.gym.findFirst({ where: { slug: newSlug, NOT: { id } } });
         gymData.slug = existing ? `${newSlug}-${Date.now()}` : newSlug;
       }
+    }
+
+    if (gymData.latitude == null || gymData.longitude == null) {
+      const located = await fillMissingCoordinates({
+        address: gymData.address ?? existing.address,
+        area: gymData.area ?? existing.area,
+        city: gymData.city ?? existing.city,
+        latitude: gymData.latitude ?? existing.latitude,
+        longitude: gymData.longitude ?? existing.longitude,
+      });
+      gymData.latitude = located.latitude;
+      gymData.longitude = located.longitude;
     }
 
     const gym = await prisma.gym.update({

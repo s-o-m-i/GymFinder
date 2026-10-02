@@ -5,6 +5,7 @@ import { slugify } from "@/lib/utils";
 import { syncGymImages } from "@/lib/gym-images";
 import { resolveAmenityIds, resolveDisciplineIds } from "@/lib/gym-tags";
 import { upsertPrimaryBranchFromGym } from "@/lib/gym-branches";
+import { fillMissingCoordinates } from "@/lib/geocode";
 
 const GYM_INCLUDE = {
   galleryImages: { where: { branchId: null } },
@@ -69,9 +70,19 @@ export async function POST(req: NextRequest) {
     const slugTaken = await prisma.gym.findUnique({ where: { slug } });
     const finalSlug = slugTaken ? `${slug}-${Date.now()}` : slug;
 
+    const located = await fillMissingCoordinates({
+      address: gymData.address,
+      area: gymData.area,
+      city: gymData.city,
+      latitude: gymData.latitude ?? null,
+      longitude: gymData.longitude ?? null,
+    });
+
     const gym = await prisma.gym.create({
       data: {
         ...gymData,
+        latitude: located.latitude,
+        longitude: located.longitude,
         slug:          finalSlug,
         featured:      false,
         rating:        null,
